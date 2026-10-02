@@ -1,0 +1,108 @@
+[
+  {
+    "id": "campus-sass",
+    "track": "campus",
+    "organization": "上海社会科学院 · 新闻研究所",
+    "role": "新闻学硕士研究生",
+    "period": "2024.09 — 2027.07",
+    "location": "上海",
+    "summary": "研究方向涵盖新闻传播、平台治理与 AI 产品实践；GPA 3.78/4.00，专业前 10%。",
+    "highlights": [
+      "参与上海市哲学社会科学规划课题的主播治理研究",
+      "参与 2025 年上海市委统战部委托课题的研究撰写",
+      "在中文核心期刊发表两篇论文，获评优秀研究生与优秀党员"
+    ]
+  },
+  {
+    "id": "campus-charles",
+    "track": "campus",
+    "organization": "查理大学",
+    "role": "捷克语言文学交换生",
+    "period": "2022.01 — 2022.07",
+    "location": "布拉格",
+    "summary": "完成捷克语言、文学与中欧文化方向的交换学习，一等成绩结业，排名前 5%。",
+    "highlights": [
+      "在沉浸式语言环境中学习捷克语言、文学与中欧文化",
+      "以一等成绩完成交换项目"
+    ]
+  },
+  {
+    "id": "campus-bisu",
+    "track": "campus",
+    "organization": "北京第二外国语学院",
+    "role": "捷克语文学学士",
+    "period": "2019.09 — 2023.07",
+    "location": "北京",
+    "summary": "GPA 3.81/4.00，专业前 5%，学习语言、政治外交与现代捷克文学。",
+    "highlights": [
+      "获国家留学基金委全额奖学金与中国电信奖学金",
+      "获评北京市优秀学生",
+      "中东欧政治外交与现代捷克文学课程取得专业最高分"
+    ]
+  },
+  {
+    "id": "internship-convergeai",
+    "track": "internship",
+    "organization": "ConvergeAI · AI Coding 产品",
+    "role": "AI 产品运营实习生",
+    "period": "2026.07 — 至今",
+    "summary": "围绕海外社区增长、产品商业化与创作者运营，将用户反馈与产品迭代连接起来。",
+    "highlights": [
+      "搭建社交媒体与 Reddit 社区运营、生命周期监测和复盘流程",
+      "推动产品内付费功能从方案、研发协同、测试到上线",
+      "负责 Product Hunt 发布规划与创作者触达，支持取得当日产品榜第 2 名"
+    ]
+  },
+  {
+    "id": "internship-analemma",
+    "track": "internship",
+    "organization": "Analemma · 科研 AI 产品（后被百度收购）",
+    "role": "AI 产品运营实习生",
+    "period": "2026.03 — 2026.05",
+    "summary": "参与科研向 AI 产品的能力评估与迭代。",
+    "highlights": [
+      "评估模型能力边界并归类 bad case",
+      "开展 AI 竞品与产品策略分析",
+      "支持社区增长与用户留存"
+    ]
+  },
+  {
+    "id": "internship-meituan",
+    "track": "internship",
+    "organization": "美团 · 大众点评 POI 发展",
+    "role": "策略运营实习生",
+    "period": "2025.11 — 2026.01",
+    "summary": "结合竞品研究、活动运营与 SQL 分析，支持大众点评的产品和内容策略。",
+    "highlights": [
+      "梳理首页频道、信息流和搜索等产品界面的竞品差异",
+      "负责圣诞和新年活动策划，包括主题与信息流推广排期",
+      "追踪日常表现数据，将趋势分析转化为运营决策"
+    ]
+  },
+  {
+    "id": "internship-xiaohongshu",
+    "track": "internship",
+    "organization": "小红书 · 运动 AI 产品",
+    "role": "AI 产品运营实习生",
+    "period": "2025.08 — 2025.11",
+    "summary": "研究产品早期用户，并为 AI 运动规划体验设计激活方案。",
+    "highlights": [
+      "访谈 120 余名用户，将冷启动痛点转化为校园场景 PRD",
+      "协调两轮产品迭代，并通过提示设计降低首次使用门槛",
+      "搭建覆盖 55 所高校、3500 余名成员的分层校园项目"
+    ]
+  },
+  {
+    "id": "internship-netease",
+    "track": "internship",
+    "organization": "网易传媒 · 网易新闻社区",
+    "role": "产品运营实习生",
+    "period": "2024.06 — 2024.09",
+    "summary": "为网易新闻社区建立创作者分层、活动机制与数据驱动的运营流程。",
+    "highlights": [
+      "基于发布、互动和留存行为对创作者分层并设计差异化激励",
+      "从策划到落地负责清明诗会，并沉淀可复用的活动方法",
+      "通过 CTR、UV 与社区指标周度复盘指导后续迭代"
+    ]
+  }
+]

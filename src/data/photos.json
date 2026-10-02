@@ -1,0 +1,38 @@
+[
+  {
+    "id": "work-presentation",
+    "title": "汇报现场",
+    "category": "工作现场",
+    "location": "上海",
+    "src": "/images/gallery/work-presentation.jpg",
+    "alt": "崔宇杰坐在会议桌前参加汇报"
+  },
+  {
+    "id": "life-moment",
+    "title": "旅途片段",
+    "category": "生活记录",
+    "src": "/images/gallery/life-moment.jpg",
+    "alt": "崔宇杰在夜间游乐园的生活照片"
+  },
+  {
+    "id": "meituan-badge",
+    "title": "美团实习工牌",
+    "category": "实习留念",
+    "src": "/images/gallery/meituan-badge.jpg",
+    "alt": "印有崔宇杰姓名和照片的美团实习工牌"
+  },
+  {
+    "id": "xiaohongshu-memory",
+    "title": "小红书实习留念",
+    "category": "实习留念",
+    "src": "/images/gallery/xiaohongshu-memory.jpg",
+    "alt": "崔宇杰手持鲜花站在小红书标志前"
+  },
+  {
+    "id": "netease-badge",
+    "title": "网易实习工牌",
+    "category": "实习留念",
+    "src": "/images/gallery/netease-badge.jpg",
+    "alt": "印有崔宇杰姓名和照片的网易实习工牌"
+  }
+]

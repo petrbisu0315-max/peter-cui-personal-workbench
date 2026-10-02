@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+*.tsbuildinfo
+.wrangler/
+.sites-runtime/
+.openai/
+
+# The legacy GLB archive is packaged as a GitHub release asset because
+# several source files exceed GitHub's 100 MB Git blob limit.
+model-archive/*.glb
+model-archive.tar.gz

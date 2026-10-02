@@ -1,0 +1,8 @@
+[
+  {
+    "id": "personal-workbench",
+    "title": "3D 个人工作台",
+    "description": "用 Blender 搭建空间，以 React Three Fiber 和 GSAP 实现镜头、热点与内容面板联动。它既是一份个人档案，也是一条可以被探索的职业路径。",
+    "tags": ["Blender", "React Three Fiber", "GSAP"]
+  }
+]
