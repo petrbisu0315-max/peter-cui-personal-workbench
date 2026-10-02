@@ -7,7 +7,15 @@ import * as THREE from 'three'
 import type { ActiveHotspot } from '../interactionState'
 import type { LightingMode } from '../lighting'
 import type { HotspotId } from '../types/content'
+import { AccentLights, type LightingMix, lightsOn } from './AccentLights'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
+import {
+  applyPlanarUvs,
+  createFloorTextures,
+  createGlowTexture,
+  createRugTexture,
+  createWallTextures,
+} from './surfaces'
 
 type SceneProps = {
   entered: boolean
@@ -24,7 +32,8 @@ type SceneTarget =
 
 type LampRig = { head: THREE.Vector3; target: THREE.Vector3; height: number }
 
-const LAMP_PATTERN = /PROP_DeskLamp/i
+const DESK_LAMP_PATTERN = /PROP_DeskLamp/i
+const LAMP_PATTERN = /PROP_DeskLamp|ACCENT_FloorLamp/i
 
 const MODEL_URL = '/models/peter-hero-current-safe.glb'
 const PROPS_URL = '/models/peter-interaction-props.glb'
@@ -99,7 +108,7 @@ function targetKey(target: SceneTarget) {
 function measureLamp(room: THREE.Object3D, scale: number, offset: THREE.Vector3): LampRig | null {
   let lamp: THREE.Mesh | null = null
   room.traverse((object) => {
-    if (!lamp && object instanceof THREE.Mesh && LAMP_PATTERN.test(object.name)) lamp = object
+    if (!lamp && object instanceof THREE.Mesh && DESK_LAMP_PATTERN.test(object.name)) lamp = object
   })
   if (!lamp) return null
   const mesh: THREE.Mesh = lamp
@@ -134,7 +143,7 @@ function setHovered(root: THREE.Object3D, hovered: boolean) {
     if (!(child instanceof THREE.Mesh)) return
     const materials = Array.isArray(child.material) ? child.material : [child.material]
     materials.forEach((material) => {
-      if (!(material instanceof THREE.MeshStandardMaterial)) return
+      if (!(material instanceof THREE.MeshStandardMaterial) || material.userData.noHover) return
       const store = material.userData as { hoverColor?: number; hoverIntensity?: number }
       if (hovered) {
         if (store.hoverColor === undefined) store.hoverColor = material.emissive.getHex()
@@ -150,7 +159,10 @@ function setHovered(root: THREE.Object3D, hovered: boolean) {
   })
 }
 
-function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'onSelect' | 'onToggleLamp'> & { onLampMeasured: (rig: LampRig | null) => void }) {
+function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'onSelect' | 'onToggleLamp'> & {
+  mix: LightingMix
+  onLampMeasured: (rig: LampRig | null) => void
+}) {
   const main = useGLTF(MODEL_URL, '/draco/')
   const props = useGLTF(PROPS_URL)
   const [hovered, setHoveredState] = useState<SceneTarget | null>(null)
@@ -159,6 +171,11 @@ function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<Sc
   const prepared = useMemo(() => {
     const room = main.scene.clone(true)
     const interactionProps = props.scene.clone(true)
+    // Wall: 13.4 x 5.6 model units, wainscot top at y = 2.05 (2.1 above the wall's base).
+    const wallTextures = createWallTextures(13.4, 5.6, 2.1)
+    const floorTextures = createFloorTextures(13.4, 8.2)
+    const rugTexture = createRugTexture()
+    const textures = [wallTextures.map, wallTextures.bumpMap, floorTextures.map, floorTextures.bumpMap, rugTexture]
     ;[room, interactionProps].forEach((scene) => {
       scene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return
@@ -168,6 +185,29 @@ function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<Sc
         if (/^(PROP_Bookshelf|PROP_Book_0[1-5]|PROP_Speaker_GLB)$/i.test(object.name)) object.visible = false
         if (Array.isArray(object.material)) object.material = object.material.map((material) => material.clone())
         else object.material = object.material.clone()
+        const materials = Array.isArray(object.material) ? object.material : [object.material]
+        materials.forEach((material) => {
+          if (!(material instanceof THREE.MeshStandardMaterial)) return
+          if (material.name === 'MAT_Wall') {
+            object.geometry = object.geometry.clone()
+            applyPlanarUvs(object.geometry)
+            material.map = wallTextures.map
+            material.bumpMap = wallTextures.bumpMap
+            material.bumpScale = 0.003
+            material.roughness = 0.92
+            material.metalness = 0
+            material.needsUpdate = true
+          } else if (material.name === 'MAT_Ivory' && /^ENV_Floor/i.test(object.name)) {
+            object.geometry = object.geometry.clone()
+            applyPlanarUvs(object.geometry)
+            material.map = floorTextures.map
+            material.bumpMap = floorTextures.bumpMap
+            material.bumpScale = 0.002
+            material.roughness = 0.72
+            material.metalness = 0
+            material.needsUpdate = true
+          }
+        })
       })
     })
     const roomBounds = new THREE.Box3().setFromObject(room)
@@ -175,11 +215,23 @@ function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<Sc
     const center = roomBounds.getCenter(new THREE.Vector3())
     const scale = 7.5 / Math.max(size.x, size.y, size.z)
     const position = new THREE.Vector3(-center.x * scale, -center.y * scale + 0.05, -center.z * scale)
+
+    // Rug under the desk and chair, in the GLB's own coordinates.
+    const rugGeometry = new THREE.PlaneGeometry(4.9, 3.4)
+    rugGeometry.rotateX(-Math.PI / 2)
+    const rug = new THREE.Mesh(rugGeometry, new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 0.95 }))
+    rug.name = 'ACCENT_Rug'
+    rug.position.set(-0.5, 0.012, 0.25)
+    rug.receiveShadow = true
+    rug.raycast = () => undefined
+    room.add(rug)
+
     return {
       room,
       interactionProps,
       scale,
       position,
+      textures,
       lamp: measureLamp(room, scale, position),
     }
   }, [main.scene, props.scene])
@@ -187,6 +239,8 @@ function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<Sc
   useEffect(() => {
     onLampMeasured(prepared.lamp)
   }, [onLampMeasured, prepared.lamp])
+
+  useEffect(() => () => prepared.textures.forEach((texture) => texture.dispose()), [prepared])
 
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
@@ -255,6 +309,7 @@ function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<Sc
       >
         <primitive object={prepared.room} />
         <primitive object={prepared.interactionProps} />
+        <AccentLights mix={mix} />
       </group>
       {hovered && (
         <Html
@@ -331,31 +386,42 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
 const palettes = {
   day: {
     background: new THREE.Color('#d8d4cd'),
-    hemiSky: new THREE.Color('#fffaf1'),
-    hemiGround: new THREE.Color('#7d7f7b'),
-    hemi: 2.7,
-    key: 3.45,
-    keyColor: new THREE.Color('#fff3e7'),
-    fill: 1.35,
-    fillColor: new THREE.Color('#dce8ff'),
-    lamp: 0,
-    glow: 0,
+    hemiSky: new THREE.Color('#fff6ea'),
+    hemiGround: new THREE.Color('#857b70'),
+    hemi: 2.25,
+    key: 2.7,
+    keyColor: new THREE.Color('#fff1df'),
+    fill: 1.1,
+    fillColor: new THREE.Color('#dfe8f5'),
   },
+  // Warm and low: lamps carry the room, with a faint cool fill as contrast.
   night: {
-    background: new THREE.Color('#171a20'),
-    hemiSky: new THREE.Color('#5d6b8c'),
-    hemiGround: new THREE.Color('#15161a'),
+    background: new THREE.Color('#17120f'),
+    hemiSky: new THREE.Color('#5a4537'),
+    hemiGround: new THREE.Color('#110c09'),
     hemi: 0.42,
-    key: 0.32,
-    keyColor: new THREE.Color('#9fb3e6'),
-    fill: 0.26,
-    fillColor: new THREE.Color('#5f73a8'),
-    lamp: 9,
-    glow: 1.6,
+    key: 0.05,
+    keyColor: new THREE.Color('#90a6d8'),
+    fill: 0.16,
+    fillColor: new THREE.Color('#7186c0'),
   },
 } as const
 
-function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | null }) {
+export function useLightingMix(mode: LightingMode): LightingMix {
+  const mix = useRef({ value: mode === 'night' ? 1 : 0 })
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    gsap.to(mix.current, {
+      value: mode === 'night' ? 1 : 0,
+      duration: reduced ? 0.01 : 1.4,
+      ease: 'power2.inOut',
+      overwrite: true,
+    })
+  }, [mode])
+  return mix
+}
+
+function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null }) {
   const scene = useThree((state) => state.scene)
   const hemi = useRef<THREE.HemisphereLight>(null!)
   const key = useRef<THREE.DirectionalLight>(null!)
@@ -363,23 +429,9 @@ function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | nu
   const spot = useRef<THREE.SpotLight>(null)
   const bulb = useRef<THREE.PointLight>(null)
   const glow = useRef<THREE.Sprite>(null)
-  const mix = useRef({ value: mode === 'night' ? 1 : 0 })
   const background = useMemo(() => new THREE.Color(), [])
   const fog = useMemo(() => new THREE.Fog('#d8d4cd', 10.5, 19), [])
-  const glowTexture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = canvas.height = 128
-    const context = canvas.getContext('2d')!
-    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64)
-    gradient.addColorStop(0, 'rgba(255,226,170,1)')
-    gradient.addColorStop(0.25, 'rgba(255,190,110,.45)')
-    gradient.addColorStop(1, 'rgba(255,170,90,0)')
-    context.fillStyle = gradient
-    context.fillRect(0, 0, 128, 128)
-    const texture = new THREE.CanvasTexture(canvas)
-    texture.colorSpace = THREE.SRGBColorSpace
-    return texture
-  }, [])
+  const glowTexture = useMemo(createGlowTexture, [])
 
   useEffect(() => {
     scene.background = background
@@ -398,16 +450,6 @@ function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | nu
     spot.current.target.updateMatrixWorld()
   }, [lamp])
 
-  useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    gsap.to(mix.current, {
-      value: mode === 'night' ? 1 : 0,
-      duration: reduced ? 0.01 : 1.2,
-      ease: 'power2.inOut',
-      overwrite: true,
-    })
-  }, [mode])
-
   useFrame(() => {
     const t = mix.current.value
     const { day, night } = palettes
@@ -421,23 +463,32 @@ function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | nu
     key.current.color.copy(day.keyColor).lerp(night.keyColor, t)
     fill.current.intensity = lerp(day.fill, night.fill, t)
     fill.current.color.copy(day.fillColor).lerp(night.fillColor, t)
-    // Ease the lamp in late so it reads as being switched on once the room has dimmed.
-    const lampT = THREE.MathUtils.smoothstep(t, 0.35, 1)
-    if (spot.current) {
-      spot.current.intensity = night.lamp * lampT
-      spot.current.castShadow = lampT > 0.01
-    }
-    if (bulb.current) bulb.current.intensity = night.glow * lampT
+    const on = lightsOn(t)
+    // Shadow casting stays enabled so toggling never forces a shader recompile.
+    if (spot.current) spot.current.intensity = 9 * on
+    if (bulb.current) bulb.current.intensity = 1.6 * on
     if (glow.current) {
-      glow.current.visible = lampT > 0.01
-      ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.85 * lampT
+      glow.current.visible = on > 0.01
+      ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.85 * on
     }
   })
 
   return (
     <>
       <hemisphereLight ref={hemi} args={['#fffaf1', '#7d7f7b', 2.7]} />
-      <directionalLight ref={key} position={[-4, 8, 5]} intensity={3.45} color="#fff3e7" castShadow />
+      <directionalLight
+        ref={key}
+        position={[-4, 8, 5]}
+        intensity={2.7}
+        color="#fff1df"
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-5}
+        shadow-camera-right={5}
+        shadow-camera-top={5}
+        shadow-camera-bottom={-5}
+        shadow-bias={-0.0003}
+      />
       <directionalLight ref={fill} position={[5, 3, -4]} intensity={1.35} color="#dce8ff" />
       {lamp && (
         <>
@@ -450,6 +501,7 @@ function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | nu
             distance={lamp.height * 4}
             decay={1.6}
             color="#ffd9a3"
+            castShadow
             shadow-mapSize={[1024, 1024]}
             shadow-bias={-0.0004}
           />
@@ -465,6 +517,7 @@ function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | nu
 
 export function RoomScene({ entered, active, lighting, onSelect, onToggleLamp, onFocusComplete }: SceneProps) {
   const [lamp, setLamp] = useState<LampRig | null>(null)
+  const mix = useLightingMix(lighting)
   return (
     <>
       <Canvas
@@ -475,11 +528,12 @@ export function RoomScene({ entered, active, lighting, onSelect, onToggleLamp, o
         shadows
         onPointerMissed={() => undefined}
       >
-        <LightingSystem mode={lighting} lamp={lamp} />
+        <LightingSystem mix={mix} lamp={lamp} />
         <SceneErrorBoundary>
           <Suspense fallback={null}>
             <RoomModel
               lighting={lighting}
+              mix={mix}
               onSelect={onSelect}
               onToggleLamp={onToggleLamp}
               onLampMeasured={setLamp}
