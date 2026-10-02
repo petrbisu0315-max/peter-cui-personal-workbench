@@ -9,13 +9,7 @@ import type { LightingMode } from '../lighting'
 import type { HotspotId } from '../types/content'
 import { AccentLights, type LightingMix, lightsOn } from './AccentLights'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
-import {
-  applyPlanarUvs,
-  createFloorTextures,
-  createGlowTexture,
-  createRugTexture,
-  createWallTextures,
-} from './surfaces'
+import { createGlowTexture } from './surfaces'
 
 type SceneProps = {
   entered: boolean
@@ -172,42 +166,20 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
     const room = main.scene.clone(true)
     const interactionProps = props.scene.clone(true)
     // Wall: 13.4 x 5.6 model units, wainscot top at y = 2.05 (2.1 above the wall's base).
-    const wallTextures = createWallTextures(13.4, 5.6, 2.1)
-    const floorTextures = createFloorTextures(13.4, 8.2)
-    const rugTexture = createRugTexture()
-    const textures = [wallTextures.map, wallTextures.bumpMap, floorTextures.map, floorTextures.bumpMap, rugTexture]
     ;[room, interactionProps].forEach((scene) => {
       scene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return
         object.castShadow = true
         object.receiveShadow = true
+        if (/^(ENV_BackWall|ENV_Floor)$/i.test(object.name)) {
+          object.visible = false
+          object.receiveShadow = false
+          return
+        }
         if (/^(PROP_PosterOrbit|PROP_PosterTitle|SLOT_InterstellarPoster|SLOT_BlankCanvas)$/i.test(object.name)) object.visible = false
         if (/^(PROP_Bookshelf|PROP_Book_0[1-5]|PROP_Speaker_GLB)$/i.test(object.name)) object.visible = false
         if (Array.isArray(object.material)) object.material = object.material.map((material) => material.clone())
         else object.material = object.material.clone()
-        const materials = Array.isArray(object.material) ? object.material : [object.material]
-        materials.forEach((material) => {
-          if (!(material instanceof THREE.MeshStandardMaterial)) return
-          if (material.name === 'MAT_Wall') {
-            object.geometry = object.geometry.clone()
-            applyPlanarUvs(object.geometry)
-            material.map = wallTextures.map
-            material.bumpMap = wallTextures.bumpMap
-            material.bumpScale = 0.003
-            material.roughness = 0.92
-            material.metalness = 0
-            material.needsUpdate = true
-          } else if (material.name === 'MAT_Ivory' && /^ENV_Floor/i.test(object.name)) {
-            object.geometry = object.geometry.clone()
-            applyPlanarUvs(object.geometry)
-            material.map = floorTextures.map
-            material.bumpMap = floorTextures.bumpMap
-            material.bumpScale = 0.002
-            material.roughness = 0.72
-            material.metalness = 0
-            material.needsUpdate = true
-          }
-        })
       })
     })
     const roomBounds = new THREE.Box3().setFromObject(room)
@@ -215,23 +187,11 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
     const center = roomBounds.getCenter(new THREE.Vector3())
     const scale = 7.5 / Math.max(size.x, size.y, size.z)
     const position = new THREE.Vector3(-center.x * scale, -center.y * scale + 0.05, -center.z * scale)
-
-    // Rug under the desk and chair, in the GLB's own coordinates.
-    const rugGeometry = new THREE.PlaneGeometry(4.9, 3.4)
-    rugGeometry.rotateX(-Math.PI / 2)
-    const rug = new THREE.Mesh(rugGeometry, new THREE.MeshStandardMaterial({ map: rugTexture, roughness: 0.95 }))
-    rug.name = 'ACCENT_Rug'
-    rug.position.set(-0.5, 0.012, 0.25)
-    rug.receiveShadow = true
-    rug.raycast = () => undefined
-    room.add(rug)
-
     return {
       room,
       interactionProps,
       scale,
       position,
-      textures,
       lamp: measureLamp(room, scale, position),
     }
   }, [main.scene, props.scene])
@@ -239,8 +199,6 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
   useEffect(() => {
     onLampMeasured(prepared.lamp)
   }, [onLampMeasured, prepared.lamp])
-
-  useEffect(() => () => prepared.textures.forEach((texture) => texture.dispose()), [prepared])
 
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
