@@ -1,19 +1,30 @@
 import { Component, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
-import { Canvas, type ThreeEvent, useThree } from '@react-three/fiber'
+import { Canvas, type ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 import { Html, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import type { ActiveHotspot } from '../interactionState'
+import type { LightingMode } from '../lighting'
 import type { HotspotId } from '../types/content'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 
 type SceneProps = {
   entered: boolean
   active: ActiveHotspot | null
+  lighting: LightingMode
   onSelect: (id: HotspotId, point: THREE.Vector3) => void
+  onToggleLamp: () => void
   onFocusComplete: (id: HotspotId) => void
 }
+
+type SceneTarget =
+  | { kind: 'hotspot'; id: HotspotId; root: THREE.Object3D }
+  | { kind: 'lamp'; root: THREE.Object3D }
+
+type LampRig = { head: THREE.Vector3; target: THREE.Vector3; height: number }
+
+const LAMP_PATTERN = /PROP_DeskLamp/i
 
 const MODEL_URL = '/models/peter-hero-current-safe.glb'
 const PROPS_URL = '/models/peter-interaction-props.glb'
@@ -61,22 +72,61 @@ class SceneErrorBoundary extends Component<{ children: ReactNode }, { failed: bo
   }
 }
 
-function findHotspot(object: THREE.Object3D): { id: HotspotId; root: THREE.Object3D } | null {
+function findTarget(object: THREE.Object3D): SceneTarget | null {
   let current: THREE.Object3D | null = object
   while (current) {
     const id = hotspotFromObjectName(current.name)
-    if (id) return { id, root: current }
+    if (id) return { kind: 'hotspot', id, root: current }
+    if (LAMP_PATTERN.test(current.name)) return { kind: 'lamp', root: current }
     current = current.parent
   }
   return null
 }
 
-function findHotspotInEvent(event: Pick<ThreeEvent<PointerEvent>, 'intersections' | 'object'>) {
+function findTargetInEvent(event: Pick<ThreeEvent<PointerEvent>, 'intersections' | 'object'>) {
   for (const intersection of event.intersections) {
-    const target = findHotspot(intersection.object)
+    const target = findTarget(intersection.object)
     if (target) return target
   }
-  return findHotspot(event.object)
+  return findTarget(event.object)
+}
+
+function targetKey(target: SceneTarget) {
+  return target.kind === 'lamp' ? 'lamp' : target.id
+}
+
+// The lamp is a single mesh, so the shade is located from the top slice of its decoded vertices.
+function measureLamp(room: THREE.Object3D, scale: number, offset: THREE.Vector3): LampRig | null {
+  let lamp: THREE.Mesh | null = null
+  room.traverse((object) => {
+    if (!lamp && object instanceof THREE.Mesh && LAMP_PATTERN.test(object.name)) lamp = object
+  })
+  if (!lamp) return null
+  const mesh: THREE.Mesh = lamp
+  room.updateMatrixWorld(true)
+  const positions = mesh.geometry.getAttribute('position')
+  if (!positions) return null
+  mesh.geometry.computeBoundingBox()
+  const box = mesh.geometry.boundingBox!
+  const threshold = box.min.y + (box.max.y - box.min.y) * 0.78
+  const sum = new THREE.Vector3()
+  const vertex = new THREE.Vector3()
+  let count = 0
+  for (let index = 0; index < positions.count; index += 1) {
+    vertex.fromBufferAttribute(positions, index)
+    if (vertex.y < threshold) continue
+    sum.add(vertex)
+    count += 1
+  }
+  if (!count) return null
+  const toScene = (point: THREE.Vector3) => mesh.localToWorld(point).multiplyScalar(scale).add(offset)
+  const worldBox = new THREE.Box3().setFromObject(mesh)
+  const height = (worldBox.max.y - worldBox.min.y) * scale
+  const head = toScene(sum.divideScalar(count))
+  head.y -= height * 0.08
+  const base = toScene(new THREE.Vector3((box.min.x + box.max.x) / 2, box.min.y, (box.min.z + box.max.z) / 2))
+  const target = new THREE.Vector3(head.x, base.y, head.z)
+  return { head, target, height }
 }
 
 function setHovered(root: THREE.Object3D, hovered: boolean) {
@@ -100,11 +150,11 @@ function setHovered(root: THREE.Object3D, hovered: boolean) {
   })
 }
 
-function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
+function RoomModel({ lighting, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'onSelect' | 'onToggleLamp'> & { onLampMeasured: (rig: LampRig | null) => void }) {
   const main = useGLTF(MODEL_URL, '/draco/')
   const props = useGLTF(PROPS_URL)
-  const [hovered, setHoveredState] = useState<{ id: HotspotId; root: THREE.Object3D } | null>(null)
-  const pressStart = useRef<{ x: number; y: number; id: HotspotId } | null>(null)
+  const [hovered, setHoveredState] = useState<SceneTarget | null>(null)
+  const pressStart = useRef<{ x: number; y: number; key: string } | null>(null)
 
   const prepared = useMemo(() => {
     const room = main.scene.clone(true)
@@ -124,13 +174,19 @@ function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
     const size = roomBounds.getSize(new THREE.Vector3())
     const center = roomBounds.getCenter(new THREE.Vector3())
     const scale = 7.5 / Math.max(size.x, size.y, size.z)
+    const position = new THREE.Vector3(-center.x * scale, -center.y * scale + 0.05, -center.z * scale)
     return {
       room,
       interactionProps,
       scale,
-      position: new THREE.Vector3(-center.x * scale, -center.y * scale + 0.05, -center.z * scale),
+      position,
+      lamp: measureLamp(room, scale, position),
     }
   }, [main.scene, props.scene])
+
+  useEffect(() => {
+    onLampMeasured(prepared.lamp)
+  }, [onLampMeasured, prepared.lamp])
 
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
@@ -138,7 +194,7 @@ function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
   }, [hovered])
 
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
-    const next = findHotspotInEvent(event)
+    const next = findTargetInEvent(event)
     if (next) event.stopPropagation()
     if (next?.root === hovered?.root) return
     if (hovered) setHovered(hovered.root, false)
@@ -152,9 +208,9 @@ function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
   }
 
   const onPointerDown = (event: ThreeEvent<PointerEvent>) => {
-    const target = findHotspotInEvent(event)
+    const target = findTargetInEvent(event)
     pressStart.current = target
-      ? { x: event.clientX, y: event.clientY, id: target.id }
+      ? { x: event.clientX, y: event.clientY, key: targetKey(target) }
       : null
   }
 
@@ -162,19 +218,25 @@ function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
     const started = pressStart.current
     pressStart.current = null
     if (!started) return
-    const target = findHotspotInEvent(event)
-    if (!target || target.id !== started.id) return
+    const target = findTargetInEvent(event)
+    if (!target || targetKey(target) !== started.key) return
     const movement = Math.hypot(event.clientX - started.x, event.clientY - started.y)
     if (movement > 8) return
     event.stopPropagation()
+    // The lamp toggles only here: click also fires after pointerup and would toggle it back.
+    if (target.kind === 'lamp') {
+      onToggleLamp()
+      return
+    }
     const point = new THREE.Box3().setFromObject(target.root).getCenter(new THREE.Vector3())
     onSelect(target.id, point)
   }
 
   const onClick = (event: ThreeEvent<MouseEvent>) => {
-    const target = findHotspotInEvent(event)
+    const target = findTargetInEvent(event)
     if (!target) return
     event.stopPropagation()
+    if (target.kind === 'lamp') return
     const point = new THREE.Box3().setFromObject(target.root).getCenter(new THREE.Vector3())
     onSelect(target.id, point)
   }
@@ -201,8 +263,17 @@ function RoomModel({ onSelect }: Pick<SceneProps, 'onSelect'>) {
           style={{ pointerEvents: 'none' }}
         >
           <div className="hotspot-tooltip">
-            <span>{hotspotMeta[hovered.id].index}</span>
-            {hotspotMeta[hovered.id].hoverLabel}
+            {hovered.kind === 'lamp' ? (
+              <>
+                <span>{lighting === 'night' ? 'ON' : 'OFF'}</span>
+                {lighting === 'night' ? 'Turn the lamp off' : 'Turn the lamp on'}
+              </>
+            ) : (
+              <>
+                <span>{hotspotMeta[hovered.id].index}</span>
+                {hotspotMeta[hovered.id].hoverLabel}
+              </>
+            )}
           </div>
         </Html>
       )}
@@ -257,7 +328,143 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
   )
 }
 
-export function RoomScene({ entered, active, onSelect, onFocusComplete }: SceneProps) {
+const palettes = {
+  day: {
+    background: new THREE.Color('#d8d4cd'),
+    hemiSky: new THREE.Color('#fffaf1'),
+    hemiGround: new THREE.Color('#7d7f7b'),
+    hemi: 2.7,
+    key: 3.45,
+    keyColor: new THREE.Color('#fff3e7'),
+    fill: 1.35,
+    fillColor: new THREE.Color('#dce8ff'),
+    lamp: 0,
+    glow: 0,
+  },
+  night: {
+    background: new THREE.Color('#171a20'),
+    hemiSky: new THREE.Color('#5d6b8c'),
+    hemiGround: new THREE.Color('#15161a'),
+    hemi: 0.42,
+    key: 0.32,
+    keyColor: new THREE.Color('#9fb3e6'),
+    fill: 0.26,
+    fillColor: new THREE.Color('#5f73a8'),
+    lamp: 9,
+    glow: 1.6,
+  },
+} as const
+
+function LightingSystem({ mode, lamp }: { mode: LightingMode; lamp: LampRig | null }) {
+  const scene = useThree((state) => state.scene)
+  const hemi = useRef<THREE.HemisphereLight>(null!)
+  const key = useRef<THREE.DirectionalLight>(null!)
+  const fill = useRef<THREE.DirectionalLight>(null!)
+  const spot = useRef<THREE.SpotLight>(null)
+  const bulb = useRef<THREE.PointLight>(null)
+  const glow = useRef<THREE.Sprite>(null)
+  const mix = useRef({ value: mode === 'night' ? 1 : 0 })
+  const background = useMemo(() => new THREE.Color(), [])
+  const fog = useMemo(() => new THREE.Fog('#d8d4cd', 10.5, 19), [])
+  const glowTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 128
+    const context = canvas.getContext('2d')!
+    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64)
+    gradient.addColorStop(0, 'rgba(255,226,170,1)')
+    gradient.addColorStop(0.25, 'rgba(255,190,110,.45)')
+    gradient.addColorStop(1, 'rgba(255,170,90,0)')
+    context.fillStyle = gradient
+    context.fillRect(0, 0, 128, 128)
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.colorSpace = THREE.SRGBColorSpace
+    return texture
+  }, [])
+
+  useEffect(() => {
+    scene.background = background
+    scene.fog = fog
+    return () => {
+      scene.background = null
+      scene.fog = null
+    }
+  }, [background, fog, scene])
+
+  useEffect(() => () => glowTexture.dispose(), [glowTexture])
+
+  useEffect(() => {
+    if (!spot.current || !lamp) return
+    spot.current.target.position.copy(lamp.target)
+    spot.current.target.updateMatrixWorld()
+  }, [lamp])
+
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    gsap.to(mix.current, {
+      value: mode === 'night' ? 1 : 0,
+      duration: reduced ? 0.01 : 1.2,
+      ease: 'power2.inOut',
+      overwrite: true,
+    })
+  }, [mode])
+
+  useFrame(() => {
+    const t = mix.current.value
+    const { day, night } = palettes
+    const lerp = THREE.MathUtils.lerp
+    background.copy(day.background).lerp(night.background, t)
+    fog.color.copy(background)
+    hemi.current.color.copy(day.hemiSky).lerp(night.hemiSky, t)
+    hemi.current.groundColor.copy(day.hemiGround).lerp(night.hemiGround, t)
+    hemi.current.intensity = lerp(day.hemi, night.hemi, t)
+    key.current.intensity = lerp(day.key, night.key, t)
+    key.current.color.copy(day.keyColor).lerp(night.keyColor, t)
+    fill.current.intensity = lerp(day.fill, night.fill, t)
+    fill.current.color.copy(day.fillColor).lerp(night.fillColor, t)
+    // Ease the lamp in late so it reads as being switched on once the room has dimmed.
+    const lampT = THREE.MathUtils.smoothstep(t, 0.35, 1)
+    if (spot.current) {
+      spot.current.intensity = night.lamp * lampT
+      spot.current.castShadow = lampT > 0.01
+    }
+    if (bulb.current) bulb.current.intensity = night.glow * lampT
+    if (glow.current) {
+      glow.current.visible = lampT > 0.01
+      ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.85 * lampT
+    }
+  })
+
+  return (
+    <>
+      <hemisphereLight ref={hemi} args={['#fffaf1', '#7d7f7b', 2.7]} />
+      <directionalLight ref={key} position={[-4, 8, 5]} intensity={3.45} color="#fff3e7" castShadow />
+      <directionalLight ref={fill} position={[5, 3, -4]} intensity={1.35} color="#dce8ff" />
+      {lamp && (
+        <>
+          <spotLight
+            ref={spot}
+            position={lamp.head}
+            angle={Math.PI * 0.3}
+            penumbra={0.75}
+            intensity={0}
+            distance={lamp.height * 4}
+            decay={1.6}
+            color="#ffd9a3"
+            shadow-mapSize={[1024, 1024]}
+            shadow-bias={-0.0004}
+          />
+          <pointLight ref={bulb} position={lamp.head} intensity={0} distance={lamp.height * 2.6} decay={2} color="#ffc98a" />
+          <sprite ref={glow} position={lamp.head} scale={lamp.height * 0.9} visible={false} raycast={() => null}>
+            <spriteMaterial map={glowTexture} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+          </sprite>
+        </>
+      )}
+    </>
+  )
+}
+
+export function RoomScene({ entered, active, lighting, onSelect, onToggleLamp, onFocusComplete }: SceneProps) {
+  const [lamp, setLamp] = useState<LampRig | null>(null)
   return (
     <>
       <Canvas
@@ -268,14 +475,15 @@ export function RoomScene({ entered, active, onSelect, onFocusComplete }: SceneP
         shadows
         onPointerMissed={() => undefined}
       >
-        <color attach="background" args={['#d8d4cd']} />
-        <fog attach="fog" args={['#d8d4cd', 10.5, 19]} />
-        <hemisphereLight args={['#fffaf1', '#7d7f7b', 2.7]} />
-        <directionalLight position={[-4, 8, 5]} intensity={3.45} color="#fff3e7" castShadow />
-        <directionalLight position={[5, 3, -4]} intensity={1.35} color="#dce8ff" />
+        <LightingSystem mode={lighting} lamp={lamp} />
         <SceneErrorBoundary>
           <Suspense fallback={null}>
-            <RoomModel onSelect={onSelect} />
+            <RoomModel
+              lighting={lighting}
+              onSelect={onSelect}
+              onToggleLamp={onToggleLamp}
+              onLampMeasured={setLamp}
+            />
           </Suspense>
         </SceneErrorBoundary>
         <CameraRig active={active} entered={entered} onFocusComplete={onFocusComplete} />

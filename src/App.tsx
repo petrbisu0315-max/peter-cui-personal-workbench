@@ -3,6 +3,7 @@ import type { Vector3 } from 'three'
 import { IntroPaper } from './components/IntroPaper'
 import { MobileDock } from './components/MobileDock'
 import { initialWorkbenchState, workbenchReducer } from './interactionState'
+import type { LightingMode } from './lighting'
 import type { HotspotId } from './types/content'
 
 const ContentPanel = lazy(() => import('./components/ContentPanel').then((module) => ({ default: module.ContentPanel })))
@@ -25,6 +26,41 @@ function RoomFallback() {
   )
 }
 
+const LIGHTING_KEY = 'peter-workbench-lighting'
+
+function readLighting(): LightingMode {
+  try {
+    return window.localStorage.getItem(LIGHTING_KEY) === 'night' ? 'night' : 'day'
+  } catch {
+    return 'day'
+  }
+}
+
+function LightingToggle({ mode, onToggle }: { mode: LightingMode; onToggle: () => void }) {
+  const night = mode === 'night'
+  return (
+    <button
+      type="button"
+      className="lighting-toggle"
+      onClick={onToggle}
+      aria-pressed={night}
+      aria-label={night ? 'Switch to day mode' : 'Switch to night mode and turn on the desk lamp'}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        {night ? (
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+        ) : (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </>
+        )}
+      </svg>
+      <span>{night ? 'Night' : 'Day'}</span>
+    </button>
+  )
+}
+
 function hasWebGL() {
   try {
     const canvas = document.createElement('canvas')
@@ -38,6 +74,19 @@ export default function App() {
   const [entered, setEntered] = useState(false)
   const [{ active, panelHotspot }, dispatch] = useReducer(workbenchReducer, initialWorkbenchState)
   const webglAvailable = useMemo(hasWebGL, [])
+  const [lighting, setLighting] = useState<LightingMode>(readLighting)
+
+  const toggleLighting = useCallback(() => {
+    setLighting((mode) => (mode === 'day' ? 'night' : 'day'))
+  }, [])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(LIGHTING_KEY, lighting)
+    } catch {
+      // Storage can be unavailable in private browsing; the toggle still works for this visit.
+    }
+  }, [lighting])
 
   const closePanel = useCallback(() => {
     dispatch({ type: 'close' })
@@ -64,14 +113,17 @@ export default function App() {
   }, [active, closePanel, panelHotspot])
 
   return (
-    <main className={`app-shell${entered ? ' is-entered' : ''}`}>
+    <main className={`app-shell${entered ? ' is-entered' : ''}`} data-lighting={lighting}>
       <section className="workbench" aria-label="Interactive 3D personal workbench">
         <header className="room-bar">
           <div>
             <strong>Peter Cui</strong>
             <span>Personal Workbench · 2026</span>
           </div>
-          <p>Drag to orbit · Scroll to zoom · Select an object</p>
+          <div className="room-bar-actions">
+            <p>Drag to orbit · Scroll to zoom · Select an object</p>
+            <LightingToggle mode={lighting} onToggle={toggleLighting} />
+          </div>
         </header>
 
         <div className="scene-frame">
@@ -80,7 +132,9 @@ export default function App() {
               <RoomScene
                 entered={entered}
                 active={active}
+                lighting={lighting}
                 onSelect={selectObject}
+                onToggleLamp={toggleLighting}
                 onFocusComplete={openFocusedPanel}
               />
             </Suspense>

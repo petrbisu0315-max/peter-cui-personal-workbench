@@ -54,6 +54,29 @@ To publish a new production build after changing content or code:
 pnpm deploy
 ```
 
+The existing `peter-cui-workbench` Pages project uses Direct Upload, with
+`main` as its production branch. Local edits do not publish automatically.
+The `.github/workflows/deploy-pages.yml` workflow validates and deploys pushes
+to `main`, and also supports manual runs on `main`. It requires these GitHub
+repository Actions secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`: the account owning the existing Pages project.
+- `CLOUDFLARE_API_TOKEN`: a dedicated token with Account → Cloudflare Pages → Edit,
+  restricted to that account.
+
+The workflow uses Node.js 24, pnpm 10.33.0 and the lockfile's Wrangler version.
+It runs `pnpm check` before deployment; failed checks prevent publishing.
+
+For manual deployment, authenticate with `pnpm exec wrangler login --device` when needed,
+then validate with `pnpm check` and explicitly publish the production build:
+
+```bash
+pnpm exec wrangler pages deploy dist --project-name peter-cui-workbench --branch main
+```
+
+Keep OAuth credentials and API tokens outside the repository. Store the CI token
+only in GitHub Secrets; never reuse or copy the local Wrangler OAuth credentials.
+
 ## Updating portfolio content
 
 Edit the JSON files under `src/data/`:
