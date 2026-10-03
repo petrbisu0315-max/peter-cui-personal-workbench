@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const STORAGE_KEY = 'peter-workbench:whiteboard:v1'
 const COLORS = ['#161616', '#bd6545', '#244c6a', '#6e7653', '#f0ede7']
+const HANDWRITING = 'Caveat, "Bradley Hand", "Segoe Print", cursive'
 
 export function Whiteboard() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -14,6 +15,7 @@ export function Whiteboard() {
   const getContext = () => canvasRef.current?.getContext('2d') ?? null
 
   useEffect(() => {
+    void document.fonts?.load(`600 38px ${HANDWRITING}`)
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d')
     if (!canvas || !context) return
@@ -84,7 +86,7 @@ export function Whiteboard() {
     if (!context || !message.trim()) return
     remember()
     context.fillStyle = color
-    context.font = '500 30px Georgia, serif'
+    context.font = `600 38px ${HANDWRITING}`
     const words = message.trim().split(/\s+/)
     let line = ''
     let y = 74
@@ -93,7 +95,7 @@ export function Whiteboard() {
       if (context.measureText(test).width > 720 && line) {
         context.fillText(line, 56, y)
         line = `${word} `
-        y += 42
+        y += 48
       } else line = test
     })
     context.fillText(line, 56, y)
@@ -104,12 +106,12 @@ export function Whiteboard() {
   return (
     <div className="whiteboard-tool">
       <div className="whiteboard-controls">
-        <div className="color-list" aria-label="画笔颜色">
+        <div className="color-list" aria-label="Pen colour">
           {COLORS.map((item) => (
             <button
               key={item}
               type="button"
-              aria-label={`使用颜色 ${item}`}
+              aria-label={`Use colour ${item}`}
               className={color === item ? 'is-active' : ''}
               style={{ background: item }}
               onClick={() => setColor(item)}
@@ -117,15 +119,15 @@ export function Whiteboard() {
           ))}
         </div>
         <div className="board-actions">
-          <button type="button" onClick={undo} disabled={!canUndo}>撤销</button>
-          <button type="button" onClick={clear}>清空</button>
+          <button type="button" onClick={undo} disabled={!canUndo}>Undo</button>
+          <button type="button" onClick={clear}>Clear</button>
         </div>
       </div>
       <canvas
         ref={canvasRef}
         width={900}
         height={540}
-        aria-label="绘图画布"
+        aria-label="Drawing canvas"
         onPointerDown={(event) => {
           const context = getContext()
           if (!context) return
@@ -155,11 +157,11 @@ export function Whiteboard() {
           maxLength={120}
           onChange={(event) => setMessage(event.target.value)}
           onKeyDown={(event) => { if (event.key === 'Enter') stampMessage() }}
-          placeholder="写下一句话，再把它留在白板上"
+          placeholder="You can write down anything you want"
         />
-        <button type="button" onClick={stampMessage} disabled={!message.trim()}>添加文字</button>
+        <button type="button" onClick={stampMessage} disabled={!message.trim()}>Add to board</button>
       </div>
-      <p>内容只保存在当前设备的浏览器中。</p>
+      <p>Notes are saved only in this browser, on this device.</p>
     </div>
   )
 }

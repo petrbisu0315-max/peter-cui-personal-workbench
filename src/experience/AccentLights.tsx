@@ -172,6 +172,8 @@ export function AccentLights({ mix }: { mix: LightingMix }) {
       <PictureLight mix={mix} bar={[-0.37, 4.5, -2.55]} length={1.8} aim={[-0.37, 3.15, -3.0]} intensity={3.2} angle={0.85} />
       {/* Poster frame spans x 1.51..2.67, y 2.41..4.20. */}
       <PictureLight mix={mix} bar={[2.09, 4.4, -2.72]} length={0.9} aim={[2.09, 3.1, -3.06]} intensity={2.2} angle={0.8} />
+      {/* Portrait whiteboard spans x -3.73..-2.39, y 2.43..4.21 (see RoomDecor). */}
+      <PictureLight mix={mix} bar={[-3.06, 4.42, -2.86]} length={0.8} aim={[-3.06, 3.35, -3.24]} intensity={2.2} angle={0.85} />
       <FloorLamp mix={mix} glowTexture={glowTexture} />
     </>
   )

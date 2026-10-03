@@ -10,3 +10,12 @@
 - 保留介绍纸但增加英文 Enter/Skip 入口与 Escape 跳过；RoomScene 改为进入后懒加载，生产构建将主入口降至约 300 kB，3D 场景独立为约 1.01 MB chunk（gzip 约 272 kB）。
 - 明亮中性房间背景、深色内容面板、中文二级内容、响应式 Photos 浏览器、白板撤销状态和 SVG 关闭图标已完成；`pnpm check`、Impeccable detector、浏览器英文一级/中文二级路径均通过，浏览器没有应用 error。
 - 本轮未部署 Cloudflare Pages。仍需在真实 Safari、390px 手机与 `prefers-reduced-motion` 环境下做最终人工回归；Three/R3F 自身的 `THREE.Clock` 与 shadow-map 弃用 warning 仍非应用错误。
+
+## Latest implementation — 2026-10-03
+
+- Second-level panels are now English, including the panel data in `src/data/*.json`; the résumé PDF and research PDFs themselves remain Chinese, and research summaries say so.
+- The back wall and floor are hidden; the old landscape canvas bars are replaced by a code-built portrait whiteboard (`src/experience/RoomDecor.tsx`) reading "Welcome to Peter's room" / "You can write down anything you want" in Caveat. It keeps the `PROP_Canvas*` name so it still maps to the whiteboard hotspot.
+- A heathered terracotta loop-pile rug sits under the desk and chair; it also receives shadows now that the floor is gone.
+- Night lighting: brass picture lights over the bookcase, poster and whiteboard, a globe floor lamp and an off-screen window light. All textures are generated with Canvas 2D in `src/experience/surfaces.ts`.
+- The sandbox browser renders WebGL with SwiftShader at about 0.5 fps, so day/night transitions and panel fades cannot be judged there; verify them on real hardware.
+

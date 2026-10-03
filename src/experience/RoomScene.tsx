@@ -9,6 +9,7 @@ import type { LightingMode } from '../lighting'
 import type { HotspotId } from '../types/content'
 import { AccentLights, type LightingMix, lightsOn } from './AccentLights'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
+import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
 
 type SceneProps = {
@@ -165,15 +166,16 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
   const prepared = useMemo(() => {
     const room = main.scene.clone(true)
     const interactionProps = props.scene.clone(true)
-    // Wall: 13.4 x 5.6 model units, wainscot top at y = 2.05 (2.1 above the wall's base).
     ;[room, interactionProps].forEach((scene) => {
       scene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return
         object.castShadow = true
         object.receiveShadow = true
-        if (/^(ENV_BackWall|ENV_Floor)$/i.test(object.name)) {
+        // Wall and floor are dropped; the old landscape canvas bars are replaced by the portrait whiteboard.
+        if (/^(ENV_BackWall|ENV_Floor|PROP_CanvasTop|PROP_CanvasBottom)$/i.test(object.name)) {
           object.visible = false
           object.receiveShadow = false
+          object.raycast = () => undefined
           return
         }
         if (/^(PROP_PosterOrbit|PROP_PosterTitle|SLOT_InterstellarPoster|SLOT_BlankCanvas)$/i.test(object.name)) object.visible = false
@@ -268,6 +270,7 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
         <primitive object={prepared.room} />
         <primitive object={prepared.interactionProps} />
         <AccentLights mix={mix} />
+        <RoomDecor />
       </group>
       {hovered && (
         <Html

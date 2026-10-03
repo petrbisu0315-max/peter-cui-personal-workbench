@@ -1,38 +1,38 @@
 [
   {
     "id": "work-presentation",
-    "title": "汇报现场",
-    "category": "工作现场",
-    "location": "上海",
+    "title": "Presenting at work",
+    "category": "At work",
+    "location": "Shanghai",
     "src": "/images/gallery/work-presentation.jpg",
-    "alt": "崔宇杰坐在会议桌前参加汇报"
+    "alt": "Peter Cui seated at a conference table during a presentation"
   },
   {
     "id": "life-moment",
-    "title": "旅途片段",
-    "category": "生活记录",
+    "title": "On the road",
+    "category": "Everyday life",
     "src": "/images/gallery/life-moment.jpg",
-    "alt": "崔宇杰在夜间游乐园的生活照片"
+    "alt": "Peter Cui at an amusement park at night"
   },
   {
     "id": "meituan-badge",
-    "title": "美团实习工牌",
-    "category": "实习留念",
+    "title": "Meituan intern badge",
+    "category": "Internships",
     "src": "/images/gallery/meituan-badge.jpg",
-    "alt": "印有崔宇杰姓名和照片的美团实习工牌"
+    "alt": "Meituan intern badge with Peter Cui's name and photo"
   },
   {
     "id": "xiaohongshu-memory",
-    "title": "小红书实习留念",
-    "category": "实习留念",
+    "title": "Last day at Xiaohongshu",
+    "category": "Internships",
     "src": "/images/gallery/xiaohongshu-memory.jpg",
-    "alt": "崔宇杰手持鲜花站在小红书标志前"
+    "alt": "Peter Cui holding flowers in front of the Xiaohongshu logo"
   },
   {
     "id": "netease-badge",
-    "title": "网易实习工牌",
-    "category": "实习留念",
+    "title": "NetEase intern badge",
+    "category": "Internships",
     "src": "/images/gallery/netease-badge.jpg",
-    "alt": "印有崔宇杰姓名和照片的网易实习工牌"
+    "alt": "NetEase intern badge with Peter Cui's name and photo"
   }
 ]

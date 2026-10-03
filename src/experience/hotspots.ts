@@ -12,14 +12,14 @@ export const hotspotOrder: HotspotId[] = [
 ]
 
 export const hotspotMeta: Record<HotspotId, { label: string; shortLabel: string; hoverLabel: string; index: string }> = {
-  resume: { label: '简历附件', shortLabel: 'Resume', hoverLabel: 'Résumé attachment', index: '01' },
-  experience: { label: '校园与实习经历', shortLabel: 'Experience', hoverLabel: 'Campus & internships', index: '02' },
-  research: { label: '研究与写作', shortLabel: 'Research', hoverLabel: 'Research & writing', index: '03' },
-  projects: { label: '项目实践', shortLabel: 'Projects', hoverLabel: 'Vibecoding projects', index: '04' },
-  photos: { label: '影像档案', shortLabel: 'Photos', hoverLabel: 'Photo archive', index: '05' },
-  books: { label: '阅读书架', shortLabel: 'Books', hoverLabel: 'Reading shelf', index: '06' },
-  movies: { label: '电影笔记', shortLabel: 'Films', hoverLabel: 'Film notes', index: '07' },
-  whiteboard: { label: '留下一句话', shortLabel: 'Whiteboard', hoverLabel: 'Leave a note', index: '08' },
+  resume: { label: 'Résumé', shortLabel: 'Resume', hoverLabel: 'Résumé attachment', index: '01' },
+  experience: { label: 'Education & Internships', shortLabel: 'Experience', hoverLabel: 'Campus & internships', index: '02' },
+  research: { label: 'Research & Writing', shortLabel: 'Research', hoverLabel: 'Research & writing', index: '03' },
+  projects: { label: 'Projects', shortLabel: 'Projects', hoverLabel: 'Vibecoding projects', index: '04' },
+  photos: { label: 'Photo Archive', shortLabel: 'Photos', hoverLabel: 'Photo archive', index: '05' },
+  books: { label: 'Reading Shelf', shortLabel: 'Books', hoverLabel: 'Reading shelf', index: '06' },
+  movies: { label: 'Film Notes', shortLabel: 'Films', hoverLabel: 'Film notes', index: '07' },
+  whiteboard: { label: 'Leave a Note', shortLabel: 'Whiteboard', hoverLabel: 'Leave a note', index: '08' },
 }
 
 export function hotspotFromObjectName(name: string): HotspotId | null {
