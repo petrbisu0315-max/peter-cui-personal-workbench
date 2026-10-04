@@ -355,16 +355,16 @@ const palettes = {
     fill: 1.1,
     fillColor: new THREE.Color('#dfe8f5'),
   },
-  // Warm and low: lamps carry the room, with a faint cool fill as contrast.
+  // Broad evening fill keeps furniture legible; practical lamps provide warmer accents.
   night: {
-    background: new THREE.Color('#17120f'),
-    hemiSky: new THREE.Color('#5a4537'),
-    hemiGround: new THREE.Color('#110c09'),
-    hemi: 0.42,
-    key: 0.05,
-    keyColor: new THREE.Color('#90a6d8'),
-    fill: 0.16,
-    fillColor: new THREE.Color('#7186c0'),
+    background: new THREE.Color('#514940'),
+    hemiSky: new THREE.Color('#ead8bd'),
+    hemiGround: new THREE.Color('#91847b'),
+    hemi: 1.25,
+    key: 0.8,
+    keyColor: new THREE.Color('#f5ddbc'),
+    fill: 0.7,
+    fillColor: new THREE.Color('#c2cce0'),
   },
 } as const
 
@@ -387,6 +387,7 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
   const hemi = useRef<THREE.HemisphereLight>(null!)
   const key = useRef<THREE.DirectionalLight>(null!)
   const fill = useRef<THREE.DirectionalLight>(null!)
+  const eveningBounce = useRef<THREE.DirectionalLight>(null!)
   const spot = useRef<THREE.SpotLight>(null)
   const bulb = useRef<THREE.PointLight>(null)
   const glow = useRef<THREE.Sprite>(null)
@@ -424,13 +425,14 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
     key.current.color.copy(day.keyColor).lerp(night.keyColor, t)
     fill.current.intensity = lerp(day.fill, night.fill, t)
     fill.current.color.copy(day.fillColor).lerp(night.fillColor, t)
+    eveningBounce.current.intensity = 0.65 * t
     const on = lightsOn(t)
     // Shadow casting stays enabled so toggling never forces a shader recompile.
-    if (spot.current) spot.current.intensity = 9 * on
-    if (bulb.current) bulb.current.intensity = 1.6 * on
+    if (spot.current) spot.current.intensity = 4.8 * on
+    if (bulb.current) bulb.current.intensity = 0.6 * on
     if (glow.current) {
       glow.current.visible = on > 0.01
-      ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.85 * on
+      ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.15 * on
     }
   })
 
@@ -451,6 +453,7 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
         shadow-bias={-0.0003}
       />
       <directionalLight ref={fill} position={[5, 3, -4]} intensity={1.35} color="#dce8ff" />
+      <directionalLight ref={eveningBounce} position={[4, 2, 6]} intensity={0} color="#eee3d3" />
       {lamp && (
         <>
           <spotLight

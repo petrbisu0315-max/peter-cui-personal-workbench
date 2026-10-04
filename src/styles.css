@@ -29,7 +29,7 @@ button { color: inherit; }
 :focus-visible { outline: 2px solid var(--rust); outline-offset: 3px; }
 
 .app-shell { position: relative; min-height: 100svh; overflow: hidden; background: var(--scene); transition: background-color .9s ease; }
-.app-shell[data-lighting="night"] { --scene: #171a20; --scene-line: rgba(205,200,188,.1); }
+.app-shell[data-lighting="night"] { --scene: #514940; --scene-line: rgba(235,226,209,.16); }
 .workbench { position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 12px; padding: clamp(16px, 2.4vw, 30px); opacity: .5; transform: scale(1.018); transition: opacity .55s ease, transform .8s cubic-bezier(.22,.8,.2,1); }
 .is-entered .workbench { opacity: 1; transform: none; }
 .room-bar, .room-footer { display: flex; justify-content: space-between; align-items: center; gap: 18px; font: 500 11px/1.4 "DM Mono", monospace; letter-spacing: .07em; text-transform: uppercase; color: rgba(29,28,26,.58); transition: color .7s; }
@@ -38,23 +38,23 @@ button { color: inherit; }
 .room-bar p { margin: 0; }
 .room-bar-actions { display: flex; align-items: center; gap: 14px; }
 [data-lighting="night"] .room-bar,
-[data-lighting="night"] .room-footer { color: rgba(205,200,188,.42); }
-[data-lighting="night"] .room-bar strong { color: #d1cdc2; }
+[data-lighting="night"] .room-footer { color: #d8cfc1; }
+[data-lighting="night"] .room-bar strong { color: #f0e7d8; }
 .lighting-toggle { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 7px; border: 0; background: rgba(244,240,232,.08); color: rgba(29,28,26,.65); font: inherit; cursor: pointer; border-radius: 999px; transition: background .15s, color .15s; }
 .lighting-toggle:hover { background: rgba(244,240,232,.14); color: var(--ink); }
 .lighting-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .lighting-toggle span { font-size: 10px; letter-spacing: .06em; }
-[data-lighting="night"] .lighting-toggle { background: rgba(40,46,60,.65); color: rgba(244,240,232,.72); }
-[data-lighting="night"] .lighting-toggle:hover { background: rgba(48,56,75,.82); color: #f4f0e8; }
+[data-lighting="night"] .lighting-toggle { background: #6a5d4f; color: #f4f0e8; }
+[data-lighting="night"] .lighting-toggle:hover { background: #786958; color: #fffaf1; }
 .scene-frame { position: relative; min-height: 0; overflow: hidden; border: 1px solid var(--scene-line); background: var(--scene); transition: border-color .7s; }
 .scene-frame::before { content: ""; position: absolute; z-index: 2; inset: 0; pointer-events: none; box-shadow: inset 0 0 90px rgba(70,66,58,.12); transition: box-shadow .7s; }
-[data-lighting="night"] .scene-frame { border-color: rgba(40,46,60,.28); }
-[data-lighting="night"] .scene-frame::before { box-shadow: inset 0 0 90px rgba(18,20,26,.35); }
+[data-lighting="night"] .scene-frame { border-color: var(--scene-line); }
+[data-lighting="night"] .scene-frame::before { box-shadow: inset 0 0 90px rgba(32,25,18,.12); }
 .room-canvas { width: 100% !important; height: 100% !important; }
 .corner-index { position: absolute; z-index: 3; top: 18px; right: 18px; display: flex; gap: 8px; align-items: center; font: 500 10px "DM Mono", monospace; color: rgba(29,28,26,.45); transition: color .7s; }
 .corner-index i { display: block; width: 40px; height: 1px; background: rgba(29,28,26,.28); transition: background .7s; }
-[data-lighting="night"] .corner-index { color: rgba(205,200,188,.35); }
-[data-lighting="night"] .corner-index i { background: rgba(205,200,188,.2); }
+[data-lighting="night"] .corner-index { color: #d8cfc1; }
+[data-lighting="night"] .corner-index i { background: rgba(235,226,209,.4); }
 .scene-idle, .room-loading, .scene-fallback { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; }
 .scene-idle span { color: var(--rust); font: 500 11px "DM Mono", monospace; letter-spacing: .12em; }
 .scene-idle p { margin: 0; color: rgba(29,28,26,.55); font-size: 14px; }

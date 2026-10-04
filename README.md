@@ -77,6 +77,23 @@ pnpm exec wrangler pages deploy dist --project-name peter-cui-workbench --branch
 Keep OAuth credentials and API tokens outside the repository. Store the CI token
 only in GitHub Secrets; never reuse or copy the local Wrangler OAuth credentials.
 
+## Floor lamp and evening lighting
+
+`src/experience/floorLampModel.ts` builds the reference-inspired floor lamp:
+an opaque woven-linen drum shade, a slender brass stem and a curved bronze
+trumpet base. It is an approximate reconstruction from a single photo, not a
+photogrammetry scan. `FLOOR_LAMP` contains its proportions and placement in the
+original room's coordinates. The room GLBs are unchanged.
+
+The model uses a deterministic 256×256 linen texture and fewer than 5,000
+triangles. `AccentLights.tsx` controls its warm light; the existing floor-lamp
+click target still toggles day/night. No large glow sprite surrounds the shade.
+
+The night palette in `RoomScene.tsx` uses broad warm ambient light, a neutral
+front fill and gentler desk/picture lights. Its background (`#514940`) matches
+the night UI in `styles.css`. Keep these in sync when adjusting the palette.
+Walls and floor remain hidden; the whiteboard, rug and content are unchanged.
+
 ## Updating portfolio content
 
 Edit the JSON files under `src/data/`:

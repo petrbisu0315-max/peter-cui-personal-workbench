@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { createGlowTexture, createWindowGobo } from './surfaces'
+import { createWindowGobo } from './surfaces'
+import { createFloorLampModel, FLOOR_LAMP } from './floorLampModel'
 
 export type LightingMix = MutableRefObject<{ value: number }>
 
@@ -82,46 +83,27 @@ function PictureLight({ mix, bar, length, aim, intensity, angle }: {
   )
 }
 
-function FloorLamp({ mix, glowTexture }: { mix: LightingMix; glowTexture: THREE.Texture }) {
+function FloorLamp({ mix }: { mix: LightingMix }) {
   const bulb = useRef<THREE.PointLight>(null!)
-  const glow = useRef<THREE.Sprite>(null!)
-  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: '#2b2622', metalness: 0.7, roughness: 0.38 }), [])
-  const globe = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#f1ebe0',
-    emissive: '#ffbe73',
-    emissiveIntensity: 0,
-    roughness: 0.28,
-    userData: { noHover: true },
-  }), [])
-  useEffect(() => () => { metal.dispose(); globe.dispose() }, [metal, globe])
+  const model = useMemo(createFloorLampModel, [])
+  useEffect(() => () => model.dispose(), [model])
 
   useFrame(() => {
     const on = lightsOn(mix.current.value)
-    bulb.current.intensity = 1.7 * on
-    globe.emissiveIntensity = 2.6 * on
-    glow.current.visible = on > 0.01
-    ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.55 * on
+    bulb.current.intensity = 1.15 * on
+    model.setLight(on)
   })
 
-  const globeY = 3.6
   return (
-    <group name="ACCENT_FloorLamp" position={[3.15, 0, -2.55]}>
-      <mesh material={metal} position={[0, 0.03, 0]} castShadow>
-        <cylinderGeometry args={[0.3, 0.33, 0.06, 32]} />
-      </mesh>
-      <mesh material={metal} position={[0, globeY / 2, 0]} castShadow>
-        <cylinderGeometry args={[0.028, 0.028, globeY - 0.3, 12]} />
-      </mesh>
-      <mesh material={metal} position={[0, globeY - 0.33, 0]}>
-        <cylinderGeometry args={[0.07, 0.05, 0.08, 16]} />
-      </mesh>
-      <mesh material={globe} position={[0, globeY, 0]} castShadow>
-        <sphereGeometry args={[0.32, 40, 28]} />
-      </mesh>
-      <pointLight ref={bulb} position={[0, globeY, 0]} color="#ffbb70" intensity={0} decay={2} />
-      <sprite ref={glow} position={[0, globeY, 0.05]} scale={2.1} visible={false} raycast={noRaycast}>
-        <spriteMaterial map={glowTexture} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </sprite>
+    <group name="ACCENT_FloorLamp" position={FLOOR_LAMP.position}>
+      <primitive object={model.group} dispose={null} />
+      <pointLight
+        ref={bulb}
+        position={[0, FLOOR_LAMP.shadeCenter - 0.12, 0]}
+        color="#ffe3b5"
+        intensity={0}
+        decay={2}
+      />
     </group>
   )
 }
@@ -163,18 +145,16 @@ function WindowLight({ mix }: { mix: LightingMix }) {
 }
 
 export function AccentLights({ mix }: { mix: LightingMix }) {
-  const glowTexture = useMemo(createGlowTexture, [])
-  useEffect(() => () => glowTexture.dispose(), [glowTexture])
   return (
     <>
       <WindowLight mix={mix} />
       {/* Bookcase spans x -1.69..0.95, y 2.49..4.26, front face z -2.98. */}
-      <PictureLight mix={mix} bar={[-0.37, 4.5, -2.55]} length={1.8} aim={[-0.37, 3.15, -3.0]} intensity={3.2} angle={0.85} />
+      <PictureLight mix={mix} bar={[-0.37, 4.5, -2.55]} length={1.8} aim={[-0.37, 3.15, -3.0]} intensity={2} angle={0.95} />
       {/* Poster frame spans x 1.51..2.67, y 2.41..4.20. */}
-      <PictureLight mix={mix} bar={[2.09, 4.4, -2.72]} length={0.9} aim={[2.09, 3.1, -3.06]} intensity={2.2} angle={0.8} />
+      <PictureLight mix={mix} bar={[2.09, 4.4, -2.72]} length={0.9} aim={[2.09, 3.1, -3.06]} intensity={1.2} angle={0.9} />
       {/* Portrait whiteboard spans x -3.73..-2.39, y 2.43..4.21 (see RoomDecor). */}
-      <PictureLight mix={mix} bar={[-3.06, 4.42, -2.86]} length={0.8} aim={[-3.06, 3.35, -3.24]} intensity={2.2} angle={0.85} />
-      <FloorLamp mix={mix} glowTexture={glowTexture} />
+      <PictureLight mix={mix} bar={[-3.06, 4.42, -2.86]} length={0.8} aim={[-3.06, 3.35, -3.24]} intensity={0.9} angle={0.95} />
+      <FloorLamp mix={mix} />
     </>
   )
 }

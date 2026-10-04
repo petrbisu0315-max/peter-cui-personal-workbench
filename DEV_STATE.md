@@ -19,3 +19,9 @@
 - Night lighting: brass picture lights over the bookcase, poster and whiteboard, a globe floor lamp and an off-screen window light. All textures are generated with Canvas 2D in `src/experience/surfaces.ts`.
 - The sandbox browser renders WebGL with SwiftShader at about 0.5 fps, so day/night transitions and panel fades cannot be judged there; verify them on real hardware.
 
+## Latest implementation — 2026-10-04
+
+- Replaced the globe lamp with a photo-inspired linen drum shade, brass stem and curved bronze trumpet base, built in `src/experience/floorLampModel.ts`. Runtime uses this editable parametric model; original room GLBs remain unchanged.
+- Brighter, softer evening lighting: warm-grey background, stronger ambient/front fill, lower desk and picture-light peaks, no large lamp glow sprite. Whiteboard, rug, furniture and English panel content are unchanged.
+- Browser checks at 1000×720 and 390×844 confirmed the replacement, a visible night scene, localStorage restoration, lamp-click and toolbar day/night switches, and Projects open/Escape close. Reduced-motion mode was used to avoid judging timing on the software renderer; real-device frame rate is not measured.
+
