@@ -59,4 +59,10 @@
 - Added a content-hashed office preview and optional per-theme preview URL; removed the obsolete home thumbnail. Other previews retain their previous URLs.
 - Chromium shader compilation and day/night rendering checked. The other three shader themes were pixel-compared with the prior shader at fixed time in both day and night and were identical. Mobile 390×844 layout, picker thumbnails, keyboard focus and Resume open/close checked. Continuous software rendering was temporarily paused for settled captures; no real-device frame-rate claims.
 
+## Bedroom and compact CD refinement — 2026-10-05
+
+- The owner rejected the office treatment as too deliberate. Interior now uses warm bedroom finishes, a right-side domestic window with soft linen curtains and diffuse light. Removed the skyline, graphite frames, stone joints, walnut storage and ceiling slots. Only Interior lighting direction/palette changed; other environment functions and shared shader helpers remain unchanged.
+- Music defaults to one 52px album CD. Click to reveal controls; click outside, the close button, the disc again, or Escape to collapse. Collapsing preserves the same audio element and disc node, track position and rotation. Playback remains opt-in and starts only with Play/track selection; reduced motion disables the spin.
+- Browser checks confirmed desktop day/night rendering and right-window placement, 390px collapsed/expanded layout, playback continuity while collapsed, playlist selection, paused rotation, outside-click/Escape dismissal, keyboard opening/focus restoration and reduced-motion behavior. Software 3D rendering was paused during detailed media checks; production frame settings are unchanged.
+
 

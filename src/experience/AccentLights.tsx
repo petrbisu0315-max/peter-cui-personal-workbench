@@ -111,10 +111,10 @@ function FloorLamp({ mix }: { mix: LightingMix }) {
 const sunColor = new THREE.Color('#ffe0b0')
 const moonColor = new THREE.Color('#9fb6ff')
 
-// A window off-screen to the left: warm sunlight by day, a faint cool moon patch at night.
-function WindowLight({ mix }: { mix: LightingMix }) {
+// Bedroom light comes from the right; the other environments keep their original direction.
+function WindowLight({ mix, rightWindow }: { mix: LightingMix; rightWindow: boolean }) {
   const spot = useRef<THREE.SpotLight>(null!)
-  const target = useSpotTarget([1.2, 3.2, WALL_Z])
+  const target = useSpotTarget([rightWindow ? -1.2 : 1.2, 3.2, WALL_Z])
   const gobo = useMemo(createWindowGobo, [])
   useEffect(() => () => gobo.dispose(), [gobo])
 
@@ -129,7 +129,7 @@ function WindowLight({ mix }: { mix: LightingMix }) {
       <primitive object={target} />
       <spotLight
         ref={spot}
-        position={[-9, 8.6, 5.2]}
+        position={[rightWindow ? 9 : -9, 8.6, 5.2]}
         target={target}
         map={gobo}
         angle={0.21}
@@ -144,10 +144,10 @@ function WindowLight({ mix }: { mix: LightingMix }) {
   )
 }
 
-export function AccentLights({ mix }: { mix: LightingMix }) {
+export function AccentLights({ mix, rightWindow = false }: { mix: LightingMix; rightWindow?: boolean }) {
   return (
     <>
-      <WindowLight mix={mix} />
+      <WindowLight mix={mix} rightWindow={rightWindow} />
       {/* Bookcase spans x -1.69..0.95, y 2.49..4.26, front face z -2.98. */}
       <PictureLight mix={mix} bar={[-0.37, 4.5, -2.55]} length={1.8} aim={[-0.37, 3.15, -3.0]} intensity={2} angle={0.95} />
       {/* Poster frame spans x 1.51..2.67, y 2.41..4.20. */}

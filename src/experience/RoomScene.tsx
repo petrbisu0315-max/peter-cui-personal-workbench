@@ -160,7 +160,7 @@ function setHovered(root: THREE.Object3D, hovered: boolean) {
   })
 }
 
-function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'onSelect' | 'onToggleLamp'> & {
+function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'theme' | 'onSelect' | 'onToggleLamp'> & {
   mix: LightingMix
   onLampMeasured: (rig: LampRig | null) => void
 }) {
@@ -275,7 +275,7 @@ function RoomModel({ lighting, mix, onSelect, onToggleLamp, onLampMeasured }: Pi
       >
         <primitive object={prepared.room} />
         <primitive object={prepared.interactionProps} />
-        <AccentLights mix={mix} />
+        <AccentLights mix={mix} rightWindow={theme === 'home'} />
         <RoomDecor />
       </group>
       {hovered && (
@@ -401,6 +401,7 @@ function LightingSystem({
   const targetHemiGround = useMemo(() => new THREE.Color(), [])
   const targetKeyColor = useMemo(() => new THREE.Color(), [])
   const targetFillColor = useMemo(() => new THREE.Color(), [])
+  const keyPosition = useMemo(() => new THREE.Vector3(theme === 'home' ? 4 : -4, 8, 5), [theme])
 
   useEffect(() => {
     scene.fog = fog
@@ -433,6 +434,7 @@ function LightingSystem({
     hemi.current.color.lerp(targetHemiSky, lerpRate)
     hemi.current.groundColor.lerp(targetHemiGround, lerpRate)
     hemi.current.intensity = lerp(hemi.current.intensity, lerp(p.hemiIntensity, n.hemiIntensity, t), lerpRate)
+    key.current.position.lerp(keyPosition, lerpRate)
     key.current.color.lerp(targetKeyColor, lerpRate)
     key.current.intensity = lerp(key.current.intensity, lerp(p.keyIntensity, n.keyIntensity, t), lerpRate)
     fill.current.color.lerp(targetFillColor, lerpRate)
@@ -525,6 +527,7 @@ export function RoomScene({
           <Suspense fallback={null}>
             <RoomModel
               lighting={lighting}
+              theme={theme}
               mix={mix}
               onSelect={onSelect}
               onToggleLamp={onToggleLamp}

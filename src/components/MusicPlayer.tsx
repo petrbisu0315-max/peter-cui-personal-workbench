@@ -8,7 +8,7 @@ import './MusicPlayer.css'
 
 const tracks: Track[] = music
 
-type IconName = 'play' | 'pause' | 'previous' | 'next' | 'list' | 'volume' | 'mute'
+type IconName = 'play' | 'pause' | 'previous' | 'next' | 'list' | 'volume' | 'mute' | 'close'
 function Icon({ name }: { name: IconName }) {
   const paths: Record<IconName, string> = {
     play: 'M9 5.5 19 12 9 18.5Z',
@@ -16,6 +16,7 @@ function Icon({ name }: { name: IconName }) {
     previous: 'M6 6v12M18 6 9 12l9 6Z',
     next: 'M18 6v12M6 6l9 6-9 6Z',
     list: 'M5 6h14M5 12h14M5 18h9',
+    close: 'M7 7l10 10M17 7 7 17',
     volume: 'M11 5 6 9H3v6h3l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14',
     mute: 'M11 5 6 9H3v6h3l5 4ZM16 9l5 6M21 9l-5 6',
   }
@@ -26,10 +27,13 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const controller = useRef<MusicController | null>(null)
   const [state, setState] = useState(() => initialMusicState(tracks))
+  const [controlsOpen, setControlsOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const container = useRef<HTMLElement>(null)
+  const discButton = useRef<HTMLButtonElement>(null)
   const queueButton = useRef<HTMLButtonElement>(null)
   const playlistId = useId()
+  const controlsId = useId()
   const track = tracks[state.index]
   const running = state.status === 'playing'
   const canPause = running || state.status === 'loading'
@@ -45,17 +49,21 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
   }, [])
 
   useEffect(() => {
-    if (!expanded) return
-    container.current?.querySelector<HTMLButtonElement>('.music-queue [aria-current="true"]')?.focus()
+    if (!controlsOpen) return
+    container.current?.querySelector<HTMLButtonElement>('.music-play')?.focus()
     const outside = (event: PointerEvent) => {
-      if (!container.current?.contains(event.target as Node)) setExpanded(false)
+      if (!container.current?.contains(event.target as Node)) {
+        setControlsOpen(false)
+        setExpanded(false)
+      }
     }
     const escape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       event.preventDefault()
       event.stopPropagation()
+      setControlsOpen(false)
       setExpanded(false)
-      queueButton.current?.focus()
+      discButton.current?.focus()
     }
     document.addEventListener('pointerdown', outside)
     document.addEventListener('keydown', escape, true)
@@ -63,11 +71,24 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
       document.removeEventListener('pointerdown', outside)
       document.removeEventListener('keydown', escape, true)
     }
+  }, [controlsOpen])
+
+  useEffect(() => {
+    if (expanded) container.current?.querySelector<HTMLButtonElement>('.music-queue [aria-current="true"]')?.focus()
   }, [expanded])
 
   useEffect(() => {
-    if (obscured) setExpanded(false)
+    if (obscured) {
+      setControlsOpen(false)
+      setExpanded(false)
+    }
   }, [obscured])
+
+  const collapse = () => {
+    setControlsOpen(false)
+    setExpanded(false)
+    discButton.current?.focus()
+  }
 
   const volumeChanged = (value: number) => {
     controller.current?.setVolume(value)
@@ -79,13 +100,32 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
       className="music-player"
       aria-label="Background music"
       data-playing={running}
+      data-open={controlsOpen}
       inert={obscured}
       ref={container}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setExpanded(false)
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setControlsOpen(false)
+          setExpanded(false)
+        }
       }}
     >
       <audio ref={audioRef} preload="none" />
+      <button
+        type="button"
+        ref={discButton}
+        className="music-disc-button"
+        aria-label={controlsOpen ? 'Collapse music player' : 'Open music player'}
+        aria-expanded={controlsOpen}
+        aria-controls={controlsId}
+        title={`${track.title} · ${track.artist}${state.error ? ' · Playback needs attention' : ''}`}
+        onClick={() => { if (controlsOpen) collapse(); else setControlsOpen(true) }}
+      >
+        <span className="music-disc" aria-hidden="true">
+          <span className="music-disc-spin"><img src={track.cover} alt="" width="52" height="52" /></span>
+        </span>
+      </button>
+      <div className="music-panel" id={controlsId} hidden={!controlsOpen} role="region" aria-label="Music player controls">
       {expanded && (
         <div className="music-queue" id={playlistId}>
           <div className="music-queue-heading"><span>On the player</span><small>3 tracks · Repeat all</small></div>
@@ -113,13 +153,13 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
         </div>
       )}
       <div className="music-card">
-        <div className="music-disc" aria-hidden="true">
-          <div className="music-disc-spin"><img src={track.cover} alt="" width="64" height="64" /></div>
-        </div>
         <div className="music-main">
           <div className="music-title-row">
             <div className="music-title" aria-live="polite" aria-atomic="true"><strong title={track.title}>{track.title}</strong><span>{track.artist}</span></div>
-            <button ref={queueButton} type="button" className="music-list-toggle" aria-label={expanded ? 'Close playlist' : 'Open playlist'} aria-expanded={expanded} aria-controls={playlistId} onClick={() => setExpanded((value) => !value)}><Icon name="list" /></button>
+            <div className="music-panel-actions">
+              <button ref={queueButton} type="button" className="music-list-toggle" aria-label={expanded ? 'Close playlist' : 'Open playlist'} aria-expanded={expanded} aria-controls={playlistId} onClick={() => setExpanded((value) => !value)}><Icon name="list" /></button>
+              <button type="button" className="music-list-toggle" aria-label="Close music controls" onClick={collapse}><Icon name="close" /></button>
+            </div>
           </div>
           <div className="music-transport">
             <button type="button" aria-label="Previous track" onClick={() => controller.current?.skip(-1)}><Icon name="previous" /></button>
@@ -143,6 +183,8 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
         </div>
       </div>
       {state.error && <p className="music-error" role="status">{state.error}</p>}
+      </div>
+      {!controlsOpen && state.error && <span className="music-status" role="status">{state.error} Open the CD player to retry.</span>}
     </aside>
   )
 }

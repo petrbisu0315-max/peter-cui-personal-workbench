@@ -52,7 +52,7 @@ button { color: inherit; }
 .environment-trigger svg { width: 14px; height: 14px; margin-left: 6px; fill: none; stroke: currentColor; stroke-width: 1.3; transition: transform .2s; }
 .environment-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
 .environment-swatch { width: 28px; height: 26px; border-radius: 3px; box-shadow: inset 0 0 0 1px #0001; }
-.swatch-home { background: linear-gradient(110deg, #9bb5c1 0 26%, #495453 27% 30%, #dddeda 31% 81%, #574c3e 82%); }
+.swatch-home { background: linear-gradient(90deg, #e6ded2 0 65%, #c9bba5 66% 77%, #e9e6d9 78% 83%, #b8cbc5 84%); }
 .swatch-aurora { background: linear-gradient(145deg, #101e2a 20%, #42685d 50%, #293645 72%, #101e2a); }
 .swatch-prairie { background: linear-gradient(#c0cecb 0 46%, #b5b59a 47% 58%, #8b9474 59% 70%, #727d53 71%); }
 .swatch-ocean { background: linear-gradient(#c4d5d6 0 48%, #8aa9af 49% 60%, #5b858e 61%, #335b66); }

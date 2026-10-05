@@ -101,10 +101,11 @@ Meadow and Coast. The stored IDs (`home`, `aurora`, `prairie`, `ocean`) and
 Arrow keys select an environment; Escape dismisses the picker and restores focus.
 
 `EnvironmentBackground.tsx` draws a non-interactive full-screen background using
-`environment.frag.glsl`. Interior uses a modern office composition: full-height
-graphite-framed glazing, an imagined city skyline, large pale stone wall panels,
-flush walnut joinery, a ceiling light slot and softly reflective stone slabs.
-Its evening palette remains bright enough to read the furniture. This is a
+`environment.frag.glsl`. Interior is a quiet bedroom corner: warm painted walls,
+pale wood tones, and a right-hand window with gathered linen and a translucent
+inner curtain. There is no office skyline, ceiling slot or stone-panel grid.
+Its evening palette stays soft and readable. Bedroom key/window light comes from
+the right; other environments keep their existing light direction. This is a
 procedural background; it does not reposition furniture or restore the old wall
 and floor meshes.
 
@@ -125,8 +126,13 @@ matching palette in `themes.ts`; keep preview images in sync.
 
 ## Background music
 
-The lower-left `MusicPlayer` uses one native audio element, mounted outside the
-3D scene. Theme changes and content panels do not restart it. `src/data/music.json`
+The lower-left `MusicPlayer` defaults to a single 52px CD button, with no visible
+card, song title or controls. Clicking it reveals the complete player; clicking
+the CD again, the close button, outside the player, or pressing Escape collapses
+it. Keyboard focus returns to the CD when explicitly dismissed. The same disc
+and native audio element stay mounted, so collapsing does not interrupt playback
+or reset rotation. The player is outside the 3D scene; theme changes and content
+panels do not restart it. `src/data/music.json`
 defines the order, titles, artists, durations, MP3 URLs and album covers. The three
 tracks and embedded artwork were supplied by the site owner, who confirmed
 permission for public playback/display. Only add assets you have permission to
@@ -142,7 +148,8 @@ publish: files under `public/` remain publicly accessible.
   an actionable message rather than endlessly skipping tracks.
 - The album CD rotates once every 24 seconds only during playback. Pause holds
   its angle; reduced-motion preferences disable the rotation.
-- Open the playlist for song selection, volume and mute. Escape closes it.
+- Open the CD first, then the playlist for song selection, volume and mute.
+  Escape collapses the entire player; only volume is persisted, not its open state.
 - Audio lives in `public/audio/` and extracted WebP covers in `public/images/music/`.
   Filenames contain content hashes for immutable caching. Replace the filename
   and manifest URL when changing an asset.
