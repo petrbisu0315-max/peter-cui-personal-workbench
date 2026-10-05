@@ -4,16 +4,12 @@ import gsap from 'gsap'
 import projectsData from '../data/projects.json'
 import photosData from '../data/photos.json'
 import cityGalleryData from '../data/cityGallery.json'
-import booksData from '../data/books.json'
-import moviesData from '../data/movies.json'
 import researchData from '../data/research.json'
 import experiencesData from '../data/experiences.json'
 import resumeData from '../data/resume.json'
 import type {
-  BookItem,
   ExperienceItem,
   HotspotId,
-  MovieItem,
   PhotoItem,
   ProjectItem,
   ResearchItem,
@@ -21,6 +17,7 @@ import type {
 } from '../types/content'
 import { hotspotMeta } from '../experience/hotspots'
 import { Whiteboard } from './Whiteboard'
+import { CatalogPanel } from './CatalogPanel'
 
 type Props = { hotspot: HotspotId; onClose: () => void }
 
@@ -47,8 +44,6 @@ interface CityPhoto {
 const projects = projectsData as ProjectItem[]
 const personalPhotos = photosData as PhotoItem[]
 const cityPhotos = cityGalleryData as CityPhoto[]
-const books = booksData as BookItem[]
-const movies = moviesData as MovieItem[]
 const research = researchData as ResearchItem[]
 const experiences = experiencesData as ExtendedExperienceItem[]
 const resume = resumeData as ResumeDocument
@@ -479,64 +474,6 @@ function ProjectsPanel() {
   )
 }
 
-/** 6. BOOKS PANEL (Bookcase in 3D) */
-function BooksPanel() {
-  if (!books.length) {
-    return (
-      <EmptyState
-        title="The reading shelf is being curated"
-        description="Only books Peter has deeply read and taken notes on will be archived here."
-      />
-    )
-  }
-  return (
-    <div className="shelf-list">
-      {books.map((item, index) => (
-        <article className="shelf-item" key={item.id}>
-          <div className="book-spine" style={{ '--book-index': index } as React.CSSProperties}>
-            {item.title.slice(0, 1)}
-          </div>
-          <div>
-            <p className="item-meta">
-              {item.status === 'reading' ? 'Reading' : 'Finished'} · {item.author}
-            </p>
-            <h3>{item.title}</h3>
-            <p>{item.note}</p>
-            <ExternalLink href={item.url}>View Book</ExternalLink>
-          </div>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-/** 7. MOVIES PANEL (Poster in 3D) */
-function MoviesPanel() {
-  if (!movies.length) {
-    return (
-      <EmptyState
-        title="Film notes on the way"
-        description="Authentic film watchlist and director notes will open soon."
-      />
-    )
-  }
-  return (
-    <div className="film-list">
-      {movies.map((item, index) => (
-        <article key={item.id}>
-          <div className="film-index">{String(index + 1).padStart(2, '0')}</div>
-          <div>
-            <p className="item-meta">{item.year ?? 'Film Note'}</p>
-            <h3>{item.title}</h3>
-            <p>{item.note}</p>
-            <ExternalLink href={item.url}>View Film</ExternalLink>
-          </div>
-        </article>
-      ))}
-    </div>
-  )
-}
-
 /** 8. RESEARCH PANEL */
 function ResearchPanel() {
   const [tab, setTab] = useState<ResearchItem['category']>('research')
@@ -604,9 +541,9 @@ function PanelBody({ hotspot }: { hotspot: HotspotId }) {
     case 'projects':
       return <ProjectsPanel />
     case 'books':
-      return <BooksPanel />
+      return <CatalogPanel type="books" />
     case 'movies':
-      return <MoviesPanel />
+      return <CatalogPanel type="movies" />
     case 'research':
       return <ResearchPanel />
     case 'whiteboard':

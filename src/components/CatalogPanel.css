@@ -1,0 +1,56 @@
+.catalog-panel { --catalog-muted: #a6aaa5; --catalog-line: #ffffff1f; }
+.catalog-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.catalog-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.catalog-filters button, .catalog-detail-nav button, .catalog-empty button { min-height: 36px; padding: 7px 12px; border: 1px solid var(--catalog-line); border-radius: 5px; color: var(--panel-text); background: transparent; font: 400 12px Manrope, sans-serif; cursor: pointer; }
+.catalog-filters button[aria-pressed="true"] { color: #222824; border-color: #ecece3; background: #ecece3; }
+.catalog-toolbar input { min-height: 36px; width: 205px; max-width: 100%; padding: 8px 12px; border: 1px solid var(--catalog-line); border-radius: 5px; background: #ffffff06; color: var(--panel-text); font: 400 12px Manrope, "PingFang SC", sans-serif; }
+.catalog-panel button:focus-visible, .catalog-panel input:focus-visible { outline: 2px solid #dbded1; outline-offset: 4px; }
+.catalog-summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 20px 0 24px; color: var(--catalog-muted); font: 400 11px Manrope, sans-serif; }
+.catalog-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 30px 22px; align-items: start; }
+.catalog-card { display: grid; min-width: 0; width: 100%; gap: 7px; padding: 0; border: 0; background: transparent; color: var(--panel-text); text-align: left; cursor: pointer; }
+.catalog-art { display: flex; align-items: flex-end; justify-content: center; width: 100%; aspect-ratio: 2 / 3; padding: 0; border-radius: 2px; overflow: hidden; background: #242824; }
+.catalog-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.catalog-card .catalog-art { transition: filter .18s, transform .18s; }
+.catalog-card:hover .catalog-art { filter: brightness(1.08); transform: translateY(-2px); }
+.catalog-card strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 4px; font: 500 13px/1.65 Manrope, "PingFang SC", "Microsoft YaHei", sans-serif; }
+.catalog-card-meta { color: var(--catalog-muted); font: 400 10px/1.5 Manrope, sans-serif; }
+.catalog-author { color: #c2c8bd; font: 400 11px/1.6 Manrope, "PingFang SC", sans-serif; }
+.catalog-card-summary { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; color: var(--catalog-muted); font: 400 11px/1.8 Manrope, "PingFang SC", sans-serif; }
+.catalog-book-summary { margin: 0 0 24px; color: #d9ded3; font-size: 15px; line-height: 1.9; max-width: 40ch; }
+.catalog-source { display: grid; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--catalog-line); }
+.catalog-source a { justify-self: start; color: var(--panel-text); font: 400 12px Manrope, sans-serif; text-underline-offset: 5px; }
+.catalog-source small { color: var(--catalog-muted); font: 400 11px/1.7 Manrope, sans-serif; max-width: 58ch; }
+.catalog-rating { color: #d4c5a0; font: 14px/1.2 sans-serif; letter-spacing: 2px; }
+.catalog-rating i { color: #60665e; font-style: normal; }
+.catalog-unrated { color: var(--catalog-muted); font: 400 10px/1.5 Manrope, sans-serif; }
+.catalog-art-missing { display: grid; place-items: center; height: 100%; padding: 18px; font: 400 19px/1.5 "Songti SC", serif; text-align: center; }
+.catalog-detail-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-bottom: 22px; border-bottom: 1px solid var(--catalog-line); }
+.catalog-detail-nav > div { display: flex; gap: 7px; }
+.catalog-detail-nav button:disabled { opacity: .35; cursor: default; }
+.catalog-detail { display: grid; grid-template-columns: minmax(160px, 260px) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: start; padding: 32px 0; }
+.catalog-art-large { max-height: 430px; }
+.catalog-detail-copy { padding-top: 10px; }
+.catalog-detail-meta { margin: 0 0 16px; color: var(--catalog-muted); font: 400 12px Manrope, sans-serif; }
+.catalog-detail-copy h3 { margin: 0 0 18px; font: 500 clamp(22px, 3vw, 32px)/1.55 Manrope, "PingFang SC", "Microsoft YaHei", sans-serif; text-wrap: balance; }
+.catalog-secondary { margin: 0 0 20px; color: var(--catalog-muted); font-size: 14px; line-height: 1.65; }
+.catalog-status { font: 400 12px Manrope, sans-serif; color: #b7c4b1; }
+.catalog-personal-rating { display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--catalog-line); margin-top: 24px; }
+.catalog-personal-rating > span:first-child, .catalog-volumes > span { color: var(--catalog-muted); font: 400 11px Manrope, sans-serif; }
+.catalog-personal-rating .catalog-rating { font-size: 21px; letter-spacing: 4px; }
+.catalog-volumes { padding-top: 22px; }
+.catalog-volumes ul { padding-left: 18px; line-height: 1.8; font-size: 14px; }
+.catalog-empty { min-height: 250px; display: grid; align-content: center; justify-items: center; gap: 12px; color: var(--catalog-muted); font-size: 14px; }
+@media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 18px; } }
+@media (max-width: 640px) {
+  .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 18px; }
+  .catalog-toolbar { gap: 12px; }
+  .catalog-toolbar input { width: 100%; }
+  .catalog-filters { gap: 5px; }
+  .catalog-filters button { min-height: 40px; padding-inline: 10px; }
+  .catalog-detail { grid-template-columns: 1fr; gap: 20px; padding-top: 22px; }
+  .catalog-art-large { width: min(220px, 70%); max-height: 320px; justify-self: center; }
+  .catalog-detail-copy { padding-top: 0; }
+  .catalog-detail-copy h3 { font-size: 24px; }
+  .catalog-detail-nav { padding-bottom: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .catalog-card .catalog-art { transition: none; } .catalog-card:hover .catalog-art { transform: none; } }

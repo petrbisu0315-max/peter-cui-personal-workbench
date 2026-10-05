@@ -157,6 +157,34 @@ publish: files under `public/` remain publicly accessible.
 `src/audio/musicController.test.ts` covers lazy loading, transport, repeat,
 metadata, seeking, volume, errors, stale playback promises and cleanup.
 
+## Reading shelf and watchlist
+
+`CatalogPanel.tsx` serves the existing bookshelf and film-poster hotspots with
+searchable cover grids, type filters and an in-panel detail view. Escape returns
+from a title to the grid before closing the outer panel; focus returns to the
+selected cover. Chinese titles and source-based summaries remain Chinese; controls
+are English. No bottom navigation was added.
+
+- `books.json`: 35 screenshot-derived shelf entries, all confirmed read by the
+  owner: 32 individual books, a two-book collection and two magazine issues.
+  Authors and original one-sentence content summaries were verified against
+  reference pages: 30 Douban entries, two bookseller pages, one legitimate
+  collection page and two publisher issue pages. `sourceLabel` and `url` disclose
+  which source is used; reference editions may differ from the WeRead copy.
+  Summaries describe content and are not the owner's personal reviews.
+- `movies.json`: the first 30 of 119 watched Douban entries shown in the supplied
+  screenshots. Includes films, series and a stage recording. `rating` is the
+  owner's five-star rating; four unrated records remain `null`, never zero.
+  Per the owner's preference, private comments and marking dates are not included
+  in the public data, markup or detail view. Do not import them into future builds.
+- Cover crops from the supplied screenshots are hosted under
+  `public/images/catalog/` with content-hashed filenames (about 0.8 MB for this
+  batch). Preserve IDs and filenames when adding metadata; replace the hash/URL
+  when replacing artwork. This is a batch import, not automatic platform sync.
+
+`CatalogPanel.test.tsx` checks counts, category separation, author/summary coverage,
+local artwork, null ratings and an explicit allowlist of public watchlist fields.
+
 ## Updating portfolio content
 
 Edit the JSON files under `src/data/`:
@@ -164,7 +192,7 @@ Edit the JSON files under `src/data/`:
 - `projects.json` — laptop projects
 - `photos.json` — camera archive
 - `books.json` — reading shelf
-- `movies.json` — film notes
+- `movies.json` — watched titles and personal ratings, without private comments
 - `research.json` — research, writing and works in progress
 - `experiences.json` — campus and internship timelines
 - `resume.json` — résumé file metadata

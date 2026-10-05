@@ -65,4 +65,11 @@
 - Music defaults to one 52px album CD. Click to reveal controls; click outside, the close button, the disc again, or Escape to collapse. Collapsing preserves the same audio element and disc node, track position and rotation. Playback remains opt-in and starts only with Play/track selection; reduced motion disables the spin.
 - Browser checks confirmed desktop day/night rendering and right-window placement, 390px collapsed/expanded layout, playback continuity while collapsed, playlist selection, paused rotation, outside-click/Escape dismissal, keyboard opening/focus restoration and reduced-motion behavior. Software 3D rendering was paused during detailed media checks; production frame settings are unchanged.
 
+## Catalog batch and book metadata — 2026-10-06
+
+- Imported 35 WeRead shelf entries from the owner's screenshot. The owner confirmed all are read. Preserved two 南风窗 issues and the Eva Illouz two-book collection as separate entry types rather than silently dropping/splitting them.
+- Filled every shelf entry with a verified author/editor, an original one-sentence Chinese summary and a disclosed reference URL. Primary sources: 30 Douban book pages, two bookseller pages, one authorized ebook collection page and two 南风窗 official pages. Version/translation differences remain explicitly possible. Corrected 小说榫卯 author to 张秋子 and completed truncated titles from verified sources.
+- Imported the first 30 watched entries from two Douban screenshots: 21 films, 8 series and 1 stage recording. Four have no visible rating and remain null. The owner explicitly requested titles and personal scores only: no personal reviews or marking dates were added to the public bundle. Remaining 89 watched entries are not yet imported.
+- Added cover grids, title/author search, category filters, same-panel details and reference links. The existing bookshelf/poster 3D hotspots were exercised. Mobile 390px layout, filtering, collection volumes, ratings, Escape/back navigation and focus return were verified. All 65 crops are local, hashed WebP assets. Review/provenance CSV/JSON files remain outside the repository in the workspace review folder.
+
 

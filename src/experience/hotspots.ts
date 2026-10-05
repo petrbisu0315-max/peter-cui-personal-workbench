@@ -18,7 +18,7 @@ export const hotspotMeta: Record<HotspotId, { label: string; shortLabel: string;
   projects: { label: 'Projects', shortLabel: 'Projects', hoverLabel: 'Vibecoding projects', index: '04' },
   photos: { label: 'Personal Photos', shortLabel: 'Camera', hoverLabel: 'Personal photos (placeholder)', index: '05' },
   books: { label: 'Reading Shelf', shortLabel: 'Books', hoverLabel: 'Reading shelf', index: '06' },
-  movies: { label: 'Film Notes', shortLabel: 'Films', hoverLabel: 'Film notes', index: '07' },
+  movies: { label: 'Watchlist', shortLabel: 'Films', hoverLabel: 'Films & series', index: '07' },
   whiteboard: { label: 'Leave a Note', shortLabel: 'Whiteboard', hoverLabel: 'Leave a note', index: '08' },
   research: { label: 'Research & Writing', shortLabel: 'Research', hoverLabel: 'Research & writing', index: '09' },
 }

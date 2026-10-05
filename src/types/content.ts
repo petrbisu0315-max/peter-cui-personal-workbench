@@ -46,17 +46,25 @@ export type PhotoItem = {
 export type BookItem = {
   id: string
   title: string
-  author: string
+  author?: string
+  summary?: string
+  sourceLabel?: 'Douban' | 'Publisher' | 'Bookseller' | 'Collection'
   status: 'reading' | 'finished'
-  note?: string
+  kind?: 'book' | 'collection' | 'periodical'
+  cover?: string
+  volumes?: string[]
   url?: string
 }
 
 export type MovieItem = {
   id: string
   title: string
+  alternateTitle?: string
   year?: number
-  note?: string
+  kind?: 'film' | 'series' | 'stage_recording'
+  status?: 'watched'
+  rating?: number | null
+  poster?: string
   url?: string
 }
 
