@@ -101,11 +101,20 @@ Meadow and Coast. The stored IDs (`home`, `aurora`, `prairie`, `ocean`) and
 Arrow keys select an environment; Escape dismisses the picker and restores focus.
 
 `EnvironmentBackground.tsx` draws a non-interactive full-screen background using
-`environment.frag.glsl`. The procedural shader supplies architectural window light,
-aurora filaments, layered grassland, and perspective-compressed sea ripples. These
-are art-directed environments, not photographs or additional room meshes. There
-are no external texture requests or continuous CanvasTexture uploads. Static WebP
-previews under `public/images/environments/` are rendered from the same shader.
+`environment.frag.glsl`. Interior uses a modern office composition: full-height
+graphite-framed glazing, an imagined city skyline, large pale stone wall panels,
+flush walnut joinery, a ceiling light slot and softly reflective stone slabs.
+Its evening palette remains bright enough to read the furniture. This is a
+procedural background; it does not reposition furniture or restore the old wall
+and floor meshes.
+
+Other themes use aurora filaments, layered grassland, and perspective-compressed
+sea ripples. These are art-directed environments, not photographs or additional
+room meshes. There are no external texture requests or continuous CanvasTexture
+uploads. Static WebP previews under `public/images/environments/` are rendered
+from the same shader. Use a new content-hashed preview filename when replacing
+an existing immutable asset; the optional `preview` field in `themes.ts` overrides
+the default theme-ID filename.
 
 Background weights and lighting use bounded exponential interpolation. The night
 mix affects both the background and room lighting. Reduced-motion mode disables

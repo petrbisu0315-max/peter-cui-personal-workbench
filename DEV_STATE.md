@@ -52,4 +52,11 @@
 - Browser checks verified actual playback for all three songs, pause, skip, seek, volume/mute, repeat-all, scene/panel continuity, silent reload and 390px layout. The software 3D loop was temporarily suspended during detailed media-control tests; production scene rendering is unchanged. Controller tests cover errors and stale asynchronous play requests.
 - Production CDN testing returned full-file responses for Range requests. Added an on-demand bounded Blob buffer when the browser cannot seek natively. All three public URLs were verified playing and seeking to 60 seconds, including the fallback path; paused seeking and stale-buffer cancellation are covered as well. No Cloudflare server configuration or Functions were added.
 
+## Interior-only office refinement — 2026-10-05
+
+- Replaced the residential curtain/beadboard treatment with graphite-framed full-height glazing, a generic city skyline, pale honed-stone panels, flush walnut joinery, a concealed ceiling light and perspective slab joints. Raised the background wall/floor junction to sit behind, rather than below, the foreground furniture.
+- Interior day lighting is neutral and diffuse; evening has cooler exterior glazing, subtle city lights and a brighter warm-neutral office wash. Only the `home` palette changed. Furniture, model geometry, content, audio and other environment palettes are untouched.
+- Added a content-hashed office preview and optional per-theme preview URL; removed the obsolete home thumbnail. Other previews retain their previous URLs.
+- Chromium shader compilation and day/night rendering checked. The other three shader themes were pixel-compared with the prior shader at fixed time in both day and night and were identical. Mobile 390×844 layout, picker thumbnails, keyboard focus and Resume open/close checked. Continuous software rendering was temporarily paused for settled captures; no real-device frame-rate claims.
+
 

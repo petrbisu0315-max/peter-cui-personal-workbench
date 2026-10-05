@@ -32,44 +32,120 @@ float rect(vec2 p,vec2 lo,vec2 hi,float feather) {
   return band(p.x,lo.x,hi.x,feather)*band(p.y,lo.y,hi.y,feather);
 }
 
+// An imagined city, kept low-contrast behind the glazing rather than a specific skyline.
+vec3 officeCity(vec2 p) {
+  vec3 skyDay=mix(vec3(.84,.88,.89),vec3(.65,.75,.79),smoothstep(.37,1.,p.y));
+  vec3 skyNight=mix(vec3(.41,.52,.61),vec3(.20,.30,.40),smoothstep(.37,1.,p.y));
+  vec3 c=mix(skyDay,skyNight,uNight);
+  float haze=fbm(p*vec2(8.,13.));
+  c+=vec3(.035)*haze;
+  for(int i=0;i<3;i++) {
+    float layer=float(i);
+    float cellWidth=.042+layer*.019;
+    float cell=floor((p.x+layer*.023)/cellWidth);
+    float local=fract((p.x+layer*.023)/cellWidth);
+    float roof=.38+hash(vec2(cell,layer+5.))*(.13+layer*.043);
+    roof+=step(.83,hash(vec2(cell,layer+45.)))*.055;
+    float width=.63+hash(vec2(cell,layer+21.))*.24;
+    float silhouette=band(local,.05,width,.012)*(1.-smoothstep(roof,roof+.002,p.y));
+    float facadeNoise=hash(vec2(cell,layer+31.));
+    vec3 day=vec3(.71,.76,.78)-layer*.055+facadeNoise*.035;
+    vec3 night=vec3(.23,.31,.37)-layer*.035+facadeNoise*.023;
+    float floors=band(fract((p.y-.2)*(160.+layer*21.)),.18,.58,.08);
+    float fins=band(fract(local*7.),.25,.83,.10);
+    float occupied=step(.64,hash(vec2(floor(local*6.)+cell*9.,floor(p.y*155.))));
+    vec3 building=mix(day,night,uNight);
+    building+=vec3(.035,.048,.057)*floors*fins*(1.-uNight);
+    building+=vec3(.36,.29,.19)*floors*fins*occupied*uNight;
+    building-=.038*smoothstep(.62,.85,local);
+    c=mix(c,building,silhouette);
+  }
+  c=mix(c,mix(vec3(.86,.885,.88),vec3(.31,.41,.47),uNight),.18*(1.-smoothstep(.25,.6,p.y)));
+  return c;
+}
+
 vec3 interior(vec2 p) {
-  float n=fbm(p*7.);
-  vec3 wall=mix(vec3(.82,.81,.77),vec3(.90,.885,.85),p.y);
-  wall+=(n-.5)*.024;
-  wall-=vec3(.08,.075,.065)*exp(-abs(p.x-.84)*28.);
-  // Recessed timber joinery on the right; detail remains behind the foreground room.
-  float recess=smoothstep(.85,.86,p.x);
-  vec3 oak=vec3(.50,.47,.40)+(noise(vec2(p.x*220.,p.y*2.))-.5)*.04;
-  oak-=.09*pow(1.-abs(sin((p.x-.856)*110.)),14.);
-  wall=mix(wall,oak,recess*.7);
-  float seam=exp(-abs(p.y-.3)*260.);
-  wall-=seam*.06;
-  // A deep full-height opening, sheer curtain and thin mullions.
-  float opening=rect(p,vec2(-.44,.302),vec2(.18,1.3),.002);
-  vec3 view=mix(vec3(.68,.75,.73),vec3(.93,.955,.92),smoothstep(.30,1.,p.y));
-  view+=.035*fbm(p*vec2(19.,4.));
-  float trees=1.-smoothstep(.38,.55,p.y+fbm(vec2(p.x*18.,p.y*4.))*.07);
-  view=mix(view,vec3(.61,.66,.58),trees*.25);
-  float curtain=rect(p,vec2(-.12,.30),vec2(.09,1.2),.006);
-  view=mix(view,vec3(.91,.91,.85),curtain*(.55+.07*sin(p.x*270.)));
-  wall=mix(wall,view,opening);
-  wall=mix(wall,vec3(.40,.42,.39),opening*exp(-abs(p.x+.18)*550.)*.6);
-  wall-=exp(-abs(p.x-.188)*240.)*.10*step(.30,p.y);
-  // Sunlit reveals provide depth without reinstating a bounded wall/floor model.
-  float reveal=band(p.x,.19,.215,.002)*step(.3,p.y);
-  wall=mix(wall,vec3(.94,.91,.84),reveal*.7);
-  float floorMask=1.-smoothstep(.298,.303,p.y);
-  vec3 floorColor=mix(vec3(.67,.65,.60),vec3(.80,.78,.71),smoothstep(0.,.30,p.y));
-  floorColor+=(fbm(p*vec2(16.,75.))-.5)*.015;
-  float lightPatch=rect(vec2(p.x+p.y*.78,p.y),vec2(-.05,.035),vec2(.43,.298),.018);
-  float panes=1.-.25*exp(-abs(p.x+p.y*.78-.19)*120.);
-  floorColor=mix(floorColor,vec3(.94,.91,.80),lightPatch*panes*.6);
-  vec3 day=mix(wall,floorColor,floorMask);
-  // Evening has a blue exterior and a low, warm interior wash, not a black filter.
-  vec3 evening=day*vec3(.51,.49,.45);
-  evening+=vec3(.12,.084,.035)*exp(-length((p-vec2(.73,.48))*vec2(1.4,1.))*3.);
-  evening=mix(evening,view*vec3(.35,.44,.54),opening*.65);
-  return mix(day,evening,uNight);
+  float floorY=.37;
+  float ceilingY=.875;
+  float dusk=clamp(uNight,0.,1.);
+  // Large honed-stone panels and fine shadow reveals; no residential beadboard or curtains.
+  float stone=fbm(p*vec2(11.,17.));
+  vec3 wall=mix(vec3(.83,.835,.82),vec3(.92,.92,.90),smoothstep(floorY,ceilingY,p.y));
+  wall+=(stone-.5)*.012;
+  float windowBounce=exp(-abs(p.x-.25)*4.5);
+  wall+=vec3(.02,.023,.022)*windowBounce;
+  wall-=vec3(.10,.10,.09)*exp(-abs(p.x-.862)*60.);
+  float joints=exp(-abs(p.x-.534)*1800.)+exp(-abs(p.x-.782)*1800.);
+  wall-=joints*.018;
+  wall*=mix(vec3(1.),vec3(.68,.69,.69),dusk);
+
+  // Full-height window bank on the left, with an angled reveal and graphite mullions.
+  float jamb=.245;
+  float opening=1.-smoothstep(jamb-.001,jamb+.001,p.x);
+  vec3 glass=officeCity(vec2(p.x*1.25,p.y));
+  float reflection=band(p.x+p.y*.17,.07,.17,.026);
+  glass+=vec3(.055,.067,.067)*reflection*(1.-dusk*.6);
+  float mullions=band(p.x,.061,.065,.0006)+band(p.x,.169,.173,.0006);
+  glass=mix(glass,mix(vec3(.25,.30,.32),vec3(.17,.22,.25),dusk),clamp(mullions,0.,1.));
+  glass+=vec3(.13)*exp(-abs(p.x-.066)*1900.)*(1.-dusk*.5);
+  float transom=band(p.y,.445,.448,.0006);
+  glass=mix(glass,mix(vec3(.32,.38,.39),vec3(.16,.21,.24),dusk),transom*.7);
+  vec3 color=mix(wall,glass,opening);
+  float jambShadow=band(p.x,jamb,jamb+.009,.0007);
+  color=mix(color,mix(vec3(.29,.32,.31),vec3(.24,.27,.27),dusk),jambShadow);
+  float reveal=band(p.x,jamb+.01,jamb+.032,.001);
+  color=mix(color,mix(vec3(.96,.955,.92),vec3(.68,.68,.63),dusk),reveal);
+
+  // Flush walnut storage at the far right is a single quiet architectural mass.
+  float walnutMask=smoothstep(.872,.874,p.x);
+  float grain=fbm(vec2(p.x*320.,p.y*3.5));
+  vec3 walnut=vec3(.345,.30,.245)+(grain-.5)*.025;
+  walnut*=mix(vec3(1.),vec3(.72,.74,.76),dusk);
+  float doorReveal=exp(-abs(p.x-.981)*1900.);
+  walnut-=doorReveal*.085;
+  walnut+=vec3(.03,.024,.012)*exp(-abs(p.x-.878)*100.);
+  color=mix(color,walnut,walnutMask);
+  float insetTrim=band(p.x,.862,.869,.0005);
+  color=mix(color,mix(vec3(.31,.33,.32),vec3(.25,.28,.27),dusk),insetTrim);
+
+  // Ceiling setback and concealed linear light, above the existing objects.
+  float top=ceilingY+.045*clamp((.25-p.x)/.4,0.,1.);
+  float ceilingMask=smoothstep(top,top+.001,p.y);
+  vec3 ceiling=mix(vec3(.79,.81,.80),vec3(.90,.91,.89),smoothstep(top,1.05,p.y));
+  ceiling*=mix(vec3(1.),vec3(.69,.72,.74),dusk);
+  color=mix(color,ceiling,ceilingMask);
+  float slot=band(p.y,top-.006,top+.001,.0007);
+  color=mix(color,vec3(.19,.225,.23),slot*.88);
+  float lightLine=band(p.y,top-.011,top-.007,.0008)*band(p.x,.281,.84,.003);
+  vec3 warmWhite=mix(vec3(.98,.975,.93),vec3(.99,.925,.79),dusk);
+  color=mix(color,warmWhite,lightLine);
+  float wash=exp(-abs(p.y-(top-.022))*26.)*band(p.x,.28,.85,.025);
+  color+=warmWhite*wash*mix(.025,.09,dusk);
+
+  // Stone floor with perspective-correct slab joints and restrained glass reflections.
+  float floorMask=1.-smoothstep(floorY-.001,floorY+.001,p.y);
+  float near=clamp((floorY-p.y)/.35,0.,1.);
+  vec3 floorColor=mix(vec3(.74,.765,.756),vec3(.60,.635,.637),near);
+  float surfaceNoise=fbm(p*vec2(26.,37.));
+  floorColor+=(surfaceNoise-.5)*.014;
+  float persp=max(.48-p.y,.035);
+  vec2 floorUv=vec2((p.x-.56)/persp,1./persp);
+  float jointX=abs(fract(floorUv.x*.58+.25)-.5);
+  float jointY=abs(fract(floorUv.y*.47)-.5);
+  float grout=1.-smoothstep(.001,.004,min(jointX,jointY));
+  floorColor-=grout*.033;
+  // Window reflection is blurred and desaturated, never a mirror under the floating room.
+  vec2 reflected=vec2(p.x-.20*(floorY-p.y),floorY+(floorY-p.y)*1.35);
+  float reflectedWindow=(1.-smoothstep(.22,.33,reflected.x))*exp(-(floorY-p.y)*2.5);
+  floorColor=mix(floorColor,officeCity(reflected)*.87,reflectedWindow*.12);
+  float daylight=rect(vec2(p.x+p.y*.78,p.y),vec2(.07,.028),vec2(.52,floorY),.012);
+  float crossbar=1.-.25*band(p.x+p.y*.78,.275,.29,.009);
+  floorColor=mix(floorColor,vec3(.91,.92,.885),daylight*crossbar*.43*(1.-dusk));
+  floorColor*=mix(vec3(1.),vec3(.66,.70,.735),dusk);
+  color=mix(color,floorColor,floorMask);
+  float skirting=band(p.y,floorY+.001,floorY+.006,.001)*step(jamb,p.x);
+  color=mix(color,mix(vec3(.48,.51,.50),vec3(.32,.36,.36),dusk),skirting*.65);
+  return color;
 }
 
 vec3 sky(vec2 p,float horizon,vec3 zenith,vec3 haze) {

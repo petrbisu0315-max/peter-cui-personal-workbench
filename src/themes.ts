@@ -20,16 +20,18 @@ type BackgroundTheme = {
   name: string
   fullName: string
   description: string
+  preview?: string
   palette: EnvironmentPalette
   night: EnvironmentPalette
 }
 
 export const BACKGROUND_THEMES: Record<BackgroundThemeId, BackgroundTheme> = {
   home: {
-    id: 'home', name: 'Interior', fullName: 'Modern interior · 现代室内',
-    description: 'Limestone, oak & afternoon light',
-    palette: { background: '#ddd9cf', hemiSky: '#fff8eb', hemiGround: '#9a9082', hemiIntensity: 2.2, keyColor: '#fff3de', keyIntensity: 2.5, fillColor: '#e0e7eb', fillIntensity: 1.1, lampMultiplier: 0.8, lampWarmth: '#ffe4c1' },
-    night: { background: '#555049', hemiSky: '#ecdbc1', hemiGround: '#958a7d', hemiIntensity: 1.25, keyColor: '#ffe2bd', keyIntensity: 0.85, fillColor: '#ccd6e4', fillIntensity: 0.8, lampMultiplier: 0.7, lampWarmth: '#ffe4c1' },
+    id: 'home', name: 'Interior', fullName: 'Modern office · 现代办公室',
+    description: 'City light, stone & walnut',
+    preview: '/images/environments/home-office-c76bf3d06e.webp',
+    palette: { background: '#d9ddda', hemiSky: '#f4f7f3', hemiGround: '#a0a39d', hemiIntensity: 2.25, keyColor: '#fff4e5', keyIntensity: 2.3, fillColor: '#dce8ef', fillIntensity: 1.25, lampMultiplier: 0.8, lampWarmth: '#ffe8cd' },
+    night: { background: '#858b87', hemiSky: '#e1e8e6', hemiGround: '#93978e', hemiIntensity: 1.55, keyColor: '#f5e8d2', keyIntensity: 1.1, fillColor: '#c9dae6', fillIntensity: 0.95, lampMultiplier: 0.7, lampWarmth: '#ffe8cd' },
   },
   aurora: {
     id: 'aurora', name: 'Aurora', fullName: 'Northern lights · 极光',

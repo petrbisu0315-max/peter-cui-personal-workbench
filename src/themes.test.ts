@@ -39,6 +39,15 @@ describe('environment selection', () => {
     expect(BACKGROUND_THEMES.home.name).toBe('Interior')
   })
 
+  it('ships the updated office preview and preserves fallback previews for the other themes', () => {
+    expect(BACKGROUND_THEMES.home.preview).toMatch(/home-office-[a-f0-9]+\.webp$/)
+    const previews = import.meta.glob('../public/images/environments/*.webp', { query: '?url', import: 'default', eager: true })
+    for (const theme of THEME_LIST) {
+      const path = theme.preview ?? `/images/environments/${theme.id}.webp`
+      expect(previews).toHaveProperty(`../public${path}`)
+    }
+  })
+
   it('renders a labeled, collapsed control without preloading an overlay', () => {
     const html = renderToStaticMarkup(createElement(EnvironmentPicker, { theme: 'ocean', onChange: () => undefined }))
     expect(html).toContain('Environment: Coast')

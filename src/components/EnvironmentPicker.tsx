@@ -76,7 +76,7 @@ export function EnvironmentPicker({ theme, onChange }: {
                 onClick={() => onChange(item.id)}
               >
                 <span className={`environment-preview swatch-${item.id}`}>
-                  <img src={`/images/environments/${item.id}.webp`} alt="" />
+                  <img src={item.preview ?? `/images/environments/${item.id}.webp`} alt="" />
                   {theme === item.id && <span className="environment-check" aria-hidden="true">✓</span>}
                 </span>
                 <strong>{item.name}</strong>
