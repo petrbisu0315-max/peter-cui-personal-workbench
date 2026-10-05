@@ -12,6 +12,8 @@ class TestAudio extends EventTarget implements AudioPort {
   ended = false
   volume = 1
   muted = false
+  supportsRanges = true
+  get seekable() { return { length: 1, start: () => 0, end: () => this.supportsRanges ? this.duration : 0 } }
   play = vi.fn(() => Promise.resolve())
   load = vi.fn(() => { this.currentTime = 0; this.duration = NaN; this.ended = false })
   pause = vi.fn(() => { this.paused = true; this.emit('pause') })
@@ -196,6 +198,64 @@ describe('background music', () => {
     expect(audio.src).toBe('')
     player.play()
     expect(audio.play).toHaveBeenCalledTimes(1)
+  })
+
+  it('buffers a range-less CDN response only when seeking needs it and resumes', async () => {
+    const audio = new TestAudio()
+    audio.supportsRanges = false
+    const release = vi.fn()
+    const loader = vi.fn(async () => ({ url: 'blob:track', release }))
+    const player = new MusicController(audio, tracks, vi.fn(), DEFAULT_VOLUME, loader)
+    player.play()
+    audio.metadata(132)
+    audio.start()
+    expect(loader).not.toHaveBeenCalled()
+    player.seek(60)
+    await flush()
+    expect(audio.src).toBe('blob:track')
+    audio.metadata(132)
+    expect(audio.currentTime).toBe(60)
+    audio.start()
+    expect(player.state.status).toBe('playing')
+    player.skip(1)
+    expect(release).toHaveBeenCalledOnce()
+    player.dispose()
+  })
+
+  it('does not let a late seek buffer overwrite a newly selected track', async () => {
+    const audio = new TestAudio()
+    audio.supportsRanges = false
+    const release = vi.fn()
+    let finish!: (value: { url: string; release: () => void }) => void
+    const loader = vi.fn(() => new Promise<{ url: string; release: () => void }>((resolve) => { finish = resolve }))
+    const player = new MusicController(audio, tracks, vi.fn(), DEFAULT_VOLUME, loader)
+    player.play()
+    audio.metadata(132)
+    audio.start()
+    player.seek(60)
+    player.skip(1)
+    finish({ url: 'blob:stale', release })
+    await flush()
+    expect(audio.src).toBe(tracks[1].src)
+    expect(release).toHaveBeenCalledOnce()
+    player.dispose()
+  })
+
+  it('honors pause while a seek buffer is downloading', async () => {
+    const audio = new TestAudio()
+    audio.supportsRanges = false
+    const player = new MusicController(audio, tracks, vi.fn(), DEFAULT_VOLUME, async () => ({ url: 'blob:paused', release: vi.fn() }))
+    player.play()
+    audio.metadata(132)
+    audio.start()
+    player.seek(60)
+    player.pause()
+    await flush()
+    audio.metadata(132)
+    expect(audio.currentTime).toBe(60)
+    expect(audio.paused).toBe(true)
+    expect(player.state.status).toBe('paused')
+    player.dispose()
   })
 
   it('formats time and safely restores only a valid volume preference', () => {

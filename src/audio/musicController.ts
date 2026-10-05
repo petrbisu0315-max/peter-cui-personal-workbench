@@ -1,3 +1,5 @@
+import type { SeekableSource, SeekableSourceLoader } from './seekableSource'
+
 export type Track = {
   id: string
   title: string
@@ -19,7 +21,7 @@ export type MusicState = {
 }
 
 export type AudioPort = Pick<HTMLAudioElement,
-  'src' | 'preload' | 'currentTime' | 'duration' | 'paused' | 'ended' | 'volume' | 'muted' |
+  'src' | 'preload' | 'currentTime' | 'duration' | 'paused' | 'ended' | 'volume' | 'muted' | 'seekable' |
   'play' | 'pause' | 'load' | 'removeAttribute' | 'addEventListener' | 'removeEventListener'
 >
 
@@ -48,9 +50,12 @@ export class MusicController {
   private generation = 0
   private disposed = false
   private sourceLoaded = false
+  private bufferedSource: SeekableSource | null = null
+  private buffering: AbortController | null = null
+  private pendingSeek: number | null = null
   private detach: (() => void)[] = []
 
-  constructor(private audio: AudioPort, private tracks: Track[], private changed: (state: MusicState) => void, volume = DEFAULT_VOLUME) {
+  constructor(private audio: AudioPort, private tracks: Track[], private changed: (state: MusicState) => void, volume = DEFAULT_VOLUME, private sourceLoader?: SeekableSourceLoader) {
     if (!tracks.length) throw new Error('A playlist must contain at least one track')
     audio.preload = 'none'
     audio.volume = volume
@@ -77,6 +82,11 @@ export class MusicController {
     if (this.disposed) return
     this.request += 1
     this.generation += 1
+    this.buffering?.abort()
+    this.buffering = null
+    this.pendingSeek = null
+    this.bufferedSource?.release()
+    this.bufferedSource = null
     this.intendedPlayback = play
     this.detach.forEach((remove) => remove())
     this.detach = []
@@ -87,6 +97,12 @@ export class MusicController {
     this.listen('loadedmetadata', () => {
       const duration = this.audio.duration
       this.update({ ready: Number.isFinite(duration) && duration > 0, duration: Number.isFinite(duration) && duration > 0 ? duration : this.tracks[index].duration })
+      if (this.pendingSeek !== null) {
+        const position = this.pendingSeek
+        this.pendingSeek = null
+        this.seek(position)
+        if (this.intendedPlayback) this.play()
+      }
     })
     this.listen('durationchange', () => {
       if (Number.isFinite(this.audio.duration) && this.audio.duration > 0) this.update({ duration: this.audio.duration })
@@ -169,11 +185,45 @@ export class MusicController {
   seek(time: number) {
     if (!this.state.ready || !Number.isFinite(time)) return
     const value = Math.max(0, Math.min(time, this.state.duration))
+    const ranges = this.audio.seekable
+    const canSeek = Array.from({ length: ranges.length }, (_, i) => i).some((i) => value >= ranges.start(i) && value <= ranges.end(i))
+    if (!canSeek && !this.bufferedSource && this.sourceLoader) {
+      void this.bufferForSeek(value)
+      return
+    }
     try {
       this.audio.currentTime = value
       this.update({ time: value })
     } catch {
       this.update({ error: 'Seeking is not available yet. Wait for the track to load.' })
+    }
+  }
+
+  private async bufferForSeek(time: number) {
+    if (!this.sourceLoader || this.buffering) return
+    const generation = this.generation
+    const abort = new AbortController()
+    this.buffering = abort
+    this.request += 1
+    this.update({ status: this.intendedPlayback ? 'loading' : 'paused', ready: false, error: '' })
+    this.audio.pause()
+    try {
+      const source = await this.sourceLoader(this.tracks[this.state.index].src, abort.signal)
+      if (this.disposed || generation !== this.generation || abort.signal.aborted) {
+        source.release()
+        return
+      }
+      this.bufferedSource = source
+      this.pendingSeek = time
+      this.update({ status: this.intendedPlayback ? 'loading' : 'paused', ready: false })
+      this.audio.src = source.url
+      this.audio.load()
+    } catch {
+      if (this.disposed || generation !== this.generation || abort.signal.aborted) return
+      this.intendedPlayback = false
+      this.update({ status: 'error', error: 'Could not buffer this track for seeking. Press Play to retry.' })
+    } finally {
+      if (this.buffering === abort) this.buffering = null
     }
   }
 
@@ -197,6 +247,11 @@ export class MusicController {
     this.disposed = true
     this.request += 1
     this.generation += 1
+    this.buffering?.abort()
+    this.buffering = null
+    this.bufferedSource?.release()
+    this.bufferedSource = null
+    this.pendingSeek = null
     this.intendedPlayback = false
     this.detach.forEach((remove) => remove())
     this.detach = []

@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import music from '../data/music.json'
 import { formatTime, initialMusicState, MusicController, parseVolume, VOLUME_KEY } from '../audio/musicController'
 import type { Track } from '../audio/musicController'
+import { loadSeekableSource } from '../audio/seekableSource'
 import './MusicPlayer.css'
 
 const tracks: Track[] = music
@@ -38,7 +39,7 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
     if (!audioRef.current) return
     let volume = parseVolume(null)
     try { volume = parseVolume(localStorage.getItem(VOLUME_KEY)) } catch { /* Volume still works without storage. */ }
-    const player = new MusicController(audioRef.current, tracks, setState, volume)
+    const player = new MusicController(audioRef.current, tracks, setState, volume, loadSeekableSource)
     controller.current = player
     return () => { player.dispose(); controller.current = null }
   }, [])

@@ -126,7 +126,10 @@ publish: files under `public/` remain publicly accessible.
 - No autoplay and no MP3 source assigned until the visitor presses Play or selects
   a song. The first visit starts at 30% volume; only volume is remembered.
 - Previous/next retains the paused/playing intent; the final track loops to the
-  first. Seeking becomes available after metadata loads. Failed playback shows
+  first. Seeking becomes available after metadata loads. If a CDN does not expose
+  a usable seek range, `seekableSource.ts` buffers that track on demand into a
+  revocable local Blob URL (8 MiB maximum), reusing the HTTP cache. Buffers and
+  in-flight requests are released on track changes/unmount. Failed playback shows
   an actionable message rather than endlessly skipping tracks.
 - The album CD rotates once every 24 seconds only during playback. Pause holds
   its angle; reduced-motion preferences disable the rotation.

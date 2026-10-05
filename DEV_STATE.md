@@ -50,5 +50,6 @@
 - Music mounts independently of the 3D room and uses a single native audio element. Playback is visitor-initiated, with no MP3 source assigned before Play; default volume is 30%, with volume preference stored locally. Opening a content panel leaves music playing while making the covered controls inert.
 - Supports previous/next, playlist selection, seek, mute, volume and repeat-all. The CD rotates in 24 seconds, pauses at its current angle and respects reduced motion. Web-optimized audio and extracted cover art have content-hashed filenames.
 - Browser checks verified actual playback for all three songs, pause, skip, seek, volume/mute, repeat-all, scene/panel continuity, silent reload and 390px layout. The software 3D loop was temporarily suspended during detailed media-control tests; production scene rendering is unchanged. Controller tests cover errors and stale asynchronous play requests.
+- Production CDN testing returned full-file responses for Range requests. Added an on-demand bounded Blob buffer when the browser cannot seek natively. All three public URLs were verified playing and seeking to 60 seconds, including the fallback path; paused seeking and stale-buffer cancellation are covered as well. No Cloudflare server configuration or Functions were added.
 
 
