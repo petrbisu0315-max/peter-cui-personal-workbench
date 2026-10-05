@@ -89,10 +89,30 @@ The model uses a deterministic 256×256 linen texture and fewer than 5,000
 triangles. `AccentLights.tsx` controls its warm light; the existing floor-lamp
 click target still toggles day/night. No large glow sprite surrounds the shade.
 
-The night palette in `RoomScene.tsx` uses broad warm ambient light, a neutral
-front fill and gentler desk/picture lights. Its background (`#514940`) matches
-the night UI in `styles.css`. Keep these in sync when adjusting the palette.
-Walls and floor remain hidden; the whiteboard, rug and content are unchanged.
+Day/evening light palettes are defined per environment in `src/themes.ts` and
+applied by `RoomScene.tsx`. The practical lights still use the existing day/night
+switch. Walls and floor remain hidden; the whiteboard, rug and content are unchanged.
+
+## Environment backgrounds
+
+The top-right `EnvironmentPicker` presents four previews: Interior, Aurora,
+Meadow and Coast. The stored IDs (`home`, `aurora`, `prairie`, `ocean`) and
+`peter-workbench-theme` storage key remain compatible with earlier versions.
+Arrow keys select an environment; Escape dismisses the picker and restores focus.
+
+`EnvironmentBackground.tsx` draws a non-interactive full-screen background using
+`environment.frag.glsl`. The procedural shader supplies architectural window light,
+aurora filaments, layered grassland, and perspective-compressed sea ripples. These
+are art-directed environments, not photographs or additional room meshes. There
+are no external texture requests or continuous CanvasTexture uploads. Static WebP
+previews under `public/images/environments/` are rendered from the same shader.
+
+Background weights and lighting use bounded exponential interpolation. The night
+mix affects both the background and room lighting. Reduced-motion mode disables
+automatic movement and makes environment changes immediate; hidden tabs pause the
+background clock. GPU cost and frame rate still depend on the device and the
+existing room geometry/shadows. To tune the look, edit the GLSL alongside the
+matching palette in `themes.ts`; keep preview images in sync.
 
 ## Updating portfolio content
 

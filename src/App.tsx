@@ -4,7 +4,8 @@ import { IntroPaper } from './components/IntroPaper'
 import { initialWorkbenchState, workbenchReducer } from './interactionState'
 import type { LightingMode } from './lighting'
 import type { BackgroundThemeId } from './themes'
-import { BACKGROUND_THEMES, DEFAULT_THEME_ID, THEME_LIST } from './themes'
+import { resolveTheme, THEME_KEY, environmentIsDark } from './themes'
+import { EnvironmentPicker } from './components/EnvironmentPicker'
 import type { HotspotId } from './types/content'
 
 const ContentPanel = lazy(() =>
@@ -34,7 +35,6 @@ function RoomFallback() {
 }
 
 const LIGHTING_KEY = 'peter-workbench-lighting'
-const THEME_KEY = 'peter-workbench-theme'
 
 function readLighting(): LightingMode {
   try {
@@ -46,11 +46,9 @@ function readLighting(): LightingMode {
 
 function readTheme(): BackgroundThemeId {
   try {
-    const saved = window.localStorage.getItem(THEME_KEY) as BackgroundThemeId
-    if (saved && BACKGROUND_THEMES[saved]) return saved
-    return DEFAULT_THEME_ID
+    return resolveTheme(window.localStorage.getItem(THEME_KEY))
   } catch {
-    return DEFAULT_THEME_ID
+    return resolveTheme(null)
   }
 }
 
@@ -146,6 +144,7 @@ export default function App() {
       className={`app-shell${entered ? ' is-entered' : ''}`}
       data-lighting={lighting}
       data-theme={theme}
+      data-environment-dark={environmentIsDark(theme, lighting)}
     >
       <section className="workbench" aria-label="Interactive 3D personal room">
         {/* Top Header Bar */}
@@ -182,26 +181,7 @@ export default function App() {
 
           {/* Right: Environment Background Switcher & Day/Night Lamp Toggle */}
           <div className="room-bar-right">
-            <div
-              className="theme-switcher-pill"
-              role="radiogroup"
-              aria-label="Environment Background"
-            >
-              {THEME_LIST.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`theme-pill-btn ${theme === item.id ? 'is-active' : ''}`}
-                  onClick={() => handleThemeChange(item.id)}
-                  role="radio"
-                  aria-checked={theme === item.id}
-                  title={item.fullName}
-                >
-                  <span className="pill-icon">{item.icon}</span>
-                  <span className="pill-name">{item.name}</span>
-                </button>
-              ))}
-            </div>
+            <EnvironmentPicker theme={theme} onChange={handleThemeChange} />
 
             <LightingToggle mode={lighting} onToggle={toggleLighting} />
           </div>

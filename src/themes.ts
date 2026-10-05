@@ -1,165 +1,70 @@
+import type { LightingMode } from './lighting'
+
 export type BackgroundThemeId = 'home' | 'aurora' | 'prairie' | 'ocean'
 
-export interface BackgroundTheme {
+export type EnvironmentPalette = {
+  background: string
+  hemiSky: string
+  hemiGround: string
+  hemiIntensity: number
+  keyColor: string
+  keyIntensity: number
+  fillColor: string
+  fillIntensity: number
+  lampMultiplier: number
+  lampWarmth: string
+}
+
+type BackgroundTheme = {
   id: BackgroundThemeId
   name: string
   fullName: string
-  englishName: string
-  icon: string
   description: string
-  // Palette settings for Three.js scene background, fog, and lights
-  palette: {
-    background: string
-    fogColor: string
-    fogNear: number
-    fogFar: number
-    hemiSky: string
-    hemiGround: string
-    hemiIntensity: number
-    keyColor: string
-    keyIntensity: number
-    keyPosition: [number, number, number]
-    fillColor: string
-    fillIntensity: number
-    fillPosition: [number, number, number]
-    ambientGlow: string
-    ambientGlowIntensity: number
-    lampMultiplier: number
-    lampWarmth: string
-  }
-  // CSS shell background token
-  shellBg: string
-  shellLine: string
-  textColor: string
-  navActiveBg: string
+  palette: EnvironmentPalette
+  night: EnvironmentPalette
 }
 
 export const BACKGROUND_THEMES: Record<BackgroundThemeId, BackgroundTheme> = {
   home: {
-    id: 'home',
-    name: '现代简约',
-    fullName: '现代高级简约家庭内',
-    englishName: 'Modern Studio',
-    icon: '🏠',
-    description: '温润极简的现代室内工作室，柔和漫射日光与沉静建筑质感',
-    palette: {
-      background: '#ded9d0',
-      fogColor: '#ded9d0',
-      fogNear: 12,
-      fogFar: 25,
-      hemiSky: '#fff8ef',
-      hemiGround: '#8f877d',
-      hemiIntensity: 2.3,
-      keyColor: '#fff5e4',
-      keyIntensity: 2.8,
-      keyPosition: [-4, 8, 5],
-      fillColor: '#dbe5f2',
-      fillIntensity: 1.2,
-      fillPosition: [5, 3, -4],
-      ambientGlow: '#e8dcce',
-      ambientGlowIntensity: 0.4,
-      lampMultiplier: 0.8,
-      lampWarmth: '#ffe4b5',
-    },
-    shellBg: '#ded9d0',
-    shellLine: 'rgba(35, 33, 29, 0.14)',
-    textColor: '#1d1c1a',
-    navActiveBg: 'rgba(29, 28, 26, 0.08)',
+    id: 'home', name: 'Interior', fullName: 'Modern interior · 现代室内',
+    description: 'Limestone, oak & afternoon light',
+    palette: { background: '#ddd9cf', hemiSky: '#fff8eb', hemiGround: '#9a9082', hemiIntensity: 2.2, keyColor: '#fff3de', keyIntensity: 2.5, fillColor: '#e0e7eb', fillIntensity: 1.1, lampMultiplier: 0.8, lampWarmth: '#ffe4c1' },
+    night: { background: '#555049', hemiSky: '#ecdbc1', hemiGround: '#958a7d', hemiIntensity: 1.25, keyColor: '#ffe2bd', keyIntensity: 0.85, fillColor: '#ccd6e4', fillIntensity: 0.8, lampMultiplier: 0.7, lampWarmth: '#ffe4c1' },
   },
   aurora: {
-    id: 'aurora',
-    name: '极光',
-    fullName: '极地幻境极光',
-    englishName: 'Aurora Borealis',
-    icon: '🌌',
-    description: '深邃纯净的北极夜空，星光闪烁，绿色与青紫色的极光在空中静谧流动',
-    palette: {
-      background: '#070f1e',
-      fogColor: '#070f1e',
-      fogNear: 10,
-      fogFar: 28,
-      hemiSky: '#2ec4b6',
-      hemiGround: '#040912',
-      hemiIntensity: 1.2,
-      keyColor: '#90b4ff',
-      keyIntensity: 1.5,
-      keyPosition: [-4, 7, 5],
-      fillColor: '#7209b7',
-      fillIntensity: 0.9,
-      fillPosition: [5, 4, -4],
-      ambientGlow: '#20bf6b',
-      ambientGlowIntensity: 1.1,
-      lampMultiplier: 1.4,
-      lampWarmth: '#ffd166',
-    },
-    shellBg: '#070f1e',
-    shellLine: 'rgba(46, 196, 182, 0.22)',
-    textColor: '#e8f7f5',
-    navActiveBg: 'rgba(46, 196, 182, 0.16)',
+    id: 'aurora', name: 'Aurora', fullName: 'Northern lights · 极光',
+    description: 'Quiet skies above the Arctic',
+    palette: { background: '#101e2a', hemiSky: '#c4dcd7', hemiGround: '#788892', hemiIntensity: 1.65, keyColor: '#e3ebf0', keyIntensity: 1.25, fillColor: '#adccc6', fillIntensity: 0.9, lampMultiplier: 0.85, lampWarmth: '#ffe6c7' },
+    night: { background: '#0c1720', hemiSky: '#b8d4d0', hemiGround: '#6f7d89', hemiIntensity: 1.25, keyColor: '#d1dbe4', keyIntensity: 0.85, fillColor: '#abc8c1', fillIntensity: 0.8, lampMultiplier: 0.9, lampWarmth: '#ffe6c7' },
   },
   prairie: {
-    id: 'prairie',
-    name: '草原',
-    fullName: '开阔晴空与金色原野',
-    englishName: 'Golden Prairie',
-    icon: '🌾',
-    description: '辽阔辽远的绿草与金黄原野地平线，开阔晴空，微风拂面',
-    palette: {
-      background: '#a4cbeb',
-      fogColor: '#a4cbeb',
-      fogNear: 14,
-      fogFar: 30,
-      hemiSky: '#fdf0d5',
-      hemiGround: '#588157',
-      hemiIntensity: 2.6,
-      keyColor: '#fff1c5',
-      keyIntensity: 3.2,
-      keyPosition: [-3, 9, 6],
-      fillColor: '#94d2bd',
-      fillIntensity: 1.4,
-      fillPosition: [6, 3, -3],
-      ambientGlow: '#e9c46a',
-      ambientGlowIntensity: 0.5,
-      lampMultiplier: 0.4,
-      lampWarmth: '#ffeaa7',
-    },
-    shellBg: '#95bee0',
-    shellLine: 'rgba(49, 87, 44, 0.18)',
-    textColor: '#1a2e1b',
-    navActiveBg: 'rgba(49, 87, 44, 0.12)',
+    id: 'prairie', name: 'Meadow', fullName: 'Open grassland · 草原',
+    description: 'Rolling hills, a slow summer breeze',
+    palette: { background: '#b7c2bd', hemiSky: '#f5efdc', hemiGround: '#969775', hemiIntensity: 2.25, keyColor: '#fff0d1', keyIntensity: 2.3, fillColor: '#dce5e6', fillIntensity: 1.15, lampMultiplier: 0.65, lampWarmth: '#ffe5bd' },
+    night: { background: '#454e50', hemiSky: '#dedac8', hemiGround: '#7d816c', hemiIntensity: 1.35, keyColor: '#f1dfbf', keyIntensity: 0.9, fillColor: '#cad7e1', fillIntensity: 0.85, lampMultiplier: 0.8, lampWarmth: '#ffe5bd' },
   },
   ocean: {
-    id: 'ocean',
-    name: '海边',
-    fullName: '海风与蔚蓝海岸',
-    englishName: 'Ocean Coast',
-    icon: '🌊',
-    description: '海天一色的蔚蓝海洋，清爽海风，波光粼粼的浪花与沿海阳光',
-    palette: {
-      background: '#48bfe3',
-      fogColor: '#48bfe3',
-      fogNear: 13,
-      fogFar: 28,
-      hemiSky: '#caf0f8',
-      hemiGround: '#0077b6',
-      hemiIntensity: 2.7,
-      keyColor: '#fffbf0',
-      keyIntensity: 3.3,
-      keyPosition: [-4, 8, 5],
-      fillColor: '#90e0ef',
-      fillIntensity: 1.6,
-      fillPosition: [5, 2, -4],
-      ambientGlow: '#0096c7',
-      ambientGlowIntensity: 0.6,
-      lampMultiplier: 0.5,
-      lampWarmth: '#ffd166',
-    },
-    shellBg: '#48bfe3',
-    shellLine: 'rgba(3, 4, 94, 0.18)',
-    textColor: '#03045e',
-    navActiveBg: 'rgba(0, 119, 182, 0.15)',
+    id: 'ocean', name: 'Coast', fullName: 'Coastal horizon · 海边',
+    description: 'Sea mist & silver-blue water',
+    palette: { background: '#b3c9ca', hemiSky: '#f1f4ee', hemiGround: '#889da3', hemiIntensity: 2.3, keyColor: '#fff2da', keyIntensity: 2.4, fillColor: '#d3e6ea', fillIntensity: 1.25, lampMultiplier: 0.65, lampWarmth: '#ffe7c6' },
+    night: { background: '#3e535e', hemiSky: '#cedde2', hemiGround: '#718a95', hemiIntensity: 1.35, keyColor: '#e6e3d7', keyIntensity: 0.9, fillColor: '#c5d8e3', fillIntensity: 0.9, lampMultiplier: 0.8, lampWarmth: '#ffe7c6' },
   },
 }
 
 export const THEME_LIST = Object.values(BACKGROUND_THEMES)
 export const DEFAULT_THEME_ID: BackgroundThemeId = 'home'
+export const THEME_KEY = 'peter-workbench-theme'
+
+export function resolveTheme(value: string | null): BackgroundThemeId {
+  return THEME_LIST.some((theme) => theme.id === value) ? value as BackgroundThemeId : DEFAULT_THEME_ID
+}
+
+export function environmentIsDark(theme: BackgroundThemeId, lighting: LightingMode) {
+  return theme === 'aurora' || lighting === 'night'
+}
+
+// Exponential convergence is stable even after a suspended tab or a very slow frame.
+export function advanceThemeWeights(weights: number[], theme: BackgroundThemeId, delta: number, reduced: boolean) {
+  const alpha = reduced ? 1 : 1 - Math.exp(-Math.max(0, delta) * 3.5)
+  return THEME_LIST.map((item, index) => weights[index] + ((item.id === theme ? 1 : 0) - weights[index]) * alpha)
+}

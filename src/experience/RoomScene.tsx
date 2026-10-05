@@ -10,7 +10,8 @@ import type { HotspotId } from '../types/content'
 import type { BackgroundThemeId } from '../themes'
 import { BACKGROUND_THEMES } from '../themes'
 import { AccentLights, type LightingMix, lightsOn } from './AccentLights'
-import { AtmosphericBackdrop } from './AtmosphericBackdrop'
+import { EnvironmentBackground } from './EnvironmentBackground'
+import { useReducedMotion } from '../useReducedMotion'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
@@ -349,17 +350,27 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
   )
 }
 
-export function useLightingMix(mode: LightingMode): LightingMix {
+function useLightingMix(mode: LightingMode): LightingMix {
   const mix = useRef({ value: mode === 'night' ? 1 : 0 })
+  const reduced = useReducedMotion()
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    gsap.to(mix.current, {
-      value: mode === 'night' ? 1 : 0,
-      duration: reduced ? 0.01 : 1.4,
-      ease: 'power2.inOut',
-      overwrite: true,
-    })
-  }, [mode])
+    const target = mode === 'night' ? 1 : 0
+    const startValue = mix.current.value
+    if (reduced || startValue === target) {
+      mix.current.value = target
+      return
+    }
+    // Use elapsed time so a slow renderer cannot stretch a one-second fade into minutes.
+    const started = performance.now()
+    let frame = 0
+    const tick = (now: number) => {
+      const t = Math.min(1, Math.max(0, (now - started) / 1100))
+      mix.current.value = THREE.MathUtils.lerp(startValue, target, t * t * (3 - 2 * t))
+      if (t < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [mode, reduced])
   return mix
 }
 
@@ -380,9 +391,10 @@ function LightingSystem({
   const spot = useRef<THREE.SpotLight>(null)
   const bulb = useRef<THREE.PointLight>(null)
   const glow = useRef<THREE.Sprite>(null)
-  const background = useMemo(() => new THREE.Color(), [])
-  const fog = useMemo(() => new THREE.Fog('#ded9d0', 25, 60), [])
+  const fog = useMemo(() => new THREE.Fog('#ddd9cf', 20, 60), [])
   const glowTexture = useMemo(createGlowTexture, [])
+  const reduced = useReducedMotion()
+  const nightColor = useMemo(() => new THREE.Color(), [])
 
   const targetBg = useMemo(() => new THREE.Color(), [])
   const targetHemiSky = useMemo(() => new THREE.Color(), [])
@@ -406,43 +418,36 @@ function LightingSystem({
   }, [lamp])
 
   useFrame((_, delta) => {
-    const activeTheme = BACKGROUND_THEMES[theme] ?? BACKGROUND_THEMES.home
-    const p = activeTheme.palette
+    const { palette: p, night: n } = BACKGROUND_THEMES[theme]
     const t = mix.current.value
+    const lerp = THREE.MathUtils.lerp
+    const blend = (out: THREE.Color, day: string, night: string) => out.set(day).lerp(nightColor.set(night), t)
+    blend(targetBg, p.background, n.background)
+    blend(targetHemiSky, p.hemiSky, n.hemiSky)
+    blend(targetHemiGround, p.hemiGround, n.hemiGround)
+    blend(targetKeyColor, p.keyColor, n.keyColor)
+    blend(targetFillColor, p.fillColor, n.fillColor)
 
-    targetBg.set(p.background)
-    targetHemiSky.set(p.hemiSky)
-    targetHemiGround.set(p.hemiGround)
-    targetKeyColor.set(p.keyColor)
-    targetFillColor.set(p.fillColor)
-
-    const lerpRate = Math.min(1, delta * 3.5)
-
-    background.lerp(targetBg, lerpRate)
-    fog.color.copy(background)
-    fog.near += (p.fogNear - fog.near) * lerpRate
-    fog.far += (p.fogFar - fog.far) * lerpRate
-
+    const lerpRate = reduced ? 1 : 1 - Math.exp(-Math.max(0, delta) * 3.5)
+    fog.color.lerp(targetBg, lerpRate)
     hemi.current.color.lerp(targetHemiSky, lerpRate)
     hemi.current.groundColor.lerp(targetHemiGround, lerpRate)
-    hemi.current.intensity += (p.hemiIntensity - hemi.current.intensity) * lerpRate
-
+    hemi.current.intensity = lerp(hemi.current.intensity, lerp(p.hemiIntensity, n.hemiIntensity, t), lerpRate)
     key.current.color.lerp(targetKeyColor, lerpRate)
-    key.current.intensity += (p.keyIntensity - key.current.intensity) * lerpRate
-
+    key.current.intensity = lerp(key.current.intensity, lerp(p.keyIntensity, n.keyIntensity, t), lerpRate)
     fill.current.color.lerp(targetFillColor, lerpRate)
-    fill.current.intensity += (p.fillIntensity - fill.current.intensity) * lerpRate
-
+    fill.current.intensity = lerp(fill.current.intensity, lerp(p.fillIntensity, n.fillIntensity, t), lerpRate)
     eveningBounce.current.intensity = 0.5 * t
 
     const on = lightsOn(t)
+    const lampMultiplier = lerp(p.lampMultiplier, n.lampMultiplier, t)
     if (spot.current) {
-      spot.current.color.set(p.lampWarmth)
-      spot.current.intensity = 4.8 * p.lampMultiplier * on
+      spot.current.color.set(n.lampWarmth)
+      spot.current.intensity = 4.8 * lampMultiplier * on
     }
     if (bulb.current) {
-      bulb.current.color.set(p.lampWarmth)
-      bulb.current.intensity = 0.6 * p.lampMultiplier * on
+      bulb.current.color.set(n.lampWarmth)
+      bulb.current.intensity = 0.6 * lampMultiplier * on
     }
     if (glow.current) {
       glow.current.visible = on > 0.01
@@ -515,7 +520,7 @@ export function RoomScene({
         onPointerMissed={() => undefined}
       >
         <LightingSystem mix={mix} lamp={lamp} theme={theme} />
-        <AtmosphericBackdrop theme={theme} />
+        <EnvironmentBackground theme={theme} mix={mix} />
         <SceneErrorBoundary>
           <Suspense fallback={null}>
             <RoomModel

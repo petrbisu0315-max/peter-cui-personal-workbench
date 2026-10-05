@@ -35,4 +35,13 @@
   * **海边**：海天一色的蔚蓝海洋，清爽海风与动态流动的层叠浪花波纹。
   * 切换状态持久化存储于 `localStorage`，3D 光照与色彩平滑过渡。
 
+## Environment refinement — 2026-10-05
+
+- Replaced the low-resolution CanvasTexture backgrounds with an original full-screen procedural shader (`environment.frag.glsl`, `EnvironmentBackground.tsx`): window-lit interior, translucent aurora filaments, layered meadow, perspective-compressed coastal ripples. These are stylized backdrops, not photographs or additional room geometry.
+- Top-right environment control now opens a four-preview picker. The neutral, full-bleed header keeps Peter Cui and the three existing navigation destinations; no bottom dock was reintroduced.
+- Existing theme IDs and localStorage key are preserved. Invalid stored IDs resolve to Interior. Keyboard arrows/Home/End select, Escape closes and restores focus, outside click dismisses.
+- Per-environment day/night palettes live in `themes.ts`. Background and room illumination now share the live night mix. Lighting fades use elapsed real time rather than GSAP lag smoothing, preventing slow renderers from stretching a short fade indefinitely.
+- Reduced motion freezes background animation and switches environments immediately; normal motion uses bounded transitions and a paused clock in hidden tabs. Confirmed all four shader themes in both day/night, live uniforms, mobile 390×844 layout, persistence and keyboard navigation in Chromium/SwiftShader. No real-device performance claims.
+- Content data, PDFs, furniture and room model files were not changed in this refinement.
+
 
