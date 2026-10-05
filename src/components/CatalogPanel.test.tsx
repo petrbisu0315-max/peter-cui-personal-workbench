@@ -51,12 +51,14 @@ describe('approved catalog import', () => {
     }
   })
 
-  it('resolves all 65 cropped cover images without external hotlinks', () => {
+  it('resolves all 65 catalog cover images without external hotlinks', () => {
     const images = import.meta.glob('../../public/images/catalog/*.webp', { query: '?url', import: 'default', eager: true })
-    for (const image of [...books.map((book) => book.cover), ...movies.map((movie) => movie.poster)]) {
+    const covers = [...books.map((book) => book.cover), ...movies.map((movie) => movie.poster)]
+    for (const image of covers) {
       expect(image).toMatch(/^\/images\/catalog\/(book|watch)-\d{2}-[a-f0-9]{10}\.webp$/)
       expect(images).toHaveProperty(`../../public${image}`)
     }
+    expect(new Set(covers).size).toBe(covers.length)
   })
 })
 

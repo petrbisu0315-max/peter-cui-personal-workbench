@@ -177,10 +177,14 @@ are English. No bottom navigation was added.
   owner's five-star rating; four unrated records remain `null`, never zero.
   Per the owner's preference, private comments and marking dates are not included
   in the public data, markup or detail view. Do not import them into future builds.
-- Cover crops from the supplied screenshots are hosted under
-  `public/images/catalog/` with content-hashed filenames (about 0.8 MB for this
-  batch). Preserve IDs and filenames when adding metadata; replace the hash/URL
-  when replacing artwork. This is a batch import, not automatic platform sync.
+- Covers are hosted under `public/images/catalog/` with content-hashed filenames
+  (about 4.6 MB for this batch, long side capped at 900 px). Each entry was
+  matched against the shelf thumbnail it replaces before the old file was
+  removed, so an entry never shows a different book or film. Source artwork comes
+  from the same disclosed reference page as the metadata; cover and poster art
+  stays the property of its publisher and is shown only to identify each title.
+  Preserve IDs and filenames when adding metadata; replace the hash/URL when
+  replacing artwork. This is a batch import, not automatic platform sync.
 
 `CatalogPanel.test.tsx` checks counts, category separation, author/summary coverage,
 local artwork, null ratings and an explicit allowlist of public watchlist fields.
