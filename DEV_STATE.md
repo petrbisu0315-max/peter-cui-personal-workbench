@@ -44,4 +44,11 @@
 - Reduced motion freezes background animation and switches environments immediately; normal motion uses bounded transitions and a paused clock in hidden tabs. Confirmed all four shader themes in both day/night, live uniforms, mobile 390×844 layout, persistence and keyboard navigation in Chromium/SwiftShader. No real-device performance claims.
 - Content data, PDFs, furniture and room model files were not changed in this refinement.
 
+## Background music — 2026-10-05
+
+- Added a lower-left CD-style player with the supplied tracks: Chezile — Beanie; Ryan Gebhardt — Ladyfingers; RIX / Zy — 阳光灿烂的日子. Titles/artwork were read from the MP3 metadata (the attachment order differed from the named order). The owner confirmed authorization for public playback and artwork display before publication.
+- Music mounts independently of the 3D room and uses a single native audio element. Playback is visitor-initiated, with no MP3 source assigned before Play; default volume is 30%, with volume preference stored locally. Opening a content panel leaves music playing while making the covered controls inert.
+- Supports previous/next, playlist selection, seek, mute, volume and repeat-all. The CD rotates in 24 seconds, pauses at its current angle and respects reduced motion. Web-optimized audio and extracted cover art have content-hashed filenames.
+- Browser checks verified actual playback for all three songs, pause, skip, seek, volume/mute, repeat-all, scene/panel continuity, silent reload and 390px layout. The software 3D loop was temporarily suspended during detailed media-control tests; production scene rendering is unchanged. Controller tests cover errors and stale asynchronous play requests.
+
 

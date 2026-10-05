@@ -1,0 +1,54 @@
+.music-player { position: fixed; z-index: 9; left: max(24px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 328px; max-width: calc(100vw - 32px); color: var(--chrome-ink); }
+.music-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 14px; padding: 12px 14px; background: var(--chrome); border: 1px solid color-mix(in srgb, var(--chrome-ink) 14%, transparent); border-radius: 12px; box-shadow: 0 5px 28px #0002; }
+.music-disc { position: relative; width: 64px; height: 64px; padding: 3px; border-radius: 50%; background: conic-gradient(#c9cdd0, #eeeedc, #93aaa9, #e5daec, #f7f6ee, #a3b4b2, #c9cdd0); box-shadow: 0 2px 5px #0003; }
+.music-disc-spin { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; animation: music-disc-turn 24s linear infinite; animation-play-state: paused; }
+.music-disc-spin img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.music-disc::after { content: ''; position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; transform: translate(-50%, -50%); border: 3px solid #d2d4cb; border-radius: 50%; background: var(--chrome); box-shadow: 0 0 0 1px #0004; pointer-events: none; }
+.music-player[data-playing="true"] .music-disc-spin { animation-play-state: running; }
+.music-main { min-width: 0; }
+.music-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.music-title { display: grid; gap: 3px; min-width: 0; }
+.music-title strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 12px/1.3 Manrope, "PingFang SC", sans-serif; }
+.music-title span { color: var(--chrome-muted); font: 400 10px/1.3 Manrope, sans-serif; }
+.music-player button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0; border: 0; color: inherit; background: transparent; cursor: pointer; border-radius: 50%; }
+.music-player button:hover { background: color-mix(in srgb, var(--chrome-ink) 9%, transparent); }
+.music-player button:focus-visible, .music-player input:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.music-player svg { display: block; width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.music-list-toggle { width: 26px; height: 26px; }
+.music-transport { display: flex; align-items: center; gap: 2px; margin-top: 6px; }
+.music-transport button { width: 28px; height: 28px; }
+.music-transport .music-play { width: 30px; height: 30px; border: 1px solid color-mix(in srgb, var(--chrome-ink) 45%, transparent); margin-inline: 3px; }
+.music-timer { margin-left: auto; color: var(--chrome-muted); font: 400 9px/1 "DM Mono", monospace; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.music-progress { appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 12px; padding: 0; margin: 5px 0 0; border: 0; background: transparent; cursor: pointer; color: var(--chrome-ink); }
+.music-progress:disabled { cursor: default; opacity: .4; }
+.music-progress::-webkit-slider-runnable-track { height: 2px; border-radius: 1px; background: linear-gradient(to right, var(--chrome-ink) var(--music-progress), color-mix(in srgb, var(--chrome-ink) 18%, transparent) var(--music-progress)); }
+.music-progress::-moz-range-track { height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--chrome-ink) 18%, transparent); }
+.music-progress::-moz-range-progress { height: 2px; background: var(--chrome-ink); }
+.music-progress::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 7px; height: 7px; margin-top: -2.5px; border: 0; border-radius: 50%; background: var(--chrome-ink); }
+.music-progress::-moz-range-thumb { width: 7px; height: 7px; border: 0; border-radius: 50%; background: var(--chrome-ink); }
+.music-queue { position: absolute; bottom: calc(100% + 10px); left: 0; width: 100%; max-height: min(380px, calc(100svh - 160px)); overflow-y: auto; padding: 14px; border: 1px solid color-mix(in srgb, var(--chrome-ink) 14%, transparent); border-radius: 12px; background: var(--chrome); box-shadow: 0 5px 32px #0003; }
+.music-queue-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin: 2px 3px 12px; }
+.music-queue-heading > span { font: 500 12px Manrope, sans-serif; }
+.music-queue-heading > small { color: var(--chrome-muted); font: 400 9px Manrope, sans-serif; }
+.music-queue ol { display: grid; gap: 3px; list-style: none; margin: 0; padding: 0; }
+.music-queue li button { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; width: 100%; gap: 10px; padding: 8px 6px; border-radius: 5px; text-align: left; }
+.music-queue li button[aria-current="true"] { background: color-mix(in srgb, var(--chrome-ink) 8%, transparent); }
+.music-queue img { display: block; border-radius: 3px; }
+.music-queue li button > span { display: grid; gap: 4px; min-width: 0; }
+.music-queue strong { font: 500 11px/1.4 Manrope, "PingFang SC", sans-serif; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.music-queue small { font: 400 10px/1.4 Manrope, sans-serif; color: var(--chrome-muted); }
+.music-queue time { font: 400 9px "DM Mono", monospace; color: var(--chrome-muted); }
+.music-volume { display: flex; align-items: center; gap: 9px; border-top: 1px solid color-mix(in srgb, var(--chrome-ink) 14%, transparent); margin-top: 12px; padding-top: 10px; }
+.music-volume button { width: 28px; height: 28px; }
+.music-volume input { flex: 1; min-width: 0; accent-color: var(--chrome-ink); cursor: pointer; }
+.music-volume > span { width: 32px; text-align: right; color: var(--chrome-muted); font: 400 9px "DM Mono", monospace; }
+.music-error { margin: 6px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--chrome); font: 400 11px/1.5 Manrope, sans-serif; }
+@keyframes music-disc-turn { to { transform: rotate(360deg); } }
+@media (max-width: 640px) {
+  .music-player { left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); width: 308px; }
+  .music-card { grid-template-columns: 58px minmax(0, 1fr); gap: 12px; padding: 11px 12px; }
+  .music-disc { width: 58px; height: 58px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .music-disc-spin { animation: none; }
+}

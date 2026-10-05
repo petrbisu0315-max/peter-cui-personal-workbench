@@ -114,6 +114,30 @@ background clock. GPU cost and frame rate still depend on the device and the
 existing room geometry/shadows. To tune the look, edit the GLSL alongside the
 matching palette in `themes.ts`; keep preview images in sync.
 
+## Background music
+
+The lower-left `MusicPlayer` uses one native audio element, mounted outside the
+3D scene. Theme changes and content panels do not restart it. `src/data/music.json`
+defines the order, titles, artists, durations, MP3 URLs and album covers. The three
+tracks and embedded artwork were supplied by the site owner, who confirmed
+permission for public playback/display. Only add assets you have permission to
+publish: files under `public/` remain publicly accessible.
+
+- No autoplay and no MP3 source assigned until the visitor presses Play or selects
+  a song. The first visit starts at 30% volume; only volume is remembered.
+- Previous/next retains the paused/playing intent; the final track loops to the
+  first. Seeking becomes available after metadata loads. Failed playback shows
+  an actionable message rather than endlessly skipping tracks.
+- The album CD rotates once every 24 seconds only during playback. Pause holds
+  its angle; reduced-motion preferences disable the rotation.
+- Open the playlist for song selection, volume and mute. Escape closes it.
+- Audio lives in `public/audio/` and extracted WebP covers in `public/images/music/`.
+  Filenames contain content hashes for immutable caching. Replace the filename
+  and manifest URL when changing an asset.
+
+`src/audio/musicController.test.ts` covers lazy loading, transport, repeat,
+metadata, seeking, volume, errors, stale playback promises and cleanup.
+
 ## Updating portfolio content
 
 Edit the JSON files under `src/data/`:

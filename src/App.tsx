@@ -6,6 +6,7 @@ import type { LightingMode } from './lighting'
 import type { BackgroundThemeId } from './themes'
 import { resolveTheme, THEME_KEY, environmentIsDark } from './themes'
 import { EnvironmentPicker } from './components/EnvironmentPicker'
+import { MusicPlayer } from './components/MusicPlayer'
 import type { HotspotId } from './types/content'
 
 const ContentPanel = lazy(() =>
@@ -214,6 +215,8 @@ export default function App() {
           )}
         </div>
       </section>
+
+      {entered && <MusicPlayer obscured={panelHotspot !== null} />}
 
       {/* Intro Paper overlay */}
       {!entered && <IntroPaper onEntered={() => setEntered(true)} />}

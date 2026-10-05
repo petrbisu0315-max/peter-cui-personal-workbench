@@ -1,0 +1,26 @@
+[
+  {
+    "id": "beanie",
+    "title": "Beanie",
+    "artist": "Chezile",
+    "src": "/audio/beanie-a5cefedf5d.mp3",
+    "cover": "/images/music/beanie-b9183c9b08.webp",
+    "duration": 132.192
+  },
+  {
+    "id": "ladyfingers",
+    "title": "Ladyfingers",
+    "artist": "Ryan Gebhardt",
+    "src": "/audio/ladyfingers-2681d2440d.mp3",
+    "cover": "/images/music/ladyfingers-f3e32f73f1.webp",
+    "duration": 164.049
+  },
+  {
+    "id": "sunny-days",
+    "title": "阳光灿烂的日子",
+    "artist": "RIX / Zy",
+    "src": "/audio/sunny-days-a051537910.mp3",
+    "cover": "/images/music/sunny-days-b5dc04eb9e.webp",
+    "duration": 157.776
+  }
+]
