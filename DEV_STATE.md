@@ -19,9 +19,20 @@
 - Night lighting: brass picture lights over the bookcase, poster and whiteboard, a globe floor lamp and an off-screen window light. All textures are generated with Canvas 2D in `src/experience/surfaces.ts`.
 - The sandbox browser renders WebGL with SwiftShader at about 0.5 fps, so day/night transitions and panel fades cannot be judged there; verify them on real hardware.
 
-## Latest implementation — 2026-10-04
+## Latest implementation — 2026-10-05
 
-- Replaced the globe lamp with a photo-inspired linen drum shade, brass stem and curved bronze trumpet base, built in `src/experience/floorLampModel.ts`. Runtime uses this editable parametric model; original room GLBs remain unchanged.
-- Brighter, softer evening lighting: warm-grey background, stronger ambient/front fill, lower desk and picture-light peaks, no large lamp glow sprite. Whiteboard, rug, furniture and English panel content are unchanged.
-- Browser checks at 1000×720 and 390×844 confirmed the replacement, a visible night scene, localStorage restoration, lamp-click and toolbar day/night switches, and Projects open/Escape close. Reduced-motion mode was used to avoid judging timing on the software renderer; real-device frame rate is not measured.
+- 整体界面参考最新视频设计重构：精简顶栏视觉层次，移除荣誉文字与底层杂音，左上角保留极简优雅的 `Peter Cui` 标识。
+- 移除底部 01～08 导航栏，释放完整画面，让用户在 3D 空间内自由旋转、缩放探索。
+- 网页上端增加三大核心导航 Tab：
+  * **Resume**：直接高清呈现个人简历，支持视觉预览、内嵌交互式 PDF 阅读器、PDF 下载与全屏新窗口打开，附核心教育与背景摘要。
+  * **Intern**：深度交互式实习经历展示，解析 6 段核心经历（ConvergeAI、Analemma、小红书、美团、网易、环球时报），并保留教育背景切换，附带多维数据表现指标、业务职责与方法论沉淀。
+  * **Gallery**：城市影像画廊，收录在上海、北京、布拉格、香港与旅途拍摄的城市摄影集，支持城市分类筛选、胶片与相机元数据卡片及全屏灯箱详情。
+- 3D 场景内桌上的相机（`PROP_Camera`）映射为个人照片（`Personal Photos`），作为个人生活照与工作纪念的精选占位，后续持续更新。
+- 引入四大整体沉浸式瀑布环境背景与右上角胶囊切换器：
+  * **现代简约（默认）**：现代高级简约家庭内工作室，柔和漫射日光与沉静建筑质感。
+  * **极光**：深邃北极夜空、闪烁星群与动态飘逸的绿青紫极光幕布。
+  * **草原**：开阔晴空与金色原野地平线，金黄阳光与清新草地反光。
+  * **海边**：海天一色的蔚蓝海洋，清爽海风与动态流动的层叠浪花波纹。
+  * 切换状态持久化存储于 `localStorage`，3D 光照与色彩平滑过渡。
+
 

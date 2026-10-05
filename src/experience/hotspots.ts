@@ -12,14 +12,15 @@ export const hotspotOrder: HotspotId[] = [
 ]
 
 export const hotspotMeta: Record<HotspotId, { label: string; shortLabel: string; hoverLabel: string; index: string }> = {
-  resume: { label: 'Résumé', shortLabel: 'Resume', hoverLabel: 'Résumé attachment', index: '01' },
-  experience: { label: 'Education & Internships', shortLabel: 'Experience', hoverLabel: 'Campus & internships', index: '02' },
-  research: { label: 'Research & Writing', shortLabel: 'Research', hoverLabel: 'Research & writing', index: '03' },
+  resume: { label: 'Resume', shortLabel: 'Resume', hoverLabel: 'View résumé', index: '01' },
+  experience: { label: 'Internships', shortLabel: 'Intern', hoverLabel: 'Internship timeline', index: '02' },
+  gallery: { label: 'City Gallery', shortLabel: 'Gallery', hoverLabel: 'City photography', index: '03' },
   projects: { label: 'Projects', shortLabel: 'Projects', hoverLabel: 'Vibecoding projects', index: '04' },
-  photos: { label: 'Photo Archive', shortLabel: 'Photos', hoverLabel: 'Photo archive', index: '05' },
+  photos: { label: 'Personal Photos', shortLabel: 'Camera', hoverLabel: 'Personal photos (placeholder)', index: '05' },
   books: { label: 'Reading Shelf', shortLabel: 'Books', hoverLabel: 'Reading shelf', index: '06' },
   movies: { label: 'Film Notes', shortLabel: 'Films', hoverLabel: 'Film notes', index: '07' },
   whiteboard: { label: 'Leave a Note', shortLabel: 'Whiteboard', hoverLabel: 'Leave a note', index: '08' },
+  research: { label: 'Research & Writing', shortLabel: 'Research', hoverLabel: 'Research & writing', index: '09' },
 }
 
 export function hotspotFromObjectName(name: string): HotspotId | null {

@@ -1,13 +1,18 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import type { Vector3 } from 'three'
 import { IntroPaper } from './components/IntroPaper'
-import { MobileDock } from './components/MobileDock'
 import { initialWorkbenchState, workbenchReducer } from './interactionState'
 import type { LightingMode } from './lighting'
+import type { BackgroundThemeId } from './themes'
+import { BACKGROUND_THEMES, DEFAULT_THEME_ID, THEME_LIST } from './themes'
 import type { HotspotId } from './types/content'
 
-const ContentPanel = lazy(() => import('./components/ContentPanel').then((module) => ({ default: module.ContentPanel })))
-const RoomScene = lazy(() => import('./experience/RoomScene').then((module) => ({ default: module.RoomScene })))
+const ContentPanel = lazy(() =>
+  import('./components/ContentPanel').then((module) => ({ default: module.ContentPanel }))
+)
+const RoomScene = lazy(() =>
+  import('./experience/RoomScene').then((module) => ({ default: module.RoomScene }))
+)
 
 function PanelFallback() {
   return (
@@ -20,19 +25,32 @@ function PanelFallback() {
 function RoomFallback() {
   return (
     <div className="room-loading" role="status" aria-live="polite">
-      <span>Preparing the 3D workbench</span>
-      <i><b /></i>
+      <span>Preparing the 3D room</span>
+      <i>
+        <b />
+      </i>
     </div>
   )
 }
 
 const LIGHTING_KEY = 'peter-workbench-lighting'
+const THEME_KEY = 'peter-workbench-theme'
 
 function readLighting(): LightingMode {
   try {
     return window.localStorage.getItem(LIGHTING_KEY) === 'night' ? 'night' : 'day'
   } catch {
     return 'day'
+  }
+}
+
+function readTheme(): BackgroundThemeId {
+  try {
+    const saved = window.localStorage.getItem(THEME_KEY) as BackgroundThemeId
+    if (saved && BACKGROUND_THEMES[saved]) return saved
+    return DEFAULT_THEME_ID
+  } catch {
+    return DEFAULT_THEME_ID
   }
 }
 
@@ -44,7 +62,8 @@ function LightingToggle({ mode, onToggle }: { mode: LightingMode; onToggle: () =
       className="lighting-toggle"
       onClick={onToggle}
       aria-pressed={night}
-      aria-label={night ? 'Switch to day mode' : 'Switch to night mode and turn on the desk lamp'}
+      aria-label={night ? 'Switch to day ambient' : 'Switch to evening warm light'}
+      title={night ? 'Night Mode Active' : 'Day Mode Active'}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         {night ? (
@@ -75,16 +94,26 @@ export default function App() {
   const [{ active, panelHotspot }, dispatch] = useReducer(workbenchReducer, initialWorkbenchState)
   const webglAvailable = useMemo(hasWebGL, [])
   const [lighting, setLighting] = useState<LightingMode>(readLighting)
+  const [theme, setTheme] = useState<BackgroundThemeId>(readTheme)
 
   const toggleLighting = useCallback(() => {
     setLighting((mode) => (mode === 'day' ? 'night' : 'day'))
+  }, [])
+
+  const handleThemeChange = useCallback((newTheme: BackgroundThemeId) => {
+    setTheme(newTheme)
+    try {
+      window.localStorage.setItem(THEME_KEY, newTheme)
+    } catch {
+      // Storage unavailable in private browsing
+    }
   }, [])
 
   useEffect(() => {
     try {
       window.localStorage.setItem(LIGHTING_KEY, lighting)
     } catch {
-      // Storage can be unavailable in private browsing; the toggle still works for this visit.
+      // Ignore
     }
   }, [lighting])
 
@@ -96,7 +125,7 @@ export default function App() {
     dispatch({ type: 'select-object', id, point })
   }, [])
 
-  const selectFromDock = useCallback((id: HotspotId) => {
+  const selectTabDirect = useCallback((id: HotspotId) => {
     dispatch({ type: 'select-dock', id })
   }, [])
 
@@ -113,19 +142,72 @@ export default function App() {
   }, [active, closePanel, panelHotspot])
 
   return (
-    <main className={`app-shell${entered ? ' is-entered' : ''}`} data-lighting={lighting}>
-      <section className="workbench" aria-label="Interactive 3D personal workbench">
+    <main
+      className={`app-shell${entered ? ' is-entered' : ''}`}
+      data-lighting={lighting}
+      data-theme={theme}
+    >
+      <section className="workbench" aria-label="Interactive 3D personal room">
+        {/* Top Header Bar */}
         <header className="room-bar">
-          <div>
-            <strong>Peter Cui</strong>
-            <span>Personal Workbench · 2026</span>
+          {/* Left: Clean Brand */}
+          <div className="brand-zone">
+            <strong className="brand-title">Peter Cui</strong>
           </div>
-          <div className="room-bar-actions">
-            <p>Drag to orbit · Scroll to zoom · Select an object</p>
+
+          {/* Center: Top Navigation Tabs */}
+          <nav className="top-nav-tabs" aria-label="Portfolio Sections">
+            <button
+              type="button"
+              className={`nav-tab-btn ${panelHotspot === 'resume' ? 'is-active' : ''}`}
+              onClick={() => selectTabDirect('resume')}
+            >
+              Resume
+            </button>
+            <button
+              type="button"
+              className={`nav-tab-btn ${panelHotspot === 'experience' ? 'is-active' : ''}`}
+              onClick={() => selectTabDirect('experience')}
+            >
+              Intern
+            </button>
+            <button
+              type="button"
+              className={`nav-tab-btn ${panelHotspot === 'gallery' ? 'is-active' : ''}`}
+              onClick={() => selectTabDirect('gallery')}
+            >
+              Gallery
+            </button>
+          </nav>
+
+          {/* Right: Environment Background Switcher & Day/Night Lamp Toggle */}
+          <div className="room-bar-right">
+            <div
+              className="theme-switcher-pill"
+              role="radiogroup"
+              aria-label="Environment Background"
+            >
+              {THEME_LIST.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`theme-pill-btn ${theme === item.id ? 'is-active' : ''}`}
+                  onClick={() => handleThemeChange(item.id)}
+                  role="radio"
+                  aria-checked={theme === item.id}
+                  title={item.fullName}
+                >
+                  <span className="pill-icon">{item.icon}</span>
+                  <span className="pill-name">{item.name}</span>
+                </button>
+              ))}
+            </div>
+
             <LightingToggle mode={lighting} onToggle={toggleLighting} />
           </div>
         </header>
 
+        {/* 3D Room Scene Frame */}
         <div className="scene-frame">
           {entered && webglAvailable ? (
             <Suspense fallback={<RoomFallback />}>
@@ -133,6 +215,7 @@ export default function App() {
                 entered={entered}
                 active={active}
                 lighting={lighting}
+                theme={theme}
                 onSelect={selectObject}
                 onToggleLamp={toggleLighting}
                 onFocusComplete={openFocusedPanel}
@@ -141,31 +224,21 @@ export default function App() {
           ) : entered ? (
             <div className="scene-fallback">
               <p>3D mode is unavailable in this browser.</p>
-              <span>You can still open every section from the object index below.</span>
+              <span>Explore using the navigation tabs above.</span>
             </div>
           ) : (
             <div className="scene-idle" aria-hidden="true">
-              <span>ROOM / 01</span>
-              <p>Enter to load the 3D room</p>
+              <span>ROOM</span>
+              <p>Enter to explore the 3D space</p>
             </div>
           )}
-          <div className="corner-index" aria-hidden="true">
-            <span>01</span>
-            <i />
-            <span>08</span>
-          </div>
         </div>
-
-        <footer className="room-footer">
-          <span>Research · Product · Photography · Motion</span>
-          <span>Blender / React Three Fiber</span>
-        </footer>
-
-        {entered && <MobileDock onSelect={selectFromDock} />}
       </section>
 
+      {/* Intro Paper overlay */}
       {!entered && <IntroPaper onEntered={() => setEntered(true)} />}
 
+      {/* Content Modals */}
       {panelHotspot && (
         <Suspense fallback={<PanelFallback />}>
           <ContentPanel

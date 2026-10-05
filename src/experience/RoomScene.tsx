@@ -7,7 +7,10 @@ import * as THREE from 'three'
 import type { ActiveHotspot } from '../interactionState'
 import type { LightingMode } from '../lighting'
 import type { HotspotId } from '../types/content'
+import type { BackgroundThemeId } from '../themes'
+import { BACKGROUND_THEMES } from '../themes'
 import { AccentLights, type LightingMix, lightsOn } from './AccentLights'
+import { AtmosphericBackdrop } from './AtmosphericBackdrop'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
@@ -16,6 +19,7 @@ type SceneProps = {
   entered: boolean
   active: ActiveHotspot | null
   lighting: LightingMode
+  theme: BackgroundThemeId
   onSelect: (id: HotspotId, point: THREE.Vector3) => void
   onToggleLamp: () => void
   onFocusComplete: (id: HotspotId) => void
@@ -41,6 +45,7 @@ const focusSettings: Record<HotspotId, { distance: number; yOffset: number }> = 
   books: { distance: 2.08, yOffset: 0.15 },
   movies: { distance: 2.38, yOffset: 0.14 },
   whiteboard: { distance: 2.52, yOffset: 0.12 },
+  gallery: { distance: 1.92, yOffset: 0.16 },
 }
 
 function LoadingRoomOverlay() {
@@ -344,30 +349,6 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
   )
 }
 
-const palettes = {
-  day: {
-    background: new THREE.Color('#d8d4cd'),
-    hemiSky: new THREE.Color('#fff6ea'),
-    hemiGround: new THREE.Color('#857b70'),
-    hemi: 2.25,
-    key: 2.7,
-    keyColor: new THREE.Color('#fff1df'),
-    fill: 1.1,
-    fillColor: new THREE.Color('#dfe8f5'),
-  },
-  // Broad evening fill keeps furniture legible; practical lamps provide warmer accents.
-  night: {
-    background: new THREE.Color('#514940'),
-    hemiSky: new THREE.Color('#ead8bd'),
-    hemiGround: new THREE.Color('#91847b'),
-    hemi: 1.25,
-    key: 0.8,
-    keyColor: new THREE.Color('#f5ddbc'),
-    fill: 0.7,
-    fillColor: new THREE.Color('#c2cce0'),
-  },
-} as const
-
 export function useLightingMix(mode: LightingMode): LightingMix {
   const mix = useRef({ value: mode === 'night' ? 1 : 0 })
   useEffect(() => {
@@ -382,7 +363,15 @@ export function useLightingMix(mode: LightingMode): LightingMix {
   return mix
 }
 
-function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null }) {
+function LightingSystem({
+  mix,
+  lamp,
+  theme,
+}: {
+  mix: LightingMix
+  lamp: LampRig | null
+  theme: BackgroundThemeId
+}) {
   const scene = useThree((state) => state.scene)
   const hemi = useRef<THREE.HemisphereLight>(null!)
   const key = useRef<THREE.DirectionalLight>(null!)
@@ -392,17 +381,21 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
   const bulb = useRef<THREE.PointLight>(null)
   const glow = useRef<THREE.Sprite>(null)
   const background = useMemo(() => new THREE.Color(), [])
-  const fog = useMemo(() => new THREE.Fog('#d8d4cd', 10.5, 19), [])
+  const fog = useMemo(() => new THREE.Fog('#ded9d0', 25, 60), [])
   const glowTexture = useMemo(createGlowTexture, [])
 
+  const targetBg = useMemo(() => new THREE.Color(), [])
+  const targetHemiSky = useMemo(() => new THREE.Color(), [])
+  const targetHemiGround = useMemo(() => new THREE.Color(), [])
+  const targetKeyColor = useMemo(() => new THREE.Color(), [])
+  const targetFillColor = useMemo(() => new THREE.Color(), [])
+
   useEffect(() => {
-    scene.background = background
     scene.fog = fog
     return () => {
-      scene.background = null
       scene.fog = null
     }
-  }, [background, fog, scene])
+  }, [fog, scene])
 
   useEffect(() => () => glowTexture.dispose(), [glowTexture])
 
@@ -412,24 +405,45 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
     spot.current.target.updateMatrixWorld()
   }, [lamp])
 
-  useFrame(() => {
+  useFrame((_, delta) => {
+    const activeTheme = BACKGROUND_THEMES[theme] ?? BACKGROUND_THEMES.home
+    const p = activeTheme.palette
     const t = mix.current.value
-    const { day, night } = palettes
-    const lerp = THREE.MathUtils.lerp
-    background.copy(day.background).lerp(night.background, t)
+
+    targetBg.set(p.background)
+    targetHemiSky.set(p.hemiSky)
+    targetHemiGround.set(p.hemiGround)
+    targetKeyColor.set(p.keyColor)
+    targetFillColor.set(p.fillColor)
+
+    const lerpRate = Math.min(1, delta * 3.5)
+
+    background.lerp(targetBg, lerpRate)
     fog.color.copy(background)
-    hemi.current.color.copy(day.hemiSky).lerp(night.hemiSky, t)
-    hemi.current.groundColor.copy(day.hemiGround).lerp(night.hemiGround, t)
-    hemi.current.intensity = lerp(day.hemi, night.hemi, t)
-    key.current.intensity = lerp(day.key, night.key, t)
-    key.current.color.copy(day.keyColor).lerp(night.keyColor, t)
-    fill.current.intensity = lerp(day.fill, night.fill, t)
-    fill.current.color.copy(day.fillColor).lerp(night.fillColor, t)
-    eveningBounce.current.intensity = 0.65 * t
+    fog.near += (p.fogNear - fog.near) * lerpRate
+    fog.far += (p.fogFar - fog.far) * lerpRate
+
+    hemi.current.color.lerp(targetHemiSky, lerpRate)
+    hemi.current.groundColor.lerp(targetHemiGround, lerpRate)
+    hemi.current.intensity += (p.hemiIntensity - hemi.current.intensity) * lerpRate
+
+    key.current.color.lerp(targetKeyColor, lerpRate)
+    key.current.intensity += (p.keyIntensity - key.current.intensity) * lerpRate
+
+    fill.current.color.lerp(targetFillColor, lerpRate)
+    fill.current.intensity += (p.fillIntensity - fill.current.intensity) * lerpRate
+
+    eveningBounce.current.intensity = 0.5 * t
+
     const on = lightsOn(t)
-    // Shadow casting stays enabled so toggling never forces a shader recompile.
-    if (spot.current) spot.current.intensity = 4.8 * on
-    if (bulb.current) bulb.current.intensity = 0.6 * on
+    if (spot.current) {
+      spot.current.color.set(p.lampWarmth)
+      spot.current.intensity = 4.8 * p.lampMultiplier * on
+    }
+    if (bulb.current) {
+      bulb.current.color.set(p.lampWarmth)
+      bulb.current.intensity = 0.6 * p.lampMultiplier * on
+    }
     if (glow.current) {
       glow.current.visible = on > 0.01
       ;(glow.current.material as THREE.SpriteMaterial).opacity = 0.15 * on
@@ -479,7 +493,15 @@ function LightingSystem({ mix, lamp }: { mix: LightingMix; lamp: LampRig | null 
   )
 }
 
-export function RoomScene({ entered, active, lighting, onSelect, onToggleLamp, onFocusComplete }: SceneProps) {
+export function RoomScene({
+  entered,
+  active,
+  lighting,
+  theme,
+  onSelect,
+  onToggleLamp,
+  onFocusComplete,
+}: SceneProps) {
   const [lamp, setLamp] = useState<LampRig | null>(null)
   const mix = useLightingMix(lighting)
   return (
@@ -492,7 +514,8 @@ export function RoomScene({ entered, active, lighting, onSelect, onToggleLamp, o
         shadows
         onPointerMissed={() => undefined}
       >
-        <LightingSystem mix={mix} lamp={lamp} />
+        <LightingSystem mix={mix} lamp={lamp} theme={theme} />
+        <AtmosphericBackdrop theme={theme} />
         <SceneErrorBoundary>
           <Suspense fallback={null}>
             <RoomModel

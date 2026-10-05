@@ -1,108 +1,276 @@
 [
   {
+    "id": "internship-convergeai",
+    "track": "internship",
+    "organization": "ConvergeAI",
+    "companyCn": "坤启无限 ConvergeAI",
+    "product": "AI Coding & Agent Platform",
+    "role": "AI Product Operations Intern",
+    "roleCn": "AI 产品运营实习生",
+    "period": "2026.07 — Present",
+    "location": "Shanghai / Remote",
+    "metrics": [
+      {
+        "label": "Retention Rate",
+        "val": "+34.5%"
+      },
+      {
+        "label": "Paid Conversion",
+        "val": "+63.2%"
+      },
+      {
+        "label": "Product Hunt",
+        "val": "Top #2 of Day"
+      }
+    ],
+    "summary": "Drives global community growth, developer onboarding, monetization funnels, and creator ecosystem for an AI coding platform.",
+    "highlights": [
+      "Pioneered Vibecoding content on X and TikTok to bootstrap user acquisition from 0.5 to 1; founded 3 official Reddit communities (r/EnterBuilders) and built lifecycle monitoring SOP, boosting post retention by 34.5%",
+      "Spearheaded in-product AI top-up modal from requirement ideation, engineering alignment, QA testing to production deployment; analyzed warehouse telemetry to pinpoint churn bottlenecks, driving pay conversion by +63.2%",
+      "Solely orchestrated global Product Hunt launch campaign (creative copy, visual assets, Hunter coordination, timeline execution), securing #2 Product of the Day; designed Creator Growth Program outreach scripts and authored English customer success stories"
+    ]
+  },
+  {
+    "id": "internship-analemma",
+    "track": "internship",
+    "organization": "Analemma",
+    "companyCn": "日行迹 Analemma (Baidu Acquired)",
+    "product": "Scientific AI & Research Intelligence",
+    "role": "AI Product Operations Intern",
+    "roleCn": "AI 产品运营实习生",
+    "period": "2026.03 — 2026.05",
+    "location": "Shanghai",
+    "metrics": [
+      {
+        "label": "Academic Focus",
+        "val": "AI for Science"
+      },
+      {
+        "label": "Evaluation",
+        "val": "Model Boundaries"
+      },
+      {
+        "label": "Acquisition",
+        "val": "Baidu Core"
+      }
+    ],
+    "summary": "Evaluated model capabilities, structured badcase taxonomy, and performed competitive intelligence for an academic AI platform later acquired by Baidu.",
+    "highlights": [
+      "Benchmarked LLM boundary limits across paper retrieval, summarization, and synthesis tasks; established a systematic badcase classification database to guide prompt engineering and RAG pipeline refinement",
+      "Conducted deep competitive analyses on leading academic AI tools (Consensus, Elicit), benchmarking feature roadmaps and SaaS pricing models to support strategic product positioning",
+      "Engaged academic power users and research lab communities, crafting specialized prompt templates that accelerated user onboarding and retention"
+    ]
+  },
+  {
+    "id": "internship-xiaohongshu",
+    "track": "internship",
+    "organization": "Xiaohongshu (RED)",
+    "companyCn": "小红书",
+    "product": "Sports AI & Smart Planning",
+    "role": "AI Product Operations Intern",
+    "roleCn": "AI 产品运营实习生",
+    "period": "2025.08 — 2025.11",
+    "location": "Shanghai",
+    "metrics": [
+      {
+        "label": "Interviews",
+        "val": "120+ Users"
+      },
+      {
+        "label": "Campus Reach",
+        "val": "55 Universities"
+      },
+      {
+        "label": "Feature UV",
+        "val": "+50.4%"
+      }
+    ],
+    "summary": "Conducted deep user research on early adopters and architected high-converting campus activation programs for an AI sports planning experience.",
+    "highlights": [
+      "Conducted in-depth interviews with 120+ early adopters to uncover cold-start pain points in AI sports plan generation; authored campus scenario PRD and collaborated with engineering to ship 2 iterative versions",
+      "Architected progressive onboarding flow and sample prompt libraries, significantly lowering barrier to entry; established tiered incentive system across 55 universities (3,500+ members), increasing feature UV by +50.4% with DAU holding at 65.8%",
+      "Directed official social accounts producing high-traffic viral posts; designed weekly SQL metrics aggregation dashboards to optimize cohort segmentation and user conversion funnels"
+    ]
+  },
+  {
+    "id": "internship-meituan",
+    "track": "internship",
+    "organization": "Meituan",
+    "companyCn": "美团 · 大众点评",
+    "product": "Dianping POI Development",
+    "role": "Strategy Operations Intern",
+    "roleCn": "策略运营实习生",
+    "period": "2025.11 — 2026.01",
+    "location": "Shanghai",
+    "metrics": [
+      {
+        "label": "Christmas Lift",
+        "val": "+43.2% Discovery"
+      },
+      {
+        "label": "New Year Lift",
+        "val": "+54.7% Discovery"
+      },
+      {
+        "label": "Weekly Growth",
+        "val": "80%+ Positive"
+      }
+    ],
+    "summary": "Formulated competitive product insights, led major festival campaigns, and utilized SQL data attribution to drive Dianping POI content strategy.",
+    "highlights": [
+      "Conducted rigorous competitor benchmark on homepage tabs, recommendation feeds, and search entry points; identified core UX gaps to deliver actionable proposals for search-side feature improvements",
+      "Spearheaded Christmas and New Year festive campaigns: analyzed historical DAU trends and consumer preferences to devise theme schedules and feed allocation strategies, lifting in-app discovery volume by 43.2% (Christmas) and 54.7% (New Year)",
+      "Curated high-quality POI content tiers to maintain feed authenticity, sustaining 80%+ positive week-over-week growth across assigned operational time blocks; ran daily SQL data mining and attribution"
+    ]
+  },
+  {
+    "id": "internship-netease",
+    "track": "internship",
+    "organization": "NetEase Media",
+    "companyCn": "网易传媒 · 网易新闻",
+    "product": "NetEase News Community",
+    "role": "Product Operations Intern",
+    "roleCn": "产品运营实习生",
+    "period": "2024.06 — 2024.09",
+    "location": "Beijing",
+    "metrics": [
+      {
+        "label": "Core Retention",
+        "val": "+54.3%"
+      },
+      {
+        "label": "Campaign UV",
+        "val": "+53.2%"
+      },
+      {
+        "label": "Engagement",
+        "val": "+109.2%"
+      }
+    ],
+    "summary": "Built creator tiering frameworks, turned seasonal branding campaigns into scalable product playbooks, and conducted weekly retention analytics.",
+    "highlights": [
+      "Segmented community creators based on posting frequency, interaction quality, and retention lifecycles to deploy customized tiered growth incentives; boosted core creator retention rate by 54.3% and active circle leaders by 41.2%",
+      "Solely managed end-to-end execution of signature 'Qingming Poetry Festival' campaign; packaged creative mechanisms into a reusable brand IP template with operational SOPs, resulting in +53.2% event UV, +109.2% interactions, and +36.1% community posts",
+      "Performed weekly deep dives on CTR, UV, and community health metrics via BI dashboards, translating qualitative feedback into operational iterations"
+    ]
+  },
+  {
+    "id": "internship-globaltimes",
+    "track": "internship",
+    "organization": "Global Times",
+    "companyCn": "环球时报",
+    "product": "International News & Digital Media",
+    "role": "International Media Operations & Editorial Intern",
+    "roleCn": "国际新闻采编与新媒体运营实习生",
+    "period": "2023.09 — 2024.01",
+    "location": "Beijing",
+    "metrics": [
+      {
+        "label": "Wire Reports",
+        "val": "60+ Dispatches"
+      },
+      {
+        "label": "Global News",
+        "val": "Reuters / AP / AFP"
+      },
+      {
+        "label": "Bilingual Desk",
+        "val": "Cross-Border"
+      }
+    ],
+    "summary": "Monitored international news wires, compiled cross-border deep dives, and distributed multi-channel global news reports under strict editorial standards.",
+    "highlights": [
+      "Monitored major international news agencies (Reuters, AP, AFP) and Central/Eastern European local outlets; compiled and fact-checked 60+ in-depth briefs on international politics and cultural affairs",
+      "Assisted in managing bilingual overseas social media matrices, planning timely topic angles and optimizing editorial packaging to engage international readerships",
+      "Collaborated with senior international correspondents on high-profile global feature stories, honing sharp journalistic instincts, fast turnaround speed, and cross-cultural communication acumen"
+    ]
+  },
+  {
     "id": "campus-sass",
     "track": "campus",
     "organization": "Shanghai Academy of Social Sciences · Institute of Journalism",
+    "companyCn": "上海社会科学院 · 新闻研究所",
     "role": "M.A. Candidate in Journalism",
+    "roleCn": "新闻学硕士研究生",
     "period": "2024.09 — 2027.07",
     "location": "Shanghai",
+    "metrics": [
+      {
+        "label": "GPA",
+        "val": "3.78 / 4.0"
+      },
+      {
+        "label": "Ranking",
+        "val": "Top 10%"
+      },
+      {
+        "label": "Honors",
+        "val": "Party Member"
+      }
+    ],
     "summary": "Research spans journalism and communication, platform governance and AI product practice. GPA 3.78/4.00, top 10% of the cohort.",
     "highlights": [
-      "Contributed to a Shanghai Philosophy and Social Sciences Planning project on live-streamer governance",
+      "Contributed to a Shanghai Philosophy and Social Sciences Planning project on live-streamer platform governance",
       "Co-wrote research commissioned in 2025 by the United Front Work Department of the CPC Shanghai Committee",
-      "Published two papers in Chinese core journals; named Outstanding Graduate Student and Outstanding Party Member"
+      "Published two papers in Chinese core journals; awarded Outstanding Graduate Student and Outstanding Party Member"
     ]
   },
   {
     "id": "campus-charles",
     "track": "campus",
     "organization": "Charles University",
+    "companyCn": "捷克查理大学",
     "role": "Exchange Student, Czech Language & Literature",
+    "roleCn": "捷克语言文学交换生",
     "period": "2022.01 — 2022.07",
     "location": "Prague",
+    "metrics": [
+      {
+        "label": "Ranking",
+        "val": "Top 5%"
+      },
+      {
+        "label": "Grade",
+        "val": "1st Class Honors"
+      },
+      {
+        "label": "Setting",
+        "val": "Central Europe"
+      }
+    ],
     "summary": "Exchange study in Czech language, literature and Central European culture, completed with first-class results (top 5%).",
     "highlights": [
-      "Studied Czech language, literature and Central European culture in an immersive setting",
-      "Completed the exchange programme with first-class results"
+      "Studied Czech language, literature and Central European culture in an immersive European academic setting",
+      "Completed the exchange programme with first-class honors"
     ]
   },
   {
     "id": "campus-bisu",
     "track": "campus",
     "organization": "Beijing International Studies University",
+    "companyCn": "北京第二外国语学院",
     "role": "B.A. in Czech Language & Literature",
+    "roleCn": "捷克语文学学士",
     "period": "2019.09 — 2023.07",
     "location": "Beijing",
+    "metrics": [
+      {
+        "label": "GPA",
+        "val": "3.81 / 4.0"
+      },
+      {
+        "label": "Ranking",
+        "val": "Top 5%"
+      },
+      {
+        "label": "Scholarship",
+        "val": "CSC Full Grant"
+      }
+    ],
     "summary": "GPA 3.81/4.00, top 5% of the major, studying language, politics and diplomacy, and modern Czech literature.",
     "highlights": [
-      "Awarded a China Scholarship Council full scholarship and the China Telecom Scholarship",
-      "Named a Beijing Outstanding Student",
-      "Top marks in the major for Central and Eastern European Politics & Diplomacy and Modern Czech Literature"
-    ]
-  },
-  {
-    "id": "internship-convergeai",
-    "track": "internship",
-    "organization": "ConvergeAI · AI coding product",
-    "role": "AI Product Operations Intern",
-    "period": "2026.07 — Present",
-    "summary": "Connects user feedback with product iteration across overseas community growth, monetisation and creator operations.",
-    "highlights": [
-      "Built social media and Reddit community operations, lifecycle monitoring and review workflows",
-      "Drove an in-product paid feature from proposal and engineering coordination through testing to launch",
-      "Planned the Product Hunt launch and creator outreach, helping reach #2 Product of the Day"
-    ]
-  },
-  {
-    "id": "internship-analemma",
-    "track": "internship",
-    "organization": "Analemma · AI research product (later acquired by Baidu)",
-    "role": "AI Product Operations Intern",
-    "period": "2026.03 — 2026.05",
-    "summary": "Evaluated and iterated on capabilities of a research-focused AI product.",
-    "highlights": [
-      "Assessed model capability limits and categorised bad cases",
-      "Analysed AI competitors and product strategy",
-      "Supported community growth and user retention"
-    ]
-  },
-  {
-    "id": "internship-meituan",
-    "track": "internship",
-    "organization": "Meituan · Dianping POI Development",
-    "role": "Strategy Operations Intern",
-    "period": "2025.11 — 2026.01",
-    "summary": "Supported Dianping product and content strategy through competitor research, campaign operations and SQL analysis.",
-    "highlights": [
-      "Mapped competitor differences across the homepage channels, feed and search",
-      "Planned the Christmas and New Year campaigns, including themes and feed promotion schedules",
-      "Tracked daily performance data and turned trend analysis into operating decisions"
-    ]
-  },
-  {
-    "id": "internship-xiaohongshu",
-    "track": "internship",
-    "organization": "Xiaohongshu (RED) · Sports AI product",
-    "role": "AI Product Operations Intern",
-    "period": "2025.08 — 2025.11",
-    "summary": "Researched early adopters and designed activation programmes for an AI sports-planning experience.",
-    "highlights": [
-      "Interviewed 120+ users and turned cold-start pain points into a campus-scenario PRD",
-      "Coordinated two product iterations and lowered first-use friction through prompt design",
-      "Built a tiered campus programme spanning 55 universities and 3,500+ members"
-    ]
-  },
-  {
-    "id": "internship-netease",
-    "track": "internship",
-    "organization": "NetEase Media · NetEase News Community",
-    "role": "Product Operations Intern",
-    "period": "2024.06 — 2024.09",
-    "summary": "Built creator tiers, campaign mechanics and data-driven operations for the NetEase News community.",
-    "highlights": [
-      "Tiered creators by posting, engagement and retention behaviour, with differentiated incentives",
-      "Owned the Qingming poetry event from planning to delivery and documented a reusable campaign playbook",
-      "Guided iterations through weekly reviews of CTR, UV and community metrics"
+      "Awarded China Scholarship Council (CSC) full government scholarship and China Telecom Scholarship",
+      "Named Beijing Outstanding University Student; top marks in Central/Eastern European Politics & Diplomacy and Modern Czech Literature"
     ]
   }
 ]

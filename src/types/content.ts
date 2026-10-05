@@ -7,6 +7,21 @@ export type HotspotId =
   | 'research'
   | 'resume'
   | 'experience'
+  | 'gallery'
+
+export type CityPhotoItem = {
+  id: string
+  city: string
+  title: string
+  year: string
+  location: string
+  camera: string
+  filmStyle: string
+  story: string
+  src: string
+  aspectRatio?: string
+  alt?: string
+}
 
 export type ProjectItem = {
   id: string
