@@ -138,8 +138,15 @@ tracks and embedded artwork were supplied by the site owner, who confirmed
 permission for public playback/display. Only add assets you have permission to
 publish: files under `public/` remain publicly accessible.
 
-- No autoplay and no MP3 source assigned until the visitor presses Play or selects
-  a song. The first visit starts at 30% volume; only volume is remembered.
+- Music starts as soon as the visitor enters the workbench, so no second click is
+  needed. Entering is itself a gesture (the intro paper is dismissed by click, drag
+  or key), which is what lets playback begin. If a browser still refuses, the
+  refusal is not shown as an error: the player stays paused and quietly retries on
+  the visitor's next interaction, and the transport always works. The CD's
+  play/pause, previous, next and track selection hand control to the visitor and
+  stop that retry. There is deliberately no `autoplay` attribute, and no MP3 source
+  is assigned before playback is actually requested. The first visit starts at 30%
+  volume; only volume is remembered.
 - Previous/next retains the paused/playing intent; the final track loops to the
   first. Seeking becomes available after metadata loads. If a CDN does not expose
   a usable seek range, `seekableSource.ts` buffers that track on demand into a
@@ -154,8 +161,9 @@ publish: files under `public/` remain publicly accessible.
   Filenames contain content hashes for immutable caching. Replace the filename
   and manifest URL when changing an asset.
 
-`src/audio/musicController.test.ts` covers lazy loading, transport, repeat,
-metadata, seeking, volume, errors, stale playback promises and cleanup.
+`src/audio/musicController.test.ts` covers lazy loading, entry autoplay, a refused
+autoplay, transport, repeat, metadata, seeking, volume, errors, stale playback
+promises and cleanup.
 
 ## Reading shelf and watchlist
 
@@ -193,14 +201,21 @@ local artwork, null ratings and an explicit allowlist of public watchlist fields
 
 Edit the JSON files under `src/data/`:
 
-- `projects.json` — laptop projects
+- `projects.json` — laptop projects, including the independent AI grading assistant
 - `photos.json` — camera archive
 - `books.json` — reading shelf
 - `movies.json` — watched titles and personal ratings, without private comments
 - `research.json` — research, writing and works in progress
-- `experiences.json` — campus and internship timelines
+- `experiences.json` — campus and internship timelines, parsed from the résumé
 - `resume.json` — résumé file metadata
 
-Replace `public/documents/peter-cui-resume.pdf` to update the downloadable résumé. Regenerate `public/images/ui/resume-preview-real-20260930.png` from its first page when the PDF changes, and keep `src/data/resume.json` pointed at the same preview file.
+To update the résumé, drop the new PDF into `public/documents/` under a new
+date-stamped name, render its first page to a WebP sheet preview and a smaller
+paper texture, then point `src/data/resume.json` at all three. The desk prop uses
+`paperImage` through `RoomScene.tsx`, which hides the GLB's printed mockup and
+lays the page on the existing paper base; keep the page upright so the header sits
+on the far edge, where a reader sees it. Parsing a new résumé also means updating
+`experiences.json` and `projects.json`, since the Intern and Projects panels are
+the sections the résumé content maps to.
 
 The Blender source with the new résumé and ID badge is `../personal-workbench-interactive-v58.blend`. The two lightweight interaction props are exported separately as `public/models/peter-interaction-props.glb` so the verified room model remains untouched.

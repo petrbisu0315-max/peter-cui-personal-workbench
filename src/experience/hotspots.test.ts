@@ -30,5 +30,7 @@ describe('hotspot mapping', () => {
 
   it('ignores unrelated meshes', () => {
     expect(hotspotFromObjectName('Desk_Leg_01')).toBeNull()
+    // The résumé paper sits inside SLOT_Resume, so the parent supplies the hotspot.
+    expect(hotspotFromObjectName('Resume_PaperThumbnail')).toBeNull()
   })
 })

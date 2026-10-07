@@ -1,7 +1,7 @@
 import { Component, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 import { Canvas, type ThreeEvent, useFrame, useThree } from '@react-three/fiber'
-import { Html, OrbitControls, useGLTF, useProgress } from '@react-three/drei'
+import { Html, OrbitControls, useGLTF, useProgress, useTexture } from '@react-three/drei'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import type { ActiveHotspot } from '../interactionState'
@@ -15,6 +15,7 @@ import { useReducedMotion } from '../useReducedMotion'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
+import resumeDocument from '../data/resume.json'
 
 type SceneProps = {
   entered: boolean
@@ -37,6 +38,17 @@ const LAMP_PATTERN = /PROP_DeskLamp|ACCENT_FloorLamp/i
 
 const MODEL_URL = '/models/peter-hero-current-safe.glb'
 const PROPS_URL = '/models/peter-interaction-props.glb'
+
+// The résumé prop in the props GLB is a flat mockup: a paper base plus printed header,
+// rules and an accent bar. Those printed parts are replaced by a page of the real PDF.
+const RESUME_MOCKUP_PATTERN = /^(Resume_Header|Resume_Line_\d|Resume_Accent)$/i
+const RESUME_SLOT_NAME = 'SLOT_Resume'
+const RESUME_PAPER_NAME = 'Resume_PaperThumbnail'
+// Footprint of the Resume_Base mesh, in local units.
+const RESUME_PAPER_WIDTH = 0.58
+const RESUME_PAPER_HEIGHT = 0.4
+// Resume_Base is 0.025 thick, so its upper face sits at +0.0125.
+const RESUME_PAPER_LIFT = 0.0135
 const focusSettings: Record<HotspotId, { distance: number; yOffset: number }> = {
   resume: { distance: 1.82, yOffset: 0.24 },
   experience: { distance: 1.92, yOffset: 0.26 },
@@ -166,8 +178,15 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
 }) {
   const main = useGLTF(MODEL_URL, '/draco/')
   const props = useGLTF(PROPS_URL)
+  const resumePaper = useTexture(resumeDocument.paperImage)
   const [hovered, setHoveredState] = useState<SceneTarget | null>(null)
   const pressStart = useRef<{ x: number; y: number; key: string } | null>(null)
+
+  useEffect(() => {
+    resumePaper.colorSpace = THREE.SRGBColorSpace
+    resumePaper.anisotropy = 8
+    resumePaper.needsUpdate = true
+  }, [resumePaper])
 
   const prepared = useMemo(() => {
     const room = main.scene.clone(true)
@@ -186,10 +205,29 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
         }
         if (/^(PROP_PosterOrbit|PROP_PosterTitle|SLOT_InterstellarPoster|SLOT_BlankCanvas)$/i.test(object.name)) object.visible = false
         if (/^(PROP_Bookshelf|PROP_Book_0[1-5]|PROP_Speaker_GLB)$/i.test(object.name)) object.visible = false
+        // Keep the blank paper base, drop the printed mockup that the real page replaces.
+        if (RESUME_MOCKUP_PATTERN.test(object.name)) {
+          object.visible = false
+          object.raycast = () => undefined
+        }
         if (Array.isArray(object.material)) object.material = object.material.map((material) => material.clone())
         else object.material = object.material.clone()
       })
     })
+    const resumeSlot = interactionProps.getObjectByName(RESUME_SLOT_NAME)
+    if (resumeSlot) {
+      const paper = new THREE.Mesh(
+        new THREE.PlaneGeometry(RESUME_PAPER_WIDTH, RESUME_PAPER_HEIGHT),
+        new THREE.MeshStandardMaterial({ map: resumePaper, roughness: 0.94, metalness: 0 }),
+      )
+      paper.name = RESUME_PAPER_NAME
+      // The base lies in the local XZ plane, so the page has to be laid flat to match it.
+      paper.rotation.x = -Math.PI / 2
+      paper.position.set(0, RESUME_PAPER_LIFT, 0)
+      paper.castShadow = false
+      paper.receiveShadow = false
+      resumeSlot.add(paper)
+    }
     const roomBounds = new THREE.Box3().setFromObject(room)
     const size = roomBounds.getSize(new THREE.Vector3())
     const center = roomBounds.getCenter(new THREE.Vector3())
@@ -202,7 +240,7 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
       position,
       lamp: measureLamp(room, scale, position),
     }
-  }, [main.scene, props.scene])
+  }, [main.scene, props.scene, resumePaper])
 
   useEffect(() => {
     onLampMeasured(prepared.lamp)

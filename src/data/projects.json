@@ -1,5 +1,18 @@
 [
   {
+    "id": "xcpigai-grading-assistant",
+    "title": "新传考研 AI 批改助手 · AI Grading Assistant",
+    "description": "An independent product that grades journalism postgraduate entrance-exam essays. It decomposes 9 question types into 8 assessment dimensions, compares real grading runs against human scores to locate systematic bias, and iterates the prompt output from there — built, launched and marketed solo, now at 500+ users with early revenue.",
+    "tags": [
+      "Prompt Engineering",
+      "AI Evaluation",
+      "Independent Product"
+    ],
+    "status": "in-progress",
+    "period": "2026.07 — Present",
+    "url": "https://www.xcpigai.top"
+  },
+  {
     "id": "personal-workbench",
     "title": "3D Personal Workbench",
     "description": "A room built in Blender, with camera moves, hotspots and content panels driven by React Three Fiber and GSAP. It is both a personal archive and a career path you can explore.",
@@ -7,6 +20,7 @@
       "Blender",
       "React Three Fiber",
       "GSAP"
-    ]
+    ],
+    "status": "completed"
   }
 ]

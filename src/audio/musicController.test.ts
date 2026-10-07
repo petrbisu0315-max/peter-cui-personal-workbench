@@ -142,6 +142,49 @@ describe('background music', () => {
     player.dispose()
   })
 
+  it('treats a refused autoplay as waiting rather than an error, and still plays on retry', async () => {
+    const { audio, player } = setup()
+    const blocked = new Error('blocked')
+    blocked.name = 'NotAllowedError'
+    audio.play.mockRejectedValueOnce(blocked)
+    player.autoplay()
+    expect(player.state.status).toBe('loading')
+    await flush()
+    expect(player.state.status).toBe('paused')
+    expect(player.state.error).toBe('')
+    expect(audio.play).toHaveBeenCalledOnce()
+    player.autoplay()
+    audio.start()
+    expect(player.state.status).toBe('playing')
+    expect(player.state.error).toBe('')
+    player.dispose()
+  })
+
+  it('starts the first track immediately when autoplay is allowed', async () => {
+    const { audio, player } = setup()
+    player.autoplay()
+    expect(audio.src).toBe(tracks[0].src)
+    expect(audio.preload).toBe('none')
+    audio.start()
+    expect(player.state.status).toBe('playing')
+    expect(player.state.index).toBe(0)
+    // A second autoplay request must not restart a playing track.
+    const calls = audio.play.mock.calls.length
+    player.autoplay()
+    expect(audio.play).toHaveBeenCalledTimes(calls)
+    player.dispose()
+  })
+
+  it('still reports a genuine media failure as an error when autoplaying', async () => {
+    const { audio, player } = setup()
+    audio.play.mockRejectedValueOnce(new Error('decode failed'))
+    player.autoplay()
+    await flush()
+    expect(player.state.status).toBe('error')
+    expect(player.state.error).toContain('could not start')
+    player.dispose()
+  })
+
   it('surfaces media errors without endlessly skipping failed tracks', () => {
     const { audio, player } = setup()
     player.play()

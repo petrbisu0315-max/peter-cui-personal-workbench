@@ -28,6 +28,8 @@ export type ProjectItem = {
   title: string
   description: string
   tags: string[]
+  status?: 'completed' | 'in-progress'
+  period?: string
   url?: string
   repository?: string
   image?: string
@@ -95,6 +97,7 @@ export type ResumeDocument = {
   title: string
   file: string
   previewImage?: string
+  paperImage?: string
   updatedAt?: string
   downloadName: string
 }

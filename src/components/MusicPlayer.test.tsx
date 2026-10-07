@@ -4,13 +4,14 @@ import { describe, expect, it } from 'vitest'
 import { MusicPlayer } from './MusicPlayer'
 
 describe('compact CD player', () => {
-  it('initially exposes only the CD trigger, with silent audio and hidden controls', () => {
+  it('initially exposes only the CD trigger, with audio that entry alone starts', () => {
     const html = renderToStaticMarkup(createElement(MusicPlayer))
     expect(html).toContain('aria-label="Open music player"')
     expect(html).toContain('aria-expanded="false"')
     expect(html).toContain('data-open="false"')
     expect(html).toContain('hidden="" role="region" aria-label="Music player controls"')
     expect(html).toContain('<audio preload="none"></audio>')
+    // Entering the workbench starts the controller; there is deliberately no autoplay attribute.
     expect(html).not.toContain('autoplay')
     expect(html.match(/class="music-disc-spin"/g)).toHaveLength(1)
     expect(html).not.toContain('class="music-queue"')

@@ -4,7 +4,7 @@
     "track": "internship",
     "organization": "ConvergeAI",
     "companyCn": "坤启无限 ConvergeAI",
-    "product": "AI Coding & Agent Platform",
+    "product": "AI Coding & Agent Platform (Enter Pro)",
     "role": "AI Product Operations Intern",
     "roleCn": "AI 产品运营实习生",
     "period": "2026.07 — Present",
@@ -23,11 +23,11 @@
         "val": "Top #2 of Day"
       }
     ],
-    "summary": "Drives global community growth, developer onboarding, monetization funnels, and creator ecosystem for an AI coding platform.",
+    "summary": "Owns overseas cold start and commercial growth for the AI Coding product Enter Pro, covering overseas community ecosystem, in-product paid conversion, GTM launch and creator operations.",
     "highlights": [
-      "Pioneered Vibecoding content on X and TikTok to bootstrap user acquisition from 0.5 to 1; founded 3 official Reddit communities (r/EnterBuilders) and built lifecycle monitoring SOP, boosting post retention by 34.5%",
-      "Spearheaded in-product AI top-up modal from requirement ideation, engineering alignment, QA testing to production deployment; analyzed warehouse telemetry to pinpoint churn bottlenecks, driving pay conversion by +63.2%",
-      "Solely orchestrated global Product Hunt launch campaign (creative copy, visual assets, Hunter coordination, timeline execution), securing #2 Product of the Day; designed Creator Growth Program outreach scripts and authored English customer success stories"
+      "Overseas social and community operations: planned and produced multiple Vibecoding pieces off trends such as Astra, taking the product from 0.5 to 1 on cold start; founded three owned Reddit communities and built a full-lifecycle (48h / weekly / monthly) post-retention dashboard with a review SOP, lifting retention by 34.5%",
+      "In-product reach and paid conversion: diagnosed a cliff-edge drop in top-up credits through warehouse analysis, then drove the in-product AI paid pop-up through the full loop of requirement definition, engineering coordination, QA acceptance and production release; restructured membership-upgrade and credit-pack notification strategy, retiring low-yield touchpoints and raising paid top-up by 63.2%",
+      "Campaign planning and creator operations: covered the complete planning-to-launch-day loop from detail-page copy and visuals to Hunter coordination and release pacing, helping the product take #2 Product of the Day on Product Hunt; ran the full Ambassador loop of recruiting, screening, collaboration, campaign delivery and review, landing two India events; completed the first high-value user outreach and conversion, all in English, and built an end-to-end pipeline of 10+ user cases from screening and interview to Customer Story packaging"
     ]
   },
   {
@@ -36,71 +36,39 @@
     "organization": "Analemma",
     "companyCn": "日行迹 Analemma (Baidu Acquired)",
     "product": "Scientific AI & Research Intelligence",
-    "role": "AI Product Operations Intern",
-    "roleCn": "AI 产品运营实习生",
+    "role": "AI Product Manager Intern",
+    "roleCn": "AI 产品经理实习生",
     "period": "2026.03 — 2026.05",
     "location": "Shanghai",
     "metrics": [
       {
-        "label": "Academic Focus",
-        "val": "AI for Science"
+        "label": "Community Growth",
+        "val": "+50.38%"
       },
       {
-        "label": "Evaluation",
-        "val": "Model Boundaries"
+        "label": "Follower Growth",
+        "val": "+20.34%"
       },
       {
-        "label": "Acquisition",
-        "val": "Baidu Core"
+        "label": "Outcome",
+        "val": "Acquired by Baidu"
       }
     ],
-    "summary": "Evaluated model capabilities, structured badcase taxonomy, and performed competitive intelligence for an academic AI platform later acquired by Baidu.",
+    "summary": "Worked the Lemma Beta release cycle, reverse-engineering research Agent and AI writing products, authoring PRDs for core modules and building the community growth engine.",
     "highlights": [
-      "Benchmarked LLM boundary limits across paper retrieval, summarization, and synthesis tasks; established a systematic badcase classification database to guide prompt engineering and RAG pipeline refinement",
-      "Conducted deep competitive analyses on leading academic AI tools (Consensus, Elicit), benchmarking feature roadmaps and SaaS pricing models to support strategic product positioning",
-      "Engaged academic power users and research lab communities, crafting specialized prompt templates that accelerated user onboarding and retention"
-    ]
-  },
-  {
-    "id": "internship-xiaohongshu",
-    "track": "internship",
-    "organization": "Xiaohongshu (RED)",
-    "companyCn": "小红书",
-    "product": "Sports AI & Smart Planning",
-    "role": "AI Product Operations Intern",
-    "roleCn": "AI 产品运营实习生",
-    "period": "2025.08 — 2025.11",
-    "location": "Shanghai",
-    "metrics": [
-      {
-        "label": "Interviews",
-        "val": "120+ Users"
-      },
-      {
-        "label": "Campus Reach",
-        "val": "55 Universities"
-      },
-      {
-        "label": "Feature UV",
-        "val": "+50.4%"
-      }
-    ],
-    "summary": "Conducted deep user research on early adopters and architected high-converting campus activation programs for an AI sports planning experience.",
-    "highlights": [
-      "Conducted in-depth interviews with 120+ early adopters to uncover cold-start pain points in AI sports plan generation; authored campus scenario PRD and collaborated with engineering to ship 2 iterative versions",
-      "Architected progressive onboarding flow and sample prompt libraries, significantly lowering barrier to entry; established tiered incentive system across 55 universities (3,500+ members), increasing feature UV by +50.4% with DAU holding at 65.8%",
-      "Directed official social accounts producing high-traffic viral posts; designed weekly SQL metrics aggregation dashboards to optimize cohort segmentation and user conversion funnels"
+      "Product research and iteration: joined the Lemma Beta release loop and reverse-engineered the workflows and monetization logic of research Agents and AI writing products including Manus, AnyGen, Kimi and alphaXiv; independently authored PRDs for core modules such as the ToB lead-capture page, FARS [Idea Score] rating guidance and User Gallery; instrumented key behaviour paths and conversion funnels with PostHog, using user feedback to locate problems and push product improvements",
+      "User community and growth: built Reddit and Discord communities and a feedback system around research and AI power users, designing topic content and long-term operating strategy and distilling it into a reusable playbook, growing community membership by 50.38% and followers by 20.34% over the operating period"
     ]
   },
   {
     "id": "internship-meituan",
     "track": "internship",
     "organization": "Meituan",
-    "companyCn": "美团 · 大众点评",
+    "companyCn": "美团 · 大众点评 POI 发展部",
     "product": "Dianping POI Development",
-    "role": "Strategy Operations Intern",
-    "roleCn": "策略运营实习生",
-    "period": "2025.11 — 2026.01",
+    "role": "Mid-Platform Strategy Operations Intern",
+    "roleCn": "中台策略运营实习生",
+    "period": "2025.12 — 2026.02",
     "location": "Shanghai",
     "metrics": [
       {
@@ -116,22 +84,53 @@
         "val": "80%+ Positive"
       }
     ],
-    "summary": "Formulated competitive product insights, led major festival campaigns, and utilized SQL data attribution to drive Dianping POI content strategy.",
+    "summary": "Ran strategy operations for the Dianping local-life content ecosystem, driving content distribution and user activity through data decomposition, strategy iteration and mechanism design.",
     "highlights": [
-      "Conducted rigorous competitor benchmark on homepage tabs, recommendation feeds, and search entry points; identified core UX gaps to deliver actionable proposals for search-side feature improvements",
-      "Spearheaded Christmas and New Year festive campaigns: analyzed historical DAU trends and consumer preferences to devise theme schedules and feed allocation strategies, lifting in-app discovery volume by 43.2% (Christmas) and 54.7% (New Year)",
-      "Curated high-quality POI content tiers to maintain feed authenticity, sustaining 80%+ positive week-over-week growth across assigned operational time blocks; ran daily SQL data mining and attribution"
+      "Competitive research: systematically decomposed competitor differentiation across core modules such as the homepage tab and the feed, combined user interviews with the current state of the C-end product, identified the search-side improvements and other high-value slot opportunities and delivered the resulting strategy requirements, while tracking domestic and overseas product moves as input to iteration",
+      "Content distribution strategy: nominated and pushed quality content up the tiers based on trending topics and maintained the quality of head, waist and tail content pools; the category under ownership sustained 80%+ positive week-over-week growth",
+      "Data evaluation and analysis: decomposed and monitored owned trending topics daily through SQL, reviewed data movements on a regular cycle with attribution, and delivered strategy optimisation proposals through to iteration",
+      "Dedicated campaign operations: led the Christmas and New Year campaigns, reading historical DAU trends and consumption preferences to distil themes and set a detailed feed promotion schedule; after launch, in-app discovery volume rose 43.2% week-over-week at Christmas and 54.7% at New Year, effectively lifting user activity and content exposure"
+    ]
+  },
+  {
+    "id": "internship-xiaohongshu",
+    "track": "internship",
+    "organization": "Xiaohongshu (RED)",
+    "companyCn": "小红书 · 创新产品组",
+    "product": "Innovation Product Group · Sports AI",
+    "role": "C-End AI Product Operations Intern",
+    "roleCn": "C 端 AI 产品运营实习生",
+    "period": "2025.09 — 2025.11",
+    "location": "Shanghai",
+    "metrics": [
+      {
+        "label": "Interviews",
+        "val": "120+ Users"
+      },
+      {
+        "label": "Campus Reach",
+        "val": "55 Universities"
+      },
+      {
+        "label": "Feature UV",
+        "val": "+50.4%"
+      }
+    ],
+    "summary": "Operated an AI product for the sports vertical through its cold start, driving AI feature iteration from user insight and growing users through online incentives and offline race events.",
+    "highlights": [
+      "AI feature user insight and requirement discovery: interviewed 120+ users to locate early-stage pain points in the \"AI workout + plan generation\" feature during cold start, authored the campus scenario PRD and worked with product and engineering through 2 version iterations; designed new-user guidance and sample prompts to lower the barrier to entry, then kept tuning against feedback and behavioural data to lift feature-related UV by 50.4% week-over-week",
+      "Campus ecosystem and offline race acquisition: built a tiered lottery, check-in and task incentive system reaching 55 universities and a 3.5K+ user community, and went into 10 universities to work with student organisations on events, linking online and offline acquisition and activation with DAU/MAU steady at 65.8% during the campaign period; worked on-site at the Beijing and Shanghai marathons handling booth Q&A and the lottery, talking to serious runners face to face to drive downloads from a precisely targeted sports audience, reaching 4K+ downloads in a single event"
     ]
   },
   {
     "id": "internship-netease",
     "track": "internship",
     "organization": "NetEase Media",
-    "companyCn": "网易传媒 · 网易新闻",
+    "companyCn": "网易传媒 · 网易新闻社区",
     "product": "NetEase News Community",
-    "role": "Product Operations Intern",
-    "roleCn": "产品运营实习生",
-    "period": "2024.06 — 2024.09",
+    "role": "C-End Product Operations Intern",
+    "roleCn": "C 端产品运营实习生",
+    "period": "2025.03 — 2025.07",
     "location": "Beijing",
     "metrics": [
       {
@@ -147,42 +146,11 @@
         "val": "+109.2%"
       }
     ],
-    "summary": "Built creator tiering frameworks, turned seasonal branding campaigns into scalable product playbooks, and conducted weekly retention analytics.",
+    "summary": "Operated the NetEase News community on two fronts: refined creator-supply operations and brand campaigns that re-activated the consumption side, building end-to-end UGC community capability.",
     "highlights": [
-      "Segmented community creators based on posting frequency, interaction quality, and retention lifecycles to deploy customized tiered growth incentives; boosted core creator retention rate by 54.3% and active circle leaders by 41.2%",
-      "Solely managed end-to-end execution of signature 'Qingming Poetry Festival' campaign; packaged creative mechanisms into a reusable brand IP template with operational SOPs, resulting in +53.2% event UV, +109.2% interactions, and +36.1% community posts",
-      "Performed weekly deep dives on CTR, UV, and community health metrics via BI dashboards, translating qualitative feedback into operational iterations"
-    ]
-  },
-  {
-    "id": "internship-globaltimes",
-    "track": "internship",
-    "organization": "Global Times",
-    "companyCn": "环球时报",
-    "product": "International News & Digital Media",
-    "role": "International Media Operations & Editorial Intern",
-    "roleCn": "国际新闻采编与新媒体运营实习生",
-    "period": "2023.09 — 2024.01",
-    "location": "Beijing",
-    "metrics": [
-      {
-        "label": "Wire Reports",
-        "val": "60+ Dispatches"
-      },
-      {
-        "label": "Global News",
-        "val": "Reuters / AP / AFP"
-      },
-      {
-        "label": "Bilingual Desk",
-        "val": "Cross-Border"
-      }
-    ],
-    "summary": "Monitored international news wires, compiled cross-border deep dives, and distributed multi-channel global news reports under strict editorial standards.",
-    "highlights": [
-      "Monitored major international news agencies (Reuters, AP, AFP) and Central/Eastern European local outlets; compiled and fact-checked 60+ in-depth briefs on international politics and cultural affairs",
-      "Assisted in managing bilingual overseas social media matrices, planning timely topic angles and optimizing editorial packaging to engage international readerships",
-      "Collaborated with senior international correspondents on high-profile global feature stories, honing sharp journalistic instincts, fast turnaround speed, and cross-cultural communication acumen"
+      "Creator tiering and incentive design: built a creator tiering model from multi-dimensional behavioural data such as posting frequency, interaction quality and retention period (ordinary creator to active circle owner to core creator), then set differentiated incentive strategy and a growth ladder; core creator retention rose 54.3% and the share of highly active circle owners rose 41.2%",
+      "Brand campaign productisation: independently ran the Qingming Poetry Festival from creative planning and rule design through execution, distilling the mechanics into a reusable brand IP template with a standard operating SOP so the format could be reused, building a reusable brand asset; campaign page UV rose 53.2% and interactions rose 109.2%",
+      "Data review and operations iteration: reviewed CTR, UV and other metrics weekly against the data dashboard and proposed operations strategy improvements through to delivery"
     ]
   },
   {

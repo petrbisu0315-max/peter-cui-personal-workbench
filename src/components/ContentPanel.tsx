@@ -84,14 +84,14 @@ function ResumePanel() {
       <div className="resume-bio-banner">
         <div className="bio-name-tag">
           <h3>崔宇杰 · Peter Cui</h3>
-          <p>中共党员 · 2027 届硕士研究生 · AI 产品运营 / 商业化策略</p>
+          <p>2027 届硕士研究生 · AI 产品运营与商业化增长</p>
         </div>
         <div className="bio-tags">
-          <span className="bio-chip">🎓 上海社会科学院 新闻研究所 · 硕士 (Top 10%)</span>
-          <span className="bio-chip">🏫 北京第二外国语学院 · 捷克语学士 (Top 5%)</span>
-          <span className="bio-chip">🇨🇿 捷克查理大学 交换生 (1等)</span>
-          <span className="bio-chip">🌐 英语专业四级/八级 · 捷克语熟练</span>
-          <span className="bio-chip">💼 6 段头部互联网与知名媒体实习经历</span>
+          <span className="bio-chip">🎓 上海社会科学院 新闻研究所 · 硕士 (GPA 3.78/4 · Top 10%)</span>
+          <span className="bio-chip">🏫 北京第二外国语学院 · 捷克语学士 (GPA 3.81/4 · Top 5%)</span>
+          <span className="bio-chip">🇨🇿 捷克查理大学 交换生 (1 等 · Top 5%)</span>
+          <span className="bio-chip">🌐 英语专四/专八 · 捷克语熟练 · SQL/Excel · Figma</span>
+          <span className="bio-chip">💼 5 段头部互联网与知名媒体实习经历</span>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ function ResumePanel() {
                 title="点击在独立窗口查看原件 PDF"
               >
                 <img
-                  src={resume.previewImage ?? '/images/ui/resume-preview-real-20260930.png'}
+                  src={resume.previewImage ?? '/images/ui/resume-preview-20261007.webp'}
                   alt="崔宇杰个人简历完整视觉预览"
                   className="resume-preview-img"
                 />
@@ -175,7 +175,7 @@ function ResumePanel() {
   )
 }
 
-/** 2. INTERNSHIPS PANEL: Dedicated 6-company interactive experience */
+/** 2. INTERNSHIPS PANEL: Dedicated per-company interactive experience */
 function InternshipsPanel() {
   const [activeCompanyId, setActiveCompanyId] = useState<string>('internship-convergeai')
   const [track, setTrack] = useState<'internship' | 'campus'>('internship')
@@ -206,7 +206,7 @@ function InternshipsPanel() {
             setActiveCompanyId(internshipList[0]?.id ?? '')
           }}
         >
-          💼 核心企业与知名媒体实习 (6 段关键经历)
+          💼 核心企业与知名媒体实习 (5 段关键经历)
         </button>
         <button
           type="button"
@@ -454,7 +454,10 @@ function ProjectsPanel() {
       <div className="card-grid">
         {projects.map((item) => (
           <article className="content-card project-card" key={item.id}>
-            <p className="item-meta">Completed · Independent Project</p>
+            <p className="item-meta">
+              {item.status === 'in-progress' ? 'In progress' : 'Completed'} · Independent Project
+              {item.period ? ` · ${item.period}` : ''}
+            </p>
             <h3>{item.title}</h3>
             <p>{item.description}</p>
             <div className="tag-row">

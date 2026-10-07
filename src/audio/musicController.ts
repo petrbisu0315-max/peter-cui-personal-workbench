@@ -138,17 +138,28 @@ export class MusicController {
   }
 
   play() {
+    this.start(false)
+  }
+
+  /**
+   * Starts playback without waiting for a dedicated click on the player. A refusal is not an
+   * error: the visitor can still press Play, so the player stays paused and quiet instead.
+   */
+  autoplay() {
+    this.start(true)
+  }
+
+  private start(autoplay: boolean) {
     if (this.disposed || (this.state.status === 'playing' && !this.audio.paused)) return
     const ticket = ++this.request
     this.intendedPlayback = true
-    // Some browsers still fetch on load() despite preload=none. Keep src absent until Play.
+    // Some browsers still fetch on load() despite preload=none. Keep src absent until asked to play.
     if (!this.sourceLoaded) {
       this.sourceLoaded = true
       this.audio.src = this.tracks[this.state.index].src
       this.audio.load()
     } else if (this.state.status === 'error') this.audio.load()
     this.update({ status: 'loading', error: '' })
-    // Called synchronously from the user's gesture; never autoplay on mount or restore.
     void this.audio.play().then(() => {
       if (this.disposed || ticket !== this.request) return
       if (!this.intendedPlayback) this.audio.pause()
@@ -156,6 +167,10 @@ export class MusicController {
       if (this.disposed || ticket !== this.request) return
       this.intendedPlayback = false
       const blocked = error instanceof Error && error.name === 'NotAllowedError'
+      if (blocked && autoplay) {
+        this.update({ status: 'paused', error: '' })
+        return
+      }
       this.update({ status: 'error', error: blocked ? 'Your browser blocked playback. Tap Play to try again.' : 'Playback could not start. Try again or choose another song.' })
     })
   }

@@ -32,6 +32,8 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
   const container = useRef<HTMLElement>(null)
   const discButton = useRef<HTMLButtonElement>(null)
   const queueButton = useRef<HTMLButtonElement>(null)
+  // Cleared once playback has started, or once the visitor stops it deliberately.
+  const autoStart = useRef(true)
   const playlistId = useId()
   const controlsId = useId()
   const track = tracks[state.index]
@@ -46,6 +48,29 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
     const player = new MusicController(audioRef.current, tracks, setState, volume, loadSeekableSource)
     controller.current = player
     return () => { player.dispose(); controller.current = null }
+  }, [])
+
+  // The visitor already clicked into the workbench, so start the music right away instead of
+  // asking for a second click. If the browser still refuses, retry on the next interaction.
+  useEffect(() => {
+    controller.current?.autoplay()
+  }, [])
+
+  useEffect(() => {
+    if (state.status === 'playing') autoStart.current = false
+  }, [state.status])
+
+  useEffect(() => {
+    const retry = () => {
+      if (!autoStart.current) return
+      controller.current?.autoplay()
+    }
+    document.addEventListener('pointerdown', retry)
+    document.addEventListener('keydown', retry)
+    return () => {
+      document.removeEventListener('pointerdown', retry)
+      document.removeEventListener('keydown', retry)
+    }
   }, [])
 
   useEffect(() => {
@@ -89,6 +114,9 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
     setExpanded(false)
     discButton.current?.focus()
   }
+
+  // Once the visitor works the transport themselves, auto-start must stop interfering.
+  const handOverPlayback = () => { autoStart.current = false }
 
   const volumeChanged = (value: number) => {
     controller.current?.setVolume(value)
@@ -136,7 +164,7 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
                   type="button"
                   aria-label={`Play ${item.title} by ${item.artist}`}
                   aria-current={index === state.index ? 'true' : undefined}
-                  onClick={() => controller.current?.select(index)}
+                  onClick={() => { handOverPlayback(); controller.current?.select(index) }}
                 >
                   <img src={item.cover} alt="" width="36" height="36" loading="lazy" />
                   <span><strong>{item.title}</strong><small>{item.artist}</small></span>
@@ -162,9 +190,9 @@ export function MusicPlayer({ obscured = false }: { obscured?: boolean }) {
             </div>
           </div>
           <div className="music-transport">
-            <button type="button" aria-label="Previous track" onClick={() => controller.current?.skip(-1)}><Icon name="previous" /></button>
-            <button type="button" className="music-play" aria-label={canPause ? 'Pause music' : 'Play music'} onClick={() => controller.current?.toggle()}><Icon name={canPause ? 'pause' : 'play'} /></button>
-            <button type="button" aria-label="Next track" onClick={() => controller.current?.skip(1)}><Icon name="next" /></button>
+            <button type="button" aria-label="Previous track" onClick={() => { handOverPlayback(); controller.current?.skip(-1) }}><Icon name="previous" /></button>
+            <button type="button" className="music-play" aria-label={canPause ? 'Pause music' : 'Play music'} onClick={() => { handOverPlayback(); controller.current?.toggle() }}><Icon name={canPause ? 'pause' : 'play'} /></button>
+            <button type="button" aria-label="Next track" onClick={() => { handOverPlayback(); controller.current?.skip(1) }}><Icon name="next" /></button>
             <span className="music-timer">{state.status === 'loading' ? 'Loading…' : `${formatTime(state.time)} / ${formatTime(state.duration)}`}</span>
           </div>
           <input
