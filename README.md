@@ -216,6 +216,9 @@ paper texture, then point `src/data/resume.json` at all three. The desk prop use
 lays the page on the existing paper base; keep the page upright so the header sits
 on the far edge, where a reader sees it. Parsing a new résumé also means updating
 `experiences.json` and `projects.json`, since the Intern and Projects panels are
-the sections the résumé content maps to.
+the sections the résumé content maps to. Deleting an old résumé removes it from the
+deployment, but Cloudflare can keep serving an already-cached copy from its edge
+until that entry expires, so keep the old file's URL in mind for a while after a
+replacement.
 
 The Blender source with the new résumé and ID badge is `../personal-workbench-interactive-v58.blend`. The two lightweight interaction props are exported separately as `public/models/peter-interaction-props.glb` so the verified room model remains untouched.
