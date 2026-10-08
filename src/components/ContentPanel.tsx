@@ -46,6 +46,14 @@ const personalPhotos = photosData as PhotoItem[]
 const cityPhotos = cityGalleryData as CityPhoto[]
 const research = researchData as ResearchItem[]
 const experiences = experiencesData as ExtendedExperienceItem[]
+
+// Both tracks share the detail card, so its bullet heading follows the selected track:
+// an internship lists responsibilities, a degree lists academic work.
+export const detailHeadings: Record<'internship' | 'campus', string> = {
+  internship: '工作职责与业务突破',
+  campus: '教育背景与研究经历',
+}
+
 const resume = resumeData as ResumeDocument
 
 function ExternalLink({ href, children }: { href?: string; children: React.ReactNode }) {
@@ -277,7 +285,7 @@ function InternshipsPanel() {
             {/* Deep Breakdown Bullets */}
             {activeItem.highlights && activeItem.highlights.length > 0 && (
               <div className="detail-bullets-block">
-                <h4>工作职责与业务突破 (Key Milestones & Breakthroughs)</h4>
+                <h4>{detailHeadings[track]}</h4>
                 <ul>
                   {activeItem.highlights.map((h, idx) => (
                     <li key={idx}>{h}</li>

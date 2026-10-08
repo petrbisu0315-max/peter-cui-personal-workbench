@@ -209,6 +209,13 @@ Edit the JSON files under `src/data/`:
 - `experiences.json` — campus and internship timelines, parsed from the résumé
 - `resume.json` — résumé file metadata
 
+The Intern panel separates its two registers on purpose. The level-1 heading stays
+English, because `role` and `product` name a job title and a product; everything the
+card expands into — the period, the location, the metric labels, the scope summary
+and the responsibility bullets — is Chinese, taken from the résumé's own wording.
+The bullet heading follows the selected track (`detailHeadings`), so a degree is not
+labelled with internship wording. `ContentPanel.test.tsx` holds this split in place.
+
 To update the résumé, drop the new PDF into `public/documents/` under a new
 date-stamped name, render its first page to a WebP sheet preview and a smaller
 paper texture, then point `src/data/resume.json` at all three. The desk prop uses
