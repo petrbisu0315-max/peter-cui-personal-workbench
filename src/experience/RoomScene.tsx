@@ -15,6 +15,7 @@ import { useReducedMotion } from '../useReducedMotion'
 import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
+import { planDeskPapers } from './deskLayout'
 import resumeDocument from '../data/resume.json'
 
 type SceneProps = {
@@ -43,12 +44,32 @@ const PROPS_URL = '/models/peter-interaction-props.glb'
 // rules and an accent bar. Those printed parts are replaced by a page of the real PDF.
 const RESUME_MOCKUP_PATTERN = /^(Resume_Header|Resume_Line_\d|Resume_Accent)$/i
 const RESUME_SLOT_NAME = 'SLOT_Resume'
-const RESUME_PAPER_NAME = 'Resume_PaperThumbnail'
-// Footprint of the Resume_Base mesh, in local units.
-const RESUME_PAPER_WIDTH = 0.58
-const RESUME_PAPER_HEIGHT = 0.4
-// Resume_Base is 0.025 thick, so its upper face sits at +0.0125.
-const RESUME_PAPER_LIFT = 0.0135
+const RESUME_PAGE_NAME = 'Resume_PaperPage'
+// Resume_Base is 0.025 thick, so its upper face sits at +0.0125 in the slot's own frame.
+const RESUME_PAGE_LIFT = 0.0135
+// Page size on the desk. The texture is 685x969, so these keep its aspect ratio.
+const RESUME_PAGE_WIDTH = 0.38
+const RESUME_PAGE_DEPTH = 0.54
+// A page lying on a desk is read from the chair, so its top edge points at the wall.
+const RESUME_PAGE_UPRIGHT = new THREE.Quaternion().setFromRotationMatrix(
+  new THREE.Matrix4().makeBasis(
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(0, 0, -1),
+    new THREE.Vector3(0, 1, 0),
+  ),
+)
+
+// The desk props were modelled separately from the desk and sat 6-8 cm above its surface,
+// with the résumé also hanging past the right edge. Everything on the desktop is therefore
+// seated against the desk's own measured footprint rather than trusted coordinates.
+const DESK_NODE_NAME = 'PROP_Desk_GLB'
+const LAPTOP_NODE_NAME = 'PROP_Laptop_GLB'
+const DESK_PROPS_PATTERN = /^(PROP_Document|SLOT_(Resume|IDBadge))/i
+// Used only if the desk mesh is missing, which would mean a different room model.
+const DESK_SURFACE_FALLBACK_Y = 1.76
+const DESK_AREA_FALLBACK = { minX: -2.955, maxX: 1.897, minZ: -1.47, maxZ: 0.044 }
+/** Quarter turn so a paper stack's long side runs away from the chair instead of across it. */
+const PORTRAIT_TURN = Math.PI / 2
 const focusSettings: Record<HotspotId, { distance: number; yOffset: number }> = {
   resume: { distance: 1.82, yOffset: 0.24 },
   experience: { distance: 1.92, yOffset: 0.26 },
@@ -103,6 +124,60 @@ function findTarget(object: THREE.Object3D): SceneTarget | null {
     current = current.parent
   }
   return null
+}
+
+/** Bounds of the meshes that are actually drawn, so hidden stand-ins never skew a measurement. */
+function visibleBounds(nodes: THREE.Object3D[]) {
+  const box = new THREE.Box3()
+  const mesh = new THREE.Box3()
+  for (const node of nodes) {
+    node.traverse((object) => {
+      if (!(object instanceof THREE.Mesh) || !object.visible || !object.geometry) return
+      if (!object.geometry.boundingBox) object.geometry.computeBoundingBox()
+      const local = object.geometry.boundingBox
+      if (!local) return
+      box.union(mesh.copy(local).applyMatrix4(object.matrixWorld))
+    })
+  }
+  return box
+}
+
+/** Desk-lying size of a group of meshes: X across the desk, Z away from the chair. */
+function footprintOf(nodes: THREE.Object3D[]) {
+  const size = visibleBounds(nodes).getSize(new THREE.Vector3())
+  return { widthX: size.x, depthZ: size.z }
+}
+
+/** Turns props about their own centre so several meshes can then be moved as one item. */
+function turnProps(nodes: THREE.Object3D[], angle: number) {
+  const parent = nodes[0]?.parent
+  const before = visibleBounds(nodes)
+  if (!parent || before.isEmpty()) return null
+  const pivot = new THREE.Group()
+  pivot.name = `${nodes[0].name}_seat`
+  const centre = before.getCenter(new THREE.Vector3())
+  pivot.position.set(centre.x, 0, centre.z)
+  parent.add(pivot)
+  for (const node of nodes) pivot.attach(node)
+  pivot.rotation.y = angle
+  pivot.updateMatrixWorld(true)
+  return pivot
+}
+
+/** Drops the props onto the desktop and slides them to the target spot. */
+function seatProps(
+  nodes: THREE.Object3D[],
+  pivot: THREE.Group,
+  target: { leftX?: number; centerZ?: number; surfaceY: number },
+) {
+  const box = visibleBounds(nodes)
+  if (box.isEmpty()) return box
+  pivot.position.x += (target.leftX ?? box.min.x) - box.min.x
+  pivot.position.y += target.surfaceY - box.min.y
+  const centreZ = (box.min.z + box.max.z) / 2
+  pivot.position.z += (target.centerZ ?? centreZ) - centreZ
+  pivot.updateMatrixWorld(true)
+  return visibleBounds(nodes)
 }
 
 function findTargetInEvent(event: Pick<ThreeEvent<PointerEvent>, 'intersections' | 'object'>) {
@@ -214,16 +289,78 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
         else object.material = object.material.clone()
       })
     })
-    const resumeSlot = interactionProps.getObjectByName(RESUME_SLOT_NAME)
+    const desk = interactionProps.getObjectByName(DESK_NODE_NAME) ?? room.getObjectByName(DESK_NODE_NAME)
+    const laptop = interactionProps.getObjectByName(LAPTOP_NODE_NAME) ?? room.getObjectByName(LAPTOP_NODE_NAME)
+    // Measuring happens before the scene is in a rendered graph, so world matrices have to
+    // be brought up to date by hand or every bound would read as identity.
+    room.updateMatrixWorld(true)
+    interactionProps.updateMatrixWorld(true)
+    const deskBox = desk ? visibleBounds([desk]) : null
+    const laptopBox = laptop ? visibleBounds([laptop]) : null
+    const surfaceY = deskBox && !deskBox.isEmpty() ? deskBox.max.y : DESK_SURFACE_FALLBACK_Y
+    const deskArea = deskBox && !deskBox.isEmpty()
+      ? { minX: deskBox.min.x, maxX: deskBox.max.x, minZ: deskBox.min.z, maxZ: deskBox.max.z }
+      : DESK_AREA_FALLBACK
+
+    // The research stack and the ID badge share the desktop with the résumé, so gather the
+    // props that float there from one pattern rather than naming each mesh.
+    const deskProps: THREE.Object3D[] = []
+    ;[interactionProps, room].forEach((scene) => {
+      scene.traverse((object) => {
+        if (DESK_PROPS_PATTERN.test(object.name) && !deskProps.includes(object)) deskProps.push(object)
+      })
+    })
+
+    const researchStack = deskProps.filter((node) => /^PROP_Document/i.test(node.name))
+    const resumeSlot = deskProps.find((node) => node.name === RESUME_SLOT_NAME)
+    const idBadge = deskProps.find((node) => node.name === 'SLOT_IDBadge')
+
+    // Both papers are turned to portrait before measuring, because the footprint they have
+    // after turning is what has to fit side by side on the desk.
+    const researchPivot = researchStack.length ? turnProps(researchStack, PORTRAIT_TURN) : null
+    const resumePivot = resumeSlot ? turnProps([resumeSlot], PORTRAIT_TURN) : null
+
+    if (researchPivot && resumePivot && resumeSlot) {
+      const plan = planDeskPapers(
+        deskArea,
+        laptopBox && !laptopBox.isEmpty() ? laptopBox.max.x : deskArea.minX,
+        footprintOf(researchStack),
+        footprintOf([resumeSlot]),
+      )
+      seatProps(researchStack, researchPivot, {
+        leftX: plan.research.leftX,
+        centerZ: plan.research.centerZ,
+        surfaceY,
+      })
+      seatProps([resumeSlot], resumePivot, {
+        leftX: plan.resume.leftX,
+        centerZ: plan.resume.centerZ,
+        surfaceY,
+      })
+    } else if (researchPivot) {
+      seatProps(researchStack, researchPivot, { surfaceY })
+    }
+
+    // The badge only needs to sit on the surface; its place beside the lamp is deliberate.
+    if (idBadge) {
+      const badgePivot = new THREE.Group()
+      idBadge.parent?.add(badgePivot)
+      badgePivot.attach(idBadge)
+      seatProps([idBadge], badgePivot, { surfaceY })
+    }
+
     if (resumeSlot) {
       const paper = new THREE.Mesh(
-        new THREE.PlaneGeometry(RESUME_PAPER_WIDTH, RESUME_PAPER_HEIGHT),
+        new THREE.PlaneGeometry(RESUME_PAGE_WIDTH, RESUME_PAGE_DEPTH),
         new THREE.MeshStandardMaterial({ map: resumePaper, roughness: 0.94, metalness: 0 }),
       )
-      paper.name = RESUME_PAPER_NAME
-      // The base lies in the local XZ plane, so the page has to be laid flat to match it.
-      paper.rotation.x = -Math.PI / 2
-      paper.position.set(0, RESUME_PAPER_LIFT, 0)
+      paper.name = RESUME_PAGE_NAME
+      // The slot is turned to portrait, so the page's upright orientation is expressed in
+      // the slot's own frame; otherwise the page would read sideways on the desk.
+      const slotRotation = new THREE.Quaternion()
+      resumeSlot.getWorldQuaternion(slotRotation)
+      paper.quaternion.copy(slotRotation).invert().multiply(RESUME_PAGE_UPRIGHT)
+      paper.position.set(0, RESUME_PAGE_LIFT, 0)
       paper.castShadow = false
       paper.receiveShadow = false
       resumeSlot.add(paper)
