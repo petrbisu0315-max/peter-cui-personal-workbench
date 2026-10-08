@@ -26,7 +26,7 @@ describe('internship panel language', () => {
     expect(html).not.toContain('Key Milestones')
     expect(html).toContain('留存率')
     expect(html).toContain('负责 AI Coding 产品 Enter Pro 海外冷启与商业化增长')
-    expect(html).toContain('上海 / 远程')
+    expect(html).toContain('北京 · 线下')
     expect(html).toContain('工作职责与业务突破')
   })
 
@@ -41,6 +41,24 @@ describe('internship panel language', () => {
   it('shows the current number of internship entries', () => {
     const html = render('experience')
     expect(html).toContain(`(${experiences.filter((item) => item.track === 'internship').length} 段关键经历)`)
+  })
+
+  it('names every entry in Chinese, and shows the internship track in the navigator', () => {
+    const html = render('experience')
+    for (const entry of experiences) {
+      expect(entry.companyCn, `${entry.id} needs a Chinese name`).toBeTruthy()
+      expect(entry.companyCn, `${entry.id} Chinese name`).toMatch(HAN)
+    }
+    // Only the internship track is rendered until the education tab is selected.
+    for (const entry of experiences.filter((item) => item.track === 'internship')) {
+      expect(html).toContain(entry.companyCn as string)
+    }
+  })
+
+  it('places the current ConvergeAI internship in Beijing, on site', () => {
+    const current = experiences.find((item) => item.id === 'internship-convergeai')
+    expect(current?.location).toBe('北京 · 线下')
+    expect(render('experience')).toContain('北京 · 线下')
   })
 
   it('leaves no English body copy in the entry data', () => {

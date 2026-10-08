@@ -288,8 +288,13 @@ button { color: inherit; }
 .panel-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
 .panel-tabs button { min-height: 38px; padding: 8px 14px; border: 1px solid var(--line); background: transparent; color: rgba(244,240,232,.6); font: 500 11px "DM Mono", "PingFang SC", monospace; letter-spacing: .05em; cursor: pointer; }
 .panel-tabs button[aria-selected="true"] { color: var(--ink); background: var(--paper); }
-.research-list article { display: grid; grid-template-columns: 90px 1fr; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.research-list article { display: grid; grid-template-columns: 116px 1fr; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
 .research-date { color: #df7958; font: 500 10px "DM Mono", monospace; letter-spacing: .08em; }
+/* First page of the published paper, so the listing shows the real layout. */
+.research-thumb { display: block; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: #fff; box-shadow: 0 6px 20px rgba(0,0,0,.35); transition: transform .2s, box-shadow .2s; }
+.research-thumb img { display: block; width: 100%; height: auto; }
+.research-thumb:hover, .research-thumb:focus-visible { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,.45); }
+.research-meta { margin: 0 0 10px; color: #df7958 !important; font: 500 11px/1.6 "DM Mono", monospace !important; letter-spacing: .04em; }
 
 .whiteboard-tool canvas { display: block; width: 100%; height: auto; background: #f5f2eb; border: 1px solid rgba(255,255,255,.18); touch-action: none; cursor: crosshair; border-radius: 4px; }
 .whiteboard-controls, .message-stamp { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }

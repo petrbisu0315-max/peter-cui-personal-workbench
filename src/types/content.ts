@@ -76,7 +76,13 @@ export type ResearchItem = {
   title: string
   summary: string
   date?: string
+  authors?: string
+  journal?: string
+  issue?: string
+  pages?: string
   tags: string[]
+  /** First page of the paper, so a reader sees the published layout. */
+  thumbnail?: string
   attachment?: string
   externalUrl?: string
 }

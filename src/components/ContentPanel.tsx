@@ -239,7 +239,7 @@ function InternshipsPanel() {
               onClick={() => setActiveCompanyId(item.id)}
             >
               <div className="nav-item-header">
-                <strong>{item.organization}</strong>
+                <strong>{item.companyCn ?? item.organization}</strong>
                 <span className="nav-item-period">{item.period.split('—')[0]}</span>
               </div>
               <div className="nav-item-sub">
@@ -514,9 +514,24 @@ function ResearchPanel() {
         <div className="research-list">
           {visible.map((item) => (
             <article key={item.id}>
-              <div className="research-date">{item.date ?? 'PDF'}</div>
+              {item.thumbnail ? (
+                <a
+                  className="research-thumb"
+                  href={item.attachment ?? item.externalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="在新窗口打开论文原件"
+                >
+                  <img src={item.thumbnail} alt={`${item.title} 首页`} loading="lazy" />
+                </a>
+              ) : (
+                <div className="research-date">{item.date ?? 'PDF'}</div>
+              )}
               <div>
                 <h3>{item.title}</h3>
+                <p className="research-meta">
+                  {[item.authors, item.journal, item.issue, item.pages].filter(Boolean).join(' · ')}
+                </p>
                 <p>{item.summary}</p>
                 <div className="tag-row">
                   {item.tags.map((tag) => (

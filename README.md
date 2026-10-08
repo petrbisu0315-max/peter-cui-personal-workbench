@@ -209,6 +209,19 @@ Edit the JSON files under `src/data/`:
 - `experiences.json` — campus and internship timelines, parsed from the résumé
 - `resume.json` — résumé file metadata
 
+## Research papers
+
+Each `research.json` record lists a published paper with its Chinese title, the
+co-authors, the journal, issue and page range, plus the paper's own Chinese keywords
+as tags. `thumbnail` is a WebP render of the PDF's first page, so the listing shows
+the published layout rather than a placeholder label; `attachment` is the full PDF.
+Both are local files and both are opened in a new tab from the listing.
+
+To add a paper, drop the PDF in `public/documents/research/`, render its first page
+at about 300 px wide into `public/images/research/<slug>.webp`, and add the record.
+Take the title, authors, journal, issue and pages from the PDF's own masthead rather
+than restating them from memory.
+
 The Intern panel separates its two registers on purpose. The level-1 heading stays
 English, because `role` and `product` name a job title and a product; everything the
 card expands into — the period, the location, the metric labels, the scope summary

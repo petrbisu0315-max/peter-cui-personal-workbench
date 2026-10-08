@@ -99,3 +99,13 @@
 - Precision kept in the data: numbers stay as numerals, while the word-like metric values were translated (Top #2 of Day → 第 2 名, Acquired by Baidu → 已被百度并购, CSC Full Grant → 留基委全额). GPA stays Latin, as Chinese copy keeps that acronym.
 - Added `ContentPanel.test.tsx`, which renders the panel and asserts the split: the English role heading is present, the Chinese subheading and summary are present, no `Key Milestones` wording remains, the tab count matches the data, and every entry's summary, bullets, metric labels and location carry Chinese while the role does not.
 - Verified at 1620×1080 and at 390×844: all five internships and all three education entries expand with Chinese bodies and English headings, the education heading reads 教育背景与研究经历, and there is no horizontal overflow. `pnpm check` passes with 69 tests.
+
+## Intern registry, location and research listings — 2026-10-08
+
+- Corrected the current ConvergeAI internship to 北京 · 线下. It had inherited the props' 上海 / 远程; the owner confirmed the placement is Beijing and on site.
+- The Intern navigator now shows the Chinese company names it already carried in `companyCn`, matching the detail badge: 坤启无限 ConvergeAI、日行迹 Analemma（百度并购）、美团 · 大众点评 POI 发展部、小红书 · 创新产品组、网易传媒 · 网易新闻社区, and 上海社会科学院 · 新闻研究所、捷克查理大学、北京第二外国语学院 for the education track. Analemma's trailing English parenthetical was translated so the name is fully Chinese.
+- The Research panel's left column no longer shows a bare `PDF` placeholder. Each paper renders its actual first page: 300 px wide WebP thumbnails rendered from the two bundled PDFs into `public/images/research/`, linked to the full PDF.
+- Paper listings are now Chinese and bibliographic rather than generic. Titles, co-authors, journal, issue and page range were read from each PDF's own masthead — 《郑州大学学报（哲学社会科学版）》2026 年第 4 期第 157–166 页 and 《开放时代》2026 年第 5 期第 206–223 页 — and the tags are the papers' own keywords instead of `Research / PDF`. Summaries are condensed from each abstract.
+- Added `ResearchPanel.test.tsx`, which requires every title, summary, author, journal, issue, page range and tag to be Chinese, asserts a real `/images/research/*.webp` thumbnail is rendered instead of the old placeholder, and resolves every thumbnail and attachment against the local files.
+- Extended `ContentPanel.test.tsx` to cover the Chinese navigator names and the Beijing location, so both corrections are pinned.
+- Verified in the browser: the research listing renders both thumbnails loaded (`naturalWidth > 0`) with Chinese titles, metadata and tags; the Intern navigator shows the Chinese names on both tracks; no horizontal overflow. `pnpm check` passes with 75 tests.

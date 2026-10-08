@@ -2,25 +2,37 @@
   {
     "id": "ai-short-video-authenticity",
     "category": "research",
-    "title": "From Objective Fact to Relational Truth: The Cognitive Shift of Authenticity in AI-Generated Short Video",
-    "summary": "Research material in Chinese. Authorship, source and publication details are as stated in the original PDF.",
+    "title": "从客观事实到关系真实：AI 生成短视频场域中真实性的认知转向",
+    "authors": "吕鹏 · 崔宇杰",
+    "journal": "郑州大学学报（哲学社会科学版）",
+    "issue": "2026 年第 4 期",
+    "pages": "第 157–166 页",
+    "date": "2026",
+    "summary": "结合认知传播理论，考察 AI 生成短视频如何改写用户的真实性判断：用户倾向以启发式加工悬置事实核查、优先满足情绪价值，真实性由此从「与事实相符」转向基于情感协商与价值契合的「关系真实」，并讨论随之而来的认知遮蔽与信息失序风险。",
     "tags": [
-      "Research",
-      "AI-generated content",
-      "PDF"
+      "AI 生成短视频",
+      "认知传播",
+      "真实性"
     ],
+    "thumbnail": "/images/research/research-ai-short-video.webp",
     "attachment": "/documents/research/ai-short-video-authenticity.pdf"
   },
   {
     "id": "netflix-korean-drama-platform",
     "category": "research",
-    "title": "How Netflix “Produces” Korean Drama: The Systemic Penetration and Structural Reshaping of Cultural Imperialism in the Digital Platform Era",
-    "summary": "Research material in Chinese. Authorship, source and publication details are as stated in the original PDF.",
+    "title": "网飞韩国电视剧如何「生产」：论数字平台时代文化帝国主义的系统渗透与结构重塑",
+    "authors": "吕鹏 · 崔宇杰",
+    "journal": "开放时代",
+    "issue": "2026 年第 5 期",
+    "pages": "第 206–223 页",
+    "date": "2026",
+    "summary": "以网飞出品的韩国电视剧为切口，通过政策文本、数据分析与半结构化访谈交叉印证，论证数字平台时代的文化帝国主义并未消解，而是经由资本渗透、类型殖民、劳动异化与用户重塑，转化为以平台资本为驱动、算法与用户数据为中介的「自由式垄断」。",
     "tags": [
-      "Research",
-      "Digital platforms",
-      "PDF"
+      "文化帝国主义",
+      "数字平台",
+      "韩剧"
     ],
+    "thumbnail": "/images/research/research-netflix-korean-drama.webp",
     "attachment": "/documents/research/netflix-korean-drama-platform.pdf"
   }
 ]
