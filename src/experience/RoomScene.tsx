@@ -691,7 +691,9 @@ export function RoomScene({
       <Canvas
         className="room-canvas"
         camera={{ fov: 38, near: 0.01, far: 100, position: [0.72, 0.52, 8.45] }}
-        dpr={[1, window.innerWidth < 720 ? 1.25 : 1.75]}
+        // Capping the pixel ratio trades a little sharpness for a large fill-rate saving
+        // on retina displays, which is where the scene was struggling most.
+        dpr={[1, window.innerWidth < 720 ? 1.25 : 1.5]}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         shadows
         onPointerMissed={() => undefined}

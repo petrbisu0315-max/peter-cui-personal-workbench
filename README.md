@@ -124,6 +124,43 @@ background clock. GPU cost and frame rate still depend on the device and the
 existing room geometry/shadows. To tune the look, edit the GLSL alongside the
 matching palette in `themes.ts`; keep preview images in sync.
 
+## Load and frame budget
+
+Two budgets are worth protecting, because the site is judged on how fast it opens and how
+smoothly the room moves:
+
+- **The room model** is the single largest asset. It is a Draco-compressed GLB that was
+  originally 1.8M triangles across 37 nodes. Three props alone — the camera, the laptop
+  and the basketball — held 500k triangles each for objects a few centimetres tall on
+  screen. Simplifying with an error tolerance suited to the model's scale brings it to
+  about 98k triangles and 2.5 MB while every node name and material survives, so the
+  name-based hotspots and the desk seating keep working unchanged. Regenerate with
+  `gltf-transform weld`, then `simplify --ratio 0 --error 0.002`, then `draco`. Verify any
+  regeneration by rendering before and after and comparing the images: a mean channel
+  difference under about 1/255 is invisible in practice. Keep `--ratio` at 0 — a ratio of
+  1.0 means "keep everything" and silently changes nothing.
+- **The room chunk and its models are fetched during the intro** (`src/warmRoom.ts`), not
+  when the visitor enters. Entering used to start a multi-megabyte download and the
+  visitor watched a loading state; now the work overlaps with reading the intro paper. The
+  warm-up is skipped on metered or 2G connections and never surfaces its own failure.
+
+The Canvas caps `dpr` at 1.5 on desktop: fill rate is the other half of frame cost, and on
+a retina display 1.75 costs about 36% more pixels per frame than 1.5 for little visible
+gain. Audio is encoded at 128 kbps, which is transparent enough for background listening
+and keeps each track near 2 MB.
+
+## Sharing the site
+
+The header has a scan-code button (`SharePanel.tsx`). It encodes the address returned by
+`shareTarget()` in `src/share.ts`: the visitor's own origin on the deployed site, so a
+custom domain needs no regeneration, and the canonical public address on any local host,
+because a code pointing at `localhost` is useless to a phone. The QR encoder is imported
+only when the panel is opened, so it stays out of the initial download.
+
+`/workspace/qr/` holds a standalone PNG and SVG of the same code for print or slides. If
+the public address ever changes, update `CANONICAL_URL` in `src/share.ts` and regenerate
+those two files.
+
 ## Background music
 
 The lower-left `MusicPlayer` defaults to a single 52px CD button, with no visible

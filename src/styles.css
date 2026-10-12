@@ -43,6 +43,22 @@ button { color: inherit; }
 .room-bar-right { display: flex; justify-self: end; align-items: center; gap: 12px; }
 .lighting-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--chrome-ink) 18%, transparent); border-radius: 6px; background: var(--chrome); color: var(--chrome-ink); font: 500 11px Manrope, sans-serif; cursor: pointer; }
 .lighting-toggle:hover { filter: brightness(.94); }
+/* Scan-to-open: a small icon in the bar, with the code itself on demand. */
+.share-panel { position: relative; }
+.share-trigger { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(20,22,24,.42); color: var(--panel-text); cursor: pointer; transition: background .18s, border-color .18s; }
+.share-trigger:hover, .share-trigger:focus-visible { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.32); }
+.share-trigger svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.share-menu { position: absolute; top: 64px; right: 0; z-index: 60; width: min(268px, calc(100vw - 24px)); padding: 16px; background: var(--panel); color: var(--panel-text); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.5); }
+.share-menu-heading { margin-bottom: 12px; color: rgba(244,240,232,.55); font: 500 10px "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+/* Kept light-on-dark inverted: a scanner needs dark modules on a light field. */
+.share-code { display: grid; place-items: center; padding: 10px; background: #fff; border-radius: 8px; }
+.share-code img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.share-code-loading { min-height: 176px; padding: 16px; background: rgba(255,255,255,.06); color: rgba(244,240,232,.7); font: 400 12px/1.6 "DM Mono", monospace; text-align: center; }
+.share-url { margin: 12px 0 0; color: rgba(244,240,232,.8); font: 400 11px/1.5 "DM Mono", monospace; word-break: break-all; text-align: center; }
+.share-actions { display: flex; gap: 8px; margin-top: 12px; }
+.share-action { flex: 1; padding: 9px 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; background: transparent; color: var(--panel-text); font: 500 11px "DM Mono", monospace; text-align: center; text-decoration: none; cursor: pointer; transition: background .18s; }
+.share-action:hover, .share-action:focus-visible { background: rgba(255,255,255,.12); }
+
 .lighting-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .scene-frame { position: absolute; inset: 0; overflow: hidden; }
 .room-canvas { width: 100% !important; height: 100% !important; }

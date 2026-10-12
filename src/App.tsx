@@ -7,6 +7,8 @@ import type { BackgroundThemeId } from './themes'
 import { resolveTheme, THEME_KEY, environmentIsDark } from './themes'
 import { EnvironmentPicker } from './components/EnvironmentPicker'
 import { MusicPlayer } from './components/MusicPlayer'
+import { SharePanel } from './components/SharePanel'
+import { warmRoom } from './warmRoom'
 import type { HotspotId } from './types/content'
 
 const ContentPanel = lazy(() =>
@@ -116,6 +118,13 @@ export default function App() {
     }
   }, [lighting])
 
+  // Fetch the room chunk and its models while the intro paper is still on screen, so
+  // entering does not start the download. RoomScene preloads the models on import.
+  useEffect(() => {
+    if (entered) return
+    return warmRoom(() => import('./experience/RoomScene'))
+  }, [entered])
+
   const closePanel = useCallback(() => {
     dispatch({ type: 'close' })
   }, [])
@@ -185,6 +194,8 @@ export default function App() {
             <EnvironmentPicker theme={theme} onChange={handleThemeChange} />
 
             <LightingToggle mode={lighting} onToggle={toggleLighting} />
+
+            <SharePanel />
           </div>
         </header>
 
