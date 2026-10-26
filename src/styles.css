@@ -226,7 +226,12 @@ button { color: inherit; }
 /* 3. CITY GALLERY PANEL STYLES                       */
 /* -------------------------------------------------- */
 .gallery-container { display: grid; gap: 20px; }
-.gallery-city-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.gallery-city-navigation { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 14px; min-width: 0; }
+.gallery-city-tabs { display: flex; flex-wrap: nowrap; gap: 8px; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: rgba(244,240,232,.22) transparent; padding-block: 4px 8px; scroll-padding-inline: 4px; }
+.gallery-city-tabs button { flex: 0 0 auto; white-space: nowrap; }
+.gallery-scroll-button { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--paper); cursor: pointer; font: inherit; }
+.gallery-scroll-button:hover { background: rgba(255,255,255,.08); }
+.gallery-scroll-button:focus-visible, .gallery-city-tabs button:focus-visible { outline: 2px solid var(--paper); outline-offset: -2px; }
 .gallery-city-tabs button { padding: 8px 16px; border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; background: transparent; color: rgba(244,240,232,0.65); font: 500 12px "DM Mono", "PingFang SC", monospace; cursor: pointer; transition: all .2s; }
 .gallery-city-tabs button.is-active { background: var(--paper); color: var(--ink); border-color: var(--paper); font-weight: 600; }
 .gallery-meta-note p { margin: 0; color: rgba(244,240,232,0.48); font-size: 13px; font-style: italic; }

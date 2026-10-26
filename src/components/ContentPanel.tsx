@@ -302,6 +302,12 @@ function InternshipsPanel() {
 function CityGalleryPanel() {
   const cities = useMemo(() => [...new Map(cityPhotos.map(photo => [photo.city, photo.cityCn])).entries()], [])
   const [selectedCity, setSelectedCity] = useState('All Cities')
+  const cityStrip = useRef<HTMLDivElement>(null)
+  const scrollCities = (direction: number) => {
+    const strip = cityStrip.current
+    if (!strip) return
+    strip.scrollBy({ left: direction * strip.clientWidth * 0.7, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }
   const [lightboxPhoto, setLightboxPhoto] = useState<CityPhoto | null>(null)
   const lightboxClose = useRef<HTMLButtonElement>(null)
   useEffect(() => {
@@ -334,7 +340,9 @@ function CityGalleryPanel() {
   return (
     <div className="gallery-container">
       {/* City Switcher */}
-      <div className="gallery-city-tabs" role="group" aria-label="Filter photographs by city">
+      <div className="gallery-city-navigation">
+        <button className="gallery-scroll-button" type="button" aria-label="Scroll cities left" onClick={() => scrollCities(-1)}>←</button>
+      <div className="gallery-city-tabs" ref={cityStrip} role="group" aria-label="Filter photographs by city">
         <button type="button" className={selectedCity === 'All Cities' ? 'is-active' : ''} aria-pressed={selectedCity === 'All Cities'} onClick={() => setSelectedCity('All Cities')}>All Cities ({cityPhotos.length})</button>
         {cities.map(([city, cityCn]) => (
           <button
@@ -342,11 +350,16 @@ function CityGalleryPanel() {
             type="button"
             className={selectedCity === city ? 'is-active' : ''}
             aria-pressed={selectedCity === city}
-            onClick={() => setSelectedCity(city)}
+            onClick={(event) => {
+              setSelectedCity(city)
+              event.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
+            }}
           >
             {city} ({cityCn}) · {cityPhotos.filter(photo => photo.city === city).length}
           </button>
         ))}
+      </div>
+        <button className="gallery-scroll-button" type="button" aria-label="Scroll cities right" onClick={() => scrollCities(1)}>→</button>
       </div>
 
       <div className="gallery-meta-note">
