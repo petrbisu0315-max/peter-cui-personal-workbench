@@ -33,12 +33,10 @@ interface CityPhoto {
   city: string
   cityCn: string
   title: string
-  year: string
+  src: string
+  thumbnail: string
+  alt: string
   location: string
-  camera: string
-  filmStyle: string
-  gradient: string
-  story: string
 }
 
 const projects = projectsData as ProjectItem[]
@@ -302,9 +300,31 @@ function InternshipsPanel() {
 
 /** 3. CITY GALLERY PANEL: City photography with city switcher & lightbox */
 function CityGalleryPanel() {
-  const cities = useMemo(() => ['All Cities', 'Shanghai', 'Beijing', 'Prague', 'Hong Kong'], [])
+  const cities = useMemo(() => [...new Map(cityPhotos.map(photo => [photo.city, photo.cityCn])).entries()], [])
   const [selectedCity, setSelectedCity] = useState('All Cities')
   const [lightboxPhoto, setLightboxPhoto] = useState<CityPhoto | null>(null)
+  const lightboxClose = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!lightboxPhoto) return
+    const previous = document.activeElement as HTMLElement | null
+    lightboxClose.current?.focus()
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        setLightboxPhoto(null)
+      }
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        lightboxClose.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKey, true)
+    return () => {
+      document.removeEventListener('keydown', handleKey, true)
+      previous?.focus()
+    }
+  }, [lightboxPhoto])
 
   const filtered = useMemo(() => {
     if (selectedCity === 'All Cities') return cityPhotos
@@ -314,54 +334,42 @@ function CityGalleryPanel() {
   return (
     <div className="gallery-container">
       {/* City Switcher */}
-      <div className="gallery-city-tabs" role="tablist">
-        {cities.map((city) => (
+      <div className="gallery-city-tabs" role="group" aria-label="Filter photographs by city">
+        <button type="button" className={selectedCity === 'All Cities' ? 'is-active' : ''} aria-pressed={selectedCity === 'All Cities'} onClick={() => setSelectedCity('All Cities')}>All Cities ({cityPhotos.length})</button>
+        {cities.map(([city, cityCn]) => (
           <button
             key={city}
             type="button"
             className={selectedCity === city ? 'is-active' : ''}
+            aria-pressed={selectedCity === city}
             onClick={() => setSelectedCity(city)}
           >
-            {city === 'All Cities' && '🌍 All Cities (全部城市)'}
-            {city === 'Shanghai' && '🏙️ Shanghai (上海)'}
-            {city === 'Beijing' && '🏛️ Beijing (北京)'}
-            {city === 'Prague' && '🏰 Prague (布拉格)'}
-            {city === 'Hong Kong' && '⛵ Hong Kong & Travel (香港与旅途)'}
+            {city} ({cityCn}) · {cityPhotos.filter(photo => photo.city === city).length}
           </button>
         ))}
       </div>
 
       <div className="gallery-meta-note">
-        <p>Photographs captured across living and travel chapters — shot on Leica, Sony and Ricoh with natural film tones.</p>
+        <p>{filtered.length} photographs · {selectedCity === 'All Cities' ? `${cities.length} cities & regions` : selectedCity} · Select a photograph to view it in full.</p>
       </div>
 
       {/* Grid of City Photography */}
       <div className="gallery-grid">
         {filtered.map((photo) => (
-          <article
+          <button
+            type="button"
             className="gallery-card"
             key={photo.id}
             onClick={() => setLightboxPhoto(photo)}
           >
-            <div className="gallery-photo-frame" style={{ background: photo.gradient }}>
-              <div className="photo-inner-art">
-                <span className="photo-film-badge">{photo.filmStyle}</span>
-                <span className="photo-city-tag">{photo.city}</span>
-                <div className="photo-title-overlay">
-                  <h4>{photo.title}</h4>
-                  <small>{photo.location}</small>
-                </div>
-              </div>
-            </div>
-            <div className="gallery-card-caption">
+            <span className="gallery-photo-frame">
+              <img src={photo.thumbnail} alt={photo.alt} loading="lazy" decoding="async" />
+            </span>
+            <span className="gallery-card-caption">
               <strong>{photo.title}</strong>
-              <div className="caption-sub">
-                <span>📷 {photo.camera}</span>
-                <span>· {photo.year}</span>
-              </div>
-              <p className="caption-story">{photo.story}</p>
-            </div>
-          </article>
+              <span className="caption-sub">{photo.cityCn}</span>
+            </span>
+          </button>
         ))}
       </div>
 
@@ -372,32 +380,26 @@ function CityGalleryPanel() {
           onClick={() => setLightboxPhoto(null)}
           role="dialog"
           aria-modal="true"
+          aria-label={lightboxPhoto.title}
         >
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
+              ref={lightboxClose}
               className="lightbox-close-btn"
               onClick={() => setLightboxPhoto(null)}
               aria-label="Close Lightbox"
             >
               ✕
             </button>
-            <div className="lightbox-art-display" style={{ background: lightboxPhoto.gradient }}>
-              <span className="lightbox-badge">{lightboxPhoto.city} · {lightboxPhoto.year}</span>
-              <div className="lightbox-center-hero">
-                <h3>{lightboxPhoto.title}</h3>
-                <p>{lightboxPhoto.location}</p>
-              </div>
+            <div className="lightbox-art-display">
+              <img src={lightboxPhoto.src} alt={lightboxPhoto.alt} decoding="async" />
             </div>
             <div className="lightbox-details-panel">
               <h3>{lightboxPhoto.title}</h3>
               <div className="lightbox-meta-grid">
                 <div><span>📍 Location</span><strong>{lightboxPhoto.location}</strong></div>
-                <div><span>📷 Gear</span><strong>{lightboxPhoto.camera}</strong></div>
-                <div><span>🎞️ Film Tone</span><strong>{lightboxPhoto.filmStyle}</strong></div>
-                <div><span>📅 Captured</span><strong>{lightboxPhoto.year}</strong></div>
               </div>
-              <p className="lightbox-story-text">{lightboxPhoto.story}</p>
             </div>
           </div>
         </div>

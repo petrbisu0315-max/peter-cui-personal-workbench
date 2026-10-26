@@ -1,5 +1,15 @@
 # DEV_STATE
 
+## City Gallery — 2026-10-26
+
+- Synced the existing checkout to GitHub main c90eb62 before editing.
+- Imported all 87 supplied photos across 13 city/region folders; source originals remain untouched under the user's Desktop photo directory.
+- Replaced gradient sample entries and unverified camera/year/film claims with city names and numbered photographs. Each entry records its source filename.
+- Generated 720px thumbnails and 1800px display JPEGs under public/images/cities (about 61 MB total versus 632 MB of source photos); thumbnails load lazily and full images load only when opened.
+- City filters derive from real imported data. Card thumbnails fill landscape frames with centered cover cropping; full-image views preserve the entire photograph. Keyboard buttons, focus restoration and Escape-to-close lightbox are supported.
+- Reimport on macOS with: node scripts/import-city-gallery.mjs <city-folder-root>.
+- User authorized GitHub push and production deployment on 2026-10-26; publishing through the existing main-branch Cloudflare Pages workflow.
+
 当前目标是把现有 Blender 工作台稳定交付为可在 Cloudflare Pages 访问的 React + TypeScript + Vite 3D 个人作品集，并逐步用真实内容替换示例内容；目前已完成介绍纸进入动画、基于 `peter-hero-current-safe.glb` 的 R3F 场景、独立的 `peter-interaction-props.glb`、01–08 顺序的 Resume/Experience/Research/Projects/Photos/Books/Films/Whiteboard 八个入口、通用内容面板、真实中文简历 PDF 与预览、校园和实习经历、本地 `localStorage` 白板、移动端底部导航及 Cloudflare Pages 部署（`https://peter-cui-workbench.pages.dev/`）。关键决策是保持 Blender/GLB 为场景位置、比例和材质的唯一视觉基线，不在网页重新拼装家具；内容由 `src/data/*.json` 管理；3D 热点按对象名映射，并将镜头聚焦状态与面板状态分离，3D 点击必须等 GSAP 镜头动画完成后再打开面板，而底部导航作为直接访问入口即时打开。核心实现位于 `src/App.tsx`、`src/interactionState.ts`、`src/experience/RoomScene.tsx`、`src/experience/hotspots.ts`、`src/components/ContentPanel.tsx`、`src/components/Whiteboard.tsx` 和 `src/styles.css`，核心资产位于 `public/models/`、`public/documents/peter-cui-resume-20261007.pdf` 与 `public/images/ui/resume-preview-20261007.webp`。2026-10-01 执行 `pnpm check` 已通过 Oxlint、14 个 Vitest 测试、TypeScript 和 Vite 生产构建；测试覆盖八个热点的映射与顺序、3D 点击延迟开面板、底部导航即时打开、过期镜头回调防护及关闭状态复位。浏览器复查确认介绍纸进入、底部 Projects 入口和内容面板正常，且将模型加载器从 Drei `<Html>` portal 移到 Canvas 外后，React 19 Suspense 切换不再产生同步卸载与 `removeChild` 错误；控制台仍有 Three/R3F 依赖内部的 `THREE.Clock` 与 shadow-map 弃用 warning，但没有应用运行时 error。线上首页、7.7 MB 主 GLB 和简历 PDF 此前均返回 HTTP 200；八个底部入口以及电脑/相机/书柜/海报/研究材料/白板等主要 3D 热点此前均已手工验证。工作区及 `web-portfolio/` 仍未初始化 Git，因此无法取得 Git diff；`photos.json` 尚无真实图片路径，Projects/Books/Films/Research 仍以首版内容为主且缺少多数附件或外链，本轮已修正 README 的真实简历预览路径并记录 `pnpm check`。已废弃的方案包括只检查最前方单个射线网格、让 Drei 悬停提示层接收鼠标事件、让同一个 `active` 状态同时触发镜头和面板，以及在 Canvas 内用 Drei `<Html>` 承载 Suspense 加载器；这些方案分别造成重叠物件无法命中、提示出现后点击被拦截、面板先于镜头弹出和 React 19 portal 卸载竞态。下一步应优先获取并补齐真实项目、摄影、书籍、电影、研究与写作内容及附件；工程侧继续进行移动端、Safari、低性能设备和 `prefers-reduced-motion` 回归测试，并针对约 1.31 MB（gzip 约 371 kB）的主 JS chunk 与 7.7 MB 主 GLB 做加载性能优化。
 
 ## Latest implementation — 2026-10-01
