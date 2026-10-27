@@ -8,39 +8,9 @@
   user-select: none;
 }
 
-/* CRT-style power: a bright line opens to the full screen, and collapses back on shutdown. */
-.ls-crt { position: absolute; inset: 0; transform-origin: 50% 50%; }
-.laptop-screen.is-boot .ls-crt { animation: ls-power-on 0.55s cubic-bezier(.2,.8,.2,1) both; }
-.laptop-screen.is-shutdown .ls-crt { animation: ls-power-off 0.45s cubic-bezier(.6,0,.8,.2) both; }
-.laptop-screen.is-desktop .ls-desktop { animation: ls-fade-in 0.5s ease-out both; }
-
-@keyframes ls-power-on {
-  0% { transform: scale(0.02, 0.004); filter: brightness(6); opacity: 0; }
-  35% { transform: scale(1, 0.006); filter: brightness(5); opacity: 1; }
-  100% { transform: scale(1, 1); filter: brightness(1); }
-}
-@keyframes ls-power-off {
-  0% { transform: scale(1, 1); filter: brightness(1); }
-  55% { transform: scale(1, 0.006); filter: brightness(5); }
-  100% { transform: scale(0, 0.004); filter: brightness(8); opacity: 0; }
-}
+/* The screen is never off, so the interactive layer only fades in over the lit picture. */
+.laptop-screen .ls-desktop { animation: ls-fade-in 0.25s ease-out both; }
 @keyframes ls-fade-in { from { opacity: 0; } to { opacity: 1; } }
-
-.ls-boot {
-  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 22px;
-  background: radial-gradient(circle at 50% 45%, #1f1b18 0%, #080809 70%);
-}
-.ls-boot-mark {
-  display: grid; place-items: center; width: 108px; height: 108px; border-radius: 28px;
-  font: 400 64px/1 "Libre Caslon Display", serif; color: #f4f0e8;
-  background: linear-gradient(145deg, #e07a5f, #ad5136);
-  box-shadow: 0 0 80px rgba(224,122,95,.45);
-  animation: ls-fade-in .5s .45s ease-out both;
-}
-.ls-boot-name { font: 500 18px/1 "DM Mono", monospace; letter-spacing: .08em; color: rgba(244,240,232,.7); animation: ls-fade-in .5s .6s ease-out both; }
-.ls-boot-bar { display: block; width: 240px; height: 4px; border-radius: 4px; background: rgba(244,240,232,.12); overflow: hidden; animation: ls-fade-in .3s .6s both; }
-.ls-boot-bar b { display: block; height: 100%; background: #f4f0e8; transform-origin: left; animation: ls-load 0.9s .65s cubic-bezier(.4,0,.2,1) both; }
-@keyframes ls-load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .ls-desktop {
   position: absolute; inset: 0; display: flex; flex-direction: column;
@@ -59,7 +29,7 @@
 .ls-menubar-spacer { flex: 1; }
 .ls-close {
   display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
-  font-size: 14px; color: #f4f0e8; background: rgba(244,240,232,.12); cursor: pointer;
+  font-size: 22px; line-height: 1; color: #f4f0e8; background: rgba(244,240,232,.12); cursor: pointer;
 }
 .ls-close:hover { background: #e07a5f; }
 
@@ -100,6 +70,6 @@
 .ls-open:hover { background: #e07a5f; }
 
 @media (prefers-reduced-motion: reduce) {
-  .laptop-screen .ls-crt, .laptop-screen .ls-desktop, .ls-detail { animation: none !important; }
+  .laptop-screen .ls-desktop, .ls-detail { animation: none !important; }
   .ls-card { transition: none; }
 }

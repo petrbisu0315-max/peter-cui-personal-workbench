@@ -16,7 +16,8 @@ import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
 import { planDeskPapers } from './deskLayout'
-import { LaptopScreen, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './LaptopScreen'
+import { LaptopScreen } from './LaptopScreen'
+import { createLaptopModel, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './laptopModel'
 import resumeDocument from '../data/resume.json'
 
 type SceneProps = {
@@ -69,7 +70,7 @@ const RESUME_PAGE_UPRIGHT = new THREE.Quaternion().setFromRotationMatrix(
 // with the résumé also hanging past the right edge. Everything on the desktop is therefore
 // seated against the desk's own measured footprint rather than trusted coordinates.
 const DESK_NODE_NAME = 'PROP_Desk_GLB'
-const LAPTOP_NODE_NAME = 'PROP_Laptop_GLB'
+const LAPTOP_POSITION: [number, number, number] = [-0.1507, 1.7602, -0.6813]
 const DESK_PROPS_PATTERN = /^(PROP_Document|SLOT_(Resume|IDBadge))/i
 // Used only if the desk mesh is missing, which would mean a different room model.
 const DESK_SURFACE_FALLBACK_Y = 1.76
@@ -298,7 +299,11 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
       })
     })
     const desk = interactionProps.getObjectByName(DESK_NODE_NAME) ?? room.getObjectByName(DESK_NODE_NAME)
-    const laptop = interactionProps.getObjectByName(LAPTOP_NODE_NAME) ?? room.getObjectByName(LAPTOP_NODE_NAME)
+    // The laptop is modelled in code rather than scanned, so its edges are true straight lines.
+    // It keeps the old node name, so hotspots and desk layout resolve to it unchanged.
+    const laptop = createLaptopModel()
+    laptop.position.set(...LAPTOP_POSITION)
+    room.add(laptop)
     // Measuring happens before the scene is in a rendered graph, so world matrices have to
     // be brought up to date by hand or every bound would read as identity.
     room.updateMatrixWorld(true)
@@ -486,7 +491,7 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
         <AccentLights mix={mix} rightWindow={theme === 'home'} />
         <RoomDecor />
       </group>
-      {prepared.laptop && createPortal(<LaptopScreen on={screenOn} onClose={onCloseScreen} />, prepared.laptop)}
+      {prepared.laptop && createPortal(<LaptopScreen on={screenOn} onClose={onCloseScreen} mix={mix} />, prepared.laptop)}
       {hovered && (
         <Html
           center
