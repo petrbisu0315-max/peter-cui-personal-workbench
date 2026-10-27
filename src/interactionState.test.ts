@@ -39,6 +39,19 @@ describe('workbench interaction state', () => {
     expect(workbenchReducer(second, { type: 'focus-complete', id: 'projects' })).toBe(second)
   })
 
+  it('lights the laptop screen instead of opening a panel when asked to', () => {
+    const focused = workbenchReducer(initialWorkbenchState, {
+      type: 'select-object',
+      id: 'projects',
+      point: new Vector3(1, 2, 3),
+    })
+    const lit = workbenchReducer(focused, { type: 'focus-complete', id: 'projects', display: 'screen' })
+
+    expect(lit.screenOn).toBe(true)
+    expect(lit.panelHotspot).toBeNull()
+    expect(workbenchReducer(lit, { type: 'close' })).toEqual(initialWorkbenchState)
+  })
+
   it('clears focus and panel state together', () => {
     const selected = workbenchReducer(initialWorkbenchState, { type: 'select-dock', id: 'movies' })
     expect(workbenchReducer(selected, { type: 'close' })).toEqual(initialWorkbenchState)

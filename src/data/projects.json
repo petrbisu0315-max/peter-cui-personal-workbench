@@ -1,26 +1,53 @@
 [
   {
     "id": "xcpigai-grading-assistant",
-    "title": "新传考研 AI 批改助手 · AI Grading Assistant",
+    "title": "新传批改神器 · AI Grading Assistant",
+    "tagline": "AI grading for journalism grad-school exam essays",
     "description": "An independent product that grades journalism postgraduate entrance-exam essays. It decomposes 9 question types into 8 assessment dimensions, compares real grading runs against human scores to locate systematic bias, and iterates the prompt output from there — built, launched and marketed solo, now at 500+ users with early revenue.",
-    "tags": [
-      "Prompt Engineering",
-      "AI Evaluation",
-      "Independent Product"
-    ],
+    "tags": ["Prompt Engineering", "AI Evaluation", "Independent Product"],
     "status": "in-progress",
     "period": "2026.07 — Present",
-    "url": "https://www.xcpigai.top"
+    "url": "https://www.xcpigai.top",
+    "image": "/images/projects/xcpigai.webp"
   },
   {
-    "id": "personal-workbench",
-    "title": "3D Personal Workbench",
-    "description": "A room built in Blender, with camera moves, hotspots and content panels driven by React Three Fiber and GSAP. It is both a personal archive and a career path you can explore.",
-    "tags": [
-      "Blender",
-      "React Three Fiber",
-      "GSAP"
-    ],
-    "status": "completed"
+    "id": "flatpack-3d",
+    "title": "Flatpack 3D",
+    "tagline": "IKEA manuals, assembled step by step in 3D",
+    "description": "The real IKEA manuals for the BILLY bookcase, LACK table and POÄNG chair, rebuilt in 3D in the order the drawings show. Every dowel, cam lock and nail goes where the page puts it, with the manual page, parts count and a step timeline alongside the scene.",
+    "tags": ["Three.js", "3D Interaction", "Built with Enter"],
+    "status": "completed",
+    "url": "https://1e028b584c4a445d9a2c06005dcbf85c.prod.enter.pro",
+    "image": "/images/projects/flatpack-3d.webp"
+  },
+  {
+    "id": "my-cd-shelf",
+    "title": "My CD Shelf",
+    "tagline": "A 3D CD-case music player",
+    "description": "A music player shaped like a shelf of CD jewel cases. Tap a case to open it and play, scroll to change discs, and pick tracks from the cover strip below.",
+    "tags": ["Three.js", "Audio", "Built with Enter"],
+    "status": "completed",
+    "url": "https://75c18bfd04e14ca2bbe6f23ea3584cea.prod.enter.pro",
+    "image": "/images/projects/my-cd-shelf.webp"
+  },
+  {
+    "id": "wander-atlas",
+    "title": "Wander Atlas",
+    "tagline": "A slow flight through Guilin and Prague",
+    "description": "A low-poly travel atlas: choose a horizon and fly slowly through places shaped by river, stone and time — the karst mountains and mist of Guilin, or the river, rooftops and spires of Prague, with ambient sound.",
+    "tags": ["WebGL", "Travel", "Built with Enter"],
+    "status": "completed",
+    "url": "https://8f6a02b1e82b491f81e43a17e5653a29.prod.enter.pro",
+    "image": "/images/projects/wander-atlas.webp"
+  },
+  {
+    "id": "enterpro-creator-growth",
+    "title": "EnterPro Creator Growth Program",
+    "tagline": "Landing page for EnterPro's creator program",
+    "description": "A campaign page inviting EnterPro builders to share their journey in exchange for free credits, “Outstanding Work” recognition, priority support and promotion across EnterPro's channels.",
+    "tags": ["Landing Page", "Growth", "Built with Enter"],
+    "status": "completed",
+    "url": "https://14464ca5b9a94cfa85f986b866b8ccf4.prod.enter.pro",
+    "image": "/images/projects/creator-growth.webp"
   }
 ]

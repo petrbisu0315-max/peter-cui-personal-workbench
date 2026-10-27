@@ -370,3 +370,9 @@ button { color: inherit; }
   .resume-download-group { flex-direction: column; }
   .resume-primary-btn, .resume-ghost-btn { justify-content: center; }
 }
+
+.screen-exit { position: fixed; z-index: 9; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px 10px 18px; transform: translateX(-50%); border: 1px solid rgba(244,240,232,.16); border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--panel-text); background: rgba(17,19,19,.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); cursor: pointer; animation: screen-exit-in .4s .9s ease-out both; }
+.screen-exit:hover { background: var(--rust); }
+.screen-exit kbd { padding: 3px 6px; border-radius: 5px; font: 500 11px/1 "DM Mono", monospace; background: rgba(244,240,232,.14); }
+@keyframes screen-exit-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .screen-exit { animation: none; } }

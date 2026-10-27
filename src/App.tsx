@@ -38,6 +38,8 @@ function RoomFallback() {
 }
 
 const LIGHTING_KEY = 'peter-workbench-lighting'
+// Below this width the laptop screen is too small to read, so Projects opens as a panel instead.
+const SCREEN_MIN_VIEWPORT = 720
 
 function readLighting(): LightingMode {
   try {
@@ -92,7 +94,7 @@ function hasWebGL() {
 
 export default function App() {
   const [entered, setEntered] = useState(false)
-  const [{ active, panelHotspot }, dispatch] = useReducer(workbenchReducer, initialWorkbenchState)
+  const [{ active, panelHotspot, screenOn }, dispatch] = useReducer(workbenchReducer, initialWorkbenchState)
   const webglAvailable = useMemo(hasWebGL, [])
   const [lighting, setLighting] = useState<LightingMode>(readLighting)
   const [theme, setTheme] = useState<BackgroundThemeId>(readTheme)
@@ -138,7 +140,8 @@ export default function App() {
   }, [])
 
   const openFocusedPanel = useCallback((id: HotspotId) => {
-    dispatch({ type: 'focus-complete', id })
+    const display = id === 'projects' && window.innerWidth >= SCREEN_MIN_VIEWPORT ? 'screen' : 'panel'
+    dispatch({ type: 'focus-complete', id, display })
   }, [])
 
   useEffect(() => {
@@ -211,6 +214,8 @@ export default function App() {
                 onSelect={selectObject}
                 onToggleLamp={toggleLighting}
                 onFocusComplete={openFocusedPanel}
+                screenOn={screenOn}
+                onCloseScreen={closePanel}
               />
             </Suspense>
           ) : entered ? (
@@ -226,6 +231,12 @@ export default function App() {
           )}
         </div>
       </section>
+
+      {screenOn && (
+        <button type="button" className="screen-exit" onClick={closePanel}>
+          Back to room <kbd>Esc</kbd>
+        </button>
+      )}
 
       {entered && <MusicPlayer obscured={panelHotspot !== null} />}
 

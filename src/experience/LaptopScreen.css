@@ -1,0 +1,105 @@
+.laptop-screen {
+  position: relative;
+  overflow: hidden;
+  background: #050506;
+  color: #f4f0e8;
+  font-family: Manrope, "PingFang SC", "Microsoft YaHei", sans-serif;
+  border-radius: 10px;
+  user-select: none;
+}
+
+/* CRT-style power: a bright line opens to the full screen, and collapses back on shutdown. */
+.ls-crt { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.laptop-screen.is-boot .ls-crt { animation: ls-power-on 0.55s cubic-bezier(.2,.8,.2,1) both; }
+.laptop-screen.is-shutdown .ls-crt { animation: ls-power-off 0.45s cubic-bezier(.6,0,.8,.2) both; }
+.laptop-screen.is-desktop .ls-desktop { animation: ls-fade-in 0.5s ease-out both; }
+
+@keyframes ls-power-on {
+  0% { transform: scale(0.02, 0.004); filter: brightness(6); opacity: 0; }
+  35% { transform: scale(1, 0.006); filter: brightness(5); opacity: 1; }
+  100% { transform: scale(1, 1); filter: brightness(1); }
+}
+@keyframes ls-power-off {
+  0% { transform: scale(1, 1); filter: brightness(1); }
+  55% { transform: scale(1, 0.006); filter: brightness(5); }
+  100% { transform: scale(0, 0.004); filter: brightness(8); opacity: 0; }
+}
+@keyframes ls-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.ls-boot {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 22px;
+  background: radial-gradient(circle at 50% 45%, #1f1b18 0%, #080809 70%);
+}
+.ls-boot-mark {
+  display: grid; place-items: center; width: 108px; height: 108px; border-radius: 28px;
+  font: 400 64px/1 "Libre Caslon Display", serif; color: #f4f0e8;
+  background: linear-gradient(145deg, #e07a5f, #ad5136);
+  box-shadow: 0 0 80px rgba(224,122,95,.45);
+  animation: ls-fade-in .5s .45s ease-out both;
+}
+.ls-boot-name { font: 500 18px/1 "DM Mono", monospace; letter-spacing: .08em; color: rgba(244,240,232,.7); animation: ls-fade-in .5s .6s ease-out both; }
+.ls-boot-bar { display: block; width: 240px; height: 4px; border-radius: 4px; background: rgba(244,240,232,.12); overflow: hidden; animation: ls-fade-in .3s .6s both; }
+.ls-boot-bar b { display: block; height: 100%; background: #f4f0e8; transform-origin: left; animation: ls-load 0.9s .65s cubic-bezier(.4,0,.2,1) both; }
+@keyframes ls-load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.ls-desktop {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgba(224,122,95,.32), transparent 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(120,98,70,.35), transparent 60%),
+    #141516;
+}
+.ls-menubar {
+  display: flex; align-items: center; gap: 22px; height: 40px; padding: 0 18px;
+  font: 500 15px/1 Manrope, sans-serif; color: rgba(244,240,232,.82);
+  background: rgba(10,10,11,.55); border-bottom: 1px solid rgba(244,240,232,.08);
+}
+.ls-menubar-brand { color: #f4f0e8; font-weight: 700; }
+.ls-menubar-brand::first-letter { color: #e07a5f; }
+.ls-menubar-spacer { flex: 1; }
+.ls-close {
+  display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
+  font-size: 14px; color: #f4f0e8; background: rgba(244,240,232,.12); cursor: pointer;
+}
+.ls-close:hover { background: #e07a5f; }
+
+.ls-eyebrow { margin: 0; font: 500 14px/1.2 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: #e07a5f; }
+
+.ls-home { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 34px; padding: 30px 44px 40px; min-height: 0; }
+.ls-home-head h1 { margin: 10px 0 8px; font: 400 46px/1.05 "Libre Caslon Display", serif; letter-spacing: -.01em; }
+.ls-home-head p:last-child { margin: 0; max-width: 720px; font-size: 18px; line-height: 1.5; color: rgba(244,240,232,.68); }
+
+.ls-grid { display: grid; align-items: stretch; grid-template-columns: repeat(5, 1fr); gap: 18px; margin: 0; padding: 0; list-style: none; min-height: 0; }
+.ls-card {
+  display: flex; flex-direction: column; gap: 8px; width: 100%; height: 100%; padding: 10px 10px 18px; text-align: left;
+  border: 1px solid rgba(244,240,232,.1); border-radius: 14px; background: rgba(24,26,27,.82); cursor: pointer;
+  transition: transform .25s ease, border-color .25s ease, background .25s ease;
+}
+.ls-card:hover, .ls-card:focus-visible { transform: translateY(-6px); border-color: rgba(224,122,95,.7); background: rgba(34,32,31,.95); }
+.ls-thumb { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: #0b0b0c; }
+.ls-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ls-card-meta { margin-top: 4px; font: 500 13px/1 "DM Mono", monospace; color: rgba(244,240,232,.45); }
+.ls-card strong { font-size: 19px; line-height: 1.25; color: #f4f0e8; }
+.ls-card-line { font-size: 15px; line-height: 1.45; color: rgba(244,240,232,.66); }
+
+.ls-detail { flex: 1; display: flex; flex-direction: column; gap: 18px; padding: 24px 44px 36px; min-height: 0; animation: ls-fade-in .3s ease-out both; }
+.ls-back { align-self: flex-start; padding: 8px 14px; border: 1px solid rgba(244,240,232,.18); border-radius: 999px; font-size: 15px; background: transparent; cursor: pointer; }
+.ls-back:hover { border-color: #e07a5f; color: #e07a5f; }
+.ls-detail-body { flex: 1; display: grid; grid-template-columns: 1.25fr 1fr; gap: 36px; align-items: center; min-height: 0; }
+.ls-detail-shot { display: block; overflow: hidden; border-radius: 14px; border: 1px solid rgba(244,240,232,.14); box-shadow: 0 30px 60px rgba(0,0,0,.45); }
+.ls-detail-shot img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.ls-detail-text h2 { margin: 12px 0 6px; font: 400 40px/1.1 "Libre Caslon Display", serif; }
+.ls-detail-tagline { margin: 0 0 16px; font-size: 18px; color: #e07a5f; }
+.ls-detail-text p:not(.ls-eyebrow):not(.ls-detail-tagline) { margin: 0 0 18px; font-size: 17px; line-height: 1.6; color: rgba(244,240,232,.78); }
+.ls-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.ls-tags span { padding: 6px 10px; border: 1px solid rgba(244,240,232,.16); border-radius: 6px; font: 500 13px/1 "DM Mono", monospace; color: rgba(244,240,232,.75); }
+.ls-open {
+  display: inline-flex; padding: 13px 22px; border-radius: 999px; font-weight: 700; font-size: 16px;
+  color: #141516; background: #f4f0e8; text-decoration: none; transition: background .2s ease;
+}
+.ls-open:hover { background: #e07a5f; }
+
+@media (prefers-reduced-motion: reduce) {
+  .laptop-screen .ls-crt, .laptop-screen .ls-desktop, .ls-detail { animation: none !important; }
+  .ls-card { transition: none; }
+}

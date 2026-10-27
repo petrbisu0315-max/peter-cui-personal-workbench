@@ -1,6 +1,6 @@
 import { Component, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
-import { Canvas, type ThreeEvent, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, createPortal, type ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 import { Html, OrbitControls, useGLTF, useProgress, useTexture } from '@react-three/drei'
 import gsap from 'gsap'
 import * as THREE from 'three'
@@ -16,6 +16,7 @@ import { hotspotFromObjectName, hotspotMeta } from './hotspots'
 import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
 import { planDeskPapers } from './deskLayout'
+import { LaptopScreen, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './LaptopScreen'
 import resumeDocument from '../data/resume.json'
 
 type SceneProps = {
@@ -26,7 +27,12 @@ type SceneProps = {
   onSelect: (id: HotspotId, point: THREE.Vector3) => void
   onToggleLamp: () => void
   onFocusComplete: (id: HotspotId) => void
+  screenOn: boolean
+  onCloseScreen: () => void
 }
+
+/** The laptop display in scene space, used to frame the camera square-on to it. */
+type ScreenFrame = { center: THREE.Vector3; normal: THREE.Vector3; width: number; height: number }
 
 type SceneTarget =
   | { kind: 'hotspot'; id: HotspotId; root: THREE.Object3D }
@@ -247,9 +253,11 @@ function setHovered(root: THREE.Object3D, hovered: boolean) {
   })
 }
 
-function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasured }: Pick<SceneProps, 'lighting' | 'theme' | 'onSelect' | 'onToggleLamp'> & {
+function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onToggleLamp, onCloseScreen, onLampMeasured, onScreenMeasured }: Pick<SceneProps, 'lighting' | 'theme' | 'screenOn' | 'onSelect' | 'onToggleLamp' | 'onCloseScreen'> & {
   mix: LightingMix
+  interactive: boolean
   onLampMeasured: (rig: LampRig | null) => void
+  onScreenMeasured: (frame: ScreenFrame | null) => void
 }) {
   const main = useGLTF(MODEL_URL, '/draco/')
   const props = useGLTF(PROPS_URL)
@@ -370,11 +378,22 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
     const center = roomBounds.getCenter(new THREE.Vector3())
     const scale = 7.5 / Math.max(size.x, size.y, size.z)
     const position = new THREE.Vector3(-center.x * scale, -center.y * scale + 0.05, -center.z * scale)
+    const laptopScale = laptop ? laptop.matrixWorld.getMaxScaleOnAxis() * scale : 0
+    const screen: ScreenFrame | null = laptop
+      ? {
+          center: SCREEN_CENTER.clone().applyMatrix4(laptop.matrixWorld).multiplyScalar(scale).add(position),
+          normal: SCREEN_NORMAL.clone().transformDirection(laptop.matrixWorld),
+          width: SCREEN_WIDTH * laptopScale,
+          height: SCREEN_HEIGHT * laptopScale,
+        }
+      : null
     return {
       room,
       interactionProps,
       scale,
       position,
+      laptop,
+      screen,
       lamp: measureLamp(room, scale, position),
     }
   }, [main.scene, props.scene, resumePaper])
@@ -384,11 +403,23 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
   }, [onLampMeasured, prepared.lamp])
 
   useEffect(() => {
+    onScreenMeasured(prepared.screen)
+  }, [onScreenMeasured, prepared.screen])
+
+  // While the camera is focused on an object, the room stops reacting to hover.
+  useEffect(() => {
+    if (interactive || !hovered) return
+    setHovered(hovered.root, false)
+    setHoveredState(null)
+  }, [interactive, hovered])
+
+  useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
     return () => { document.body.style.cursor = '' }
   }, [hovered])
 
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
+    if (!interactive) return
     const next = findTargetInEvent(event)
     if (next) event.stopPropagation()
     if (next?.root === hovered?.root) return
@@ -403,6 +434,7 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
   }
 
   const onPointerDown = (event: ThreeEvent<PointerEvent>) => {
+    if (!interactive) return
     const target = findTargetInEvent(event)
     pressStart.current = target
       ? { x: event.clientX, y: event.clientY, key: targetKey(target) }
@@ -428,6 +460,7 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
   }
 
   const onClick = (event: ThreeEvent<MouseEvent>) => {
+    if (!interactive) return
     const target = findTargetInEvent(event)
     if (!target) return
     event.stopPropagation()
@@ -453,6 +486,7 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
         <AccentLights mix={mix} rightWindow={theme === 'home'} />
         <RoomDecor />
       </group>
+      {prepared.laptop && createPortal(<LaptopScreen on={screenOn} onClose={onCloseScreen} />, prepared.laptop)}
       {hovered && (
         <Html
           center
@@ -478,8 +512,12 @@ function RoomModel({ lighting, theme, mix, onSelect, onToggleLamp, onLampMeasure
   )
 }
 
-function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'active' | 'entered' | 'onFocusComplete'>) {
-  const { camera } = useThree()
+const MIN_ORBIT_DISTANCE = 1.2
+
+function CameraRig({ active, entered, screen, onFocusComplete }: Pick<SceneProps, 'active' | 'entered' | 'onFocusComplete'> & {
+  screen: ScreenFrame | null
+}) {
+  const { camera, size } = useThree()
   const controls = useRef<any>(null)
   const overview = useMemo(() => ({
     position: new THREE.Vector3(0.72, 0.52, 8.45),
@@ -489,15 +527,25 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
     if (!entered || !controls.current) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const duration = reduced ? 0.01 : 1.05
-    const target = active?.point?.clone() ?? overview.target.clone()
+    let target = active?.point?.clone() ?? overview.target.clone()
     let nextPosition = overview.position.clone()
-    if (active?.point) {
+    if (active?.id === 'projects' && active.point && screen && camera instanceof THREE.PerspectiveCamera) {
+      // Square-on to the display, close enough that it fills most of the view under the top bar.
+      const halfFov = THREE.MathUtils.degToRad(camera.fov / 2)
+      const aspect = size.width / size.height
+      const fitWidth = (screen.width * 1.12) / 2 / (Math.tan(halfFov) * aspect)
+      const fitHeight = (screen.height * 1.3) / 2 / Math.tan(halfFov)
+      target = screen.center.clone()
+      nextPosition = screen.center.clone().addScaledVector(screen.normal, Math.max(fitWidth, fitHeight))
+    } else if (active?.point) {
       const setting = focusSettings[active.id]
       const direction = camera.position.clone().sub(active.point).normalize()
       nextPosition = active.point.clone().add(direction.multiplyScalar(setting.distance))
       nextPosition.y += setting.yOffset
     }
     controls.current.enabled = !active
+    // The screen framing sits closer than the free-orbit limit; restore it once back in the overview.
+    if (active) controls.current.minDistance = 0.2
     gsap.killTweensOf(camera.position)
     gsap.killTweensOf(controls.current.target)
     gsap.to(camera.position, { x: nextPosition.x, y: nextPosition.y, z: nextPosition.z, duration, ease: 'power3.inOut' })
@@ -506,9 +554,10 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
       onUpdate: () => controls.current?.update(),
       onComplete: () => {
         if (active?.point) onFocusComplete(active.id)
+        else if (controls.current) controls.current.minDistance = MIN_ORBIT_DISTANCE
       },
     })
-  }, [active, camera, entered, onFocusComplete, overview])
+  }, [active, camera, entered, onFocusComplete, overview, screen, size])
 
   return (
     <OrbitControls
@@ -516,7 +565,7 @@ function CameraRig({ active, entered, onFocusComplete }: Pick<SceneProps, 'activ
       makeDefault
       enableDamping
       dampingFactor={0.07}
-      minDistance={1.2}
+      minDistance={MIN_ORBIT_DISTANCE}
       maxDistance={11}
       minPolarAngle={Math.PI * 0.22}
       maxPolarAngle={Math.PI * 0.72}
@@ -683,8 +732,11 @@ export function RoomScene({
   onSelect,
   onToggleLamp,
   onFocusComplete,
+  screenOn,
+  onCloseScreen,
 }: SceneProps) {
   const [lamp, setLamp] = useState<LampRig | null>(null)
+  const [screen, setScreen] = useState<ScreenFrame | null>(null)
   const mix = useLightingMix(lighting)
   return (
     <>
@@ -706,13 +758,17 @@ export function RoomScene({
               lighting={lighting}
               theme={theme}
               mix={mix}
+              interactive={!active}
+              screenOn={screenOn}
               onSelect={onSelect}
               onToggleLamp={onToggleLamp}
+              onCloseScreen={onCloseScreen}
               onLampMeasured={setLamp}
+              onScreenMeasured={setScreen}
             />
           </Suspense>
         </SceneErrorBoundary>
-        <CameraRig active={active} entered={entered} onFocusComplete={onFocusComplete} />
+        <CameraRig active={active} entered={entered} screen={screen} onFocusComplete={onFocusComplete} />
       </Canvas>
       <LoadingRoomOverlay />
     </>

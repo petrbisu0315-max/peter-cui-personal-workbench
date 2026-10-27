@@ -26,6 +26,7 @@ export type CityPhotoItem = {
 export type ProjectItem = {
   id: string
   title: string
+  tagline?: string
   description: string
   tags: string[]
   status?: 'completed' | 'in-progress'
