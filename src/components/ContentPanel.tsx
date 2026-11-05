@@ -4,6 +4,8 @@ import gsap from 'gsap'
 import projectsData from '../data/projects.json'
 import photosData from '../data/photos.json'
 import cityGalleryData from '../data/cityGallery.json'
+import { FilmBench } from './FilmBench'
+import { rollsFromCities, rollsFromPersonal } from './filmRolls'
 import researchData from '../data/research.json'
 import experiencesData from '../data/experiences.json'
 import resumeData from '../data/resume.json'
@@ -40,8 +42,8 @@ interface CityPhoto {
 }
 
 const projects = projectsData as ProjectItem[]
-const personalPhotos = photosData as PhotoItem[]
-const cityPhotos = cityGalleryData as CityPhoto[]
+const cityRolls = rollsFromCities(cityGalleryData as CityPhoto[])
+const personalRolls = rollsFromPersonal(photosData as PhotoItem[])
 const research = researchData as ResearchItem[]
 const experiences = experiencesData as ExtendedExperienceItem[]
 
@@ -298,173 +300,14 @@ function InternshipsPanel() {
   )
 }
 
-/** 3. CITY GALLERY PANEL: City photography with city switcher & lightbox */
+/** 3. CITY GALLERY PANEL: one roll of film per city, laid out on a darkroom bench */
 function CityGalleryPanel() {
-  const cities = useMemo(() => [...new Map(cityPhotos.map(photo => [photo.city, photo.cityCn])).entries()], [])
-  const [selectedCity, setSelectedCity] = useState('All Cities')
-  const cityStrip = useRef<HTMLDivElement>(null)
-  const scrollCities = (direction: number) => {
-    const strip = cityStrip.current
-    if (!strip) return
-    strip.scrollBy({ left: direction * strip.clientWidth * 0.7, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
-  }
-  const [lightboxPhoto, setLightboxPhoto] = useState<CityPhoto | null>(null)
-  const lightboxClose = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    if (!lightboxPhoto) return
-    const previous = document.activeElement as HTMLElement | null
-    lightboxClose.current?.focus()
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        setLightboxPhoto(null)
-      }
-      if (event.key === 'Tab') {
-        event.preventDefault()
-        lightboxClose.current?.focus()
-      }
-    }
-    document.addEventListener('keydown', handleKey, true)
-    return () => {
-      document.removeEventListener('keydown', handleKey, true)
-      previous?.focus()
-    }
-  }, [lightboxPhoto])
-
-  const filtered = useMemo(() => {
-    if (selectedCity === 'All Cities') return cityPhotos
-    return cityPhotos.filter((p) => p.city === selectedCity)
-  }, [selectedCity])
-
-  return (
-    <div className="gallery-container">
-      {/* City Switcher */}
-      <div className="gallery-city-navigation">
-        <button className="gallery-scroll-button" type="button" aria-label="Scroll cities left" onClick={() => scrollCities(-1)}>←</button>
-      <div className="gallery-city-tabs" ref={cityStrip} role="group" aria-label="Filter photographs by city">
-        <button type="button" className={selectedCity === 'All Cities' ? 'is-active' : ''} aria-pressed={selectedCity === 'All Cities'} onClick={() => setSelectedCity('All Cities')}>All Cities ({cityPhotos.length})</button>
-        {cities.map(([city, cityCn]) => (
-          <button
-            key={city}
-            type="button"
-            className={selectedCity === city ? 'is-active' : ''}
-            aria-pressed={selectedCity === city}
-            onClick={(event) => {
-              setSelectedCity(city)
-              event.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
-            }}
-          >
-            {city} ({cityCn}) · {cityPhotos.filter(photo => photo.city === city).length}
-          </button>
-        ))}
-      </div>
-        <button className="gallery-scroll-button" type="button" aria-label="Scroll cities right" onClick={() => scrollCities(1)}>→</button>
-      </div>
-
-      <div className="gallery-meta-note">
-        <p>{filtered.length} photographs · {selectedCity === 'All Cities' ? `${cities.length} cities & regions` : selectedCity} · Select a photograph to view it in full.</p>
-      </div>
-
-      {/* Grid of City Photography */}
-      <div className="gallery-grid">
-        {filtered.map((photo) => (
-          <button
-            type="button"
-            className="gallery-card"
-            key={photo.id}
-            onClick={() => setLightboxPhoto(photo)}
-          >
-            <span className="gallery-photo-frame">
-              <img src={photo.thumbnail} alt={photo.alt} loading="lazy" decoding="async" />
-            </span>
-            <span className="gallery-card-caption">
-              <strong>{photo.title}</strong>
-              <span className="caption-sub">{photo.cityCn}</span>
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Lightbox Modal */}
-      {lightboxPhoto && (
-        <div
-          className="gallery-lightbox-overlay"
-          onClick={() => setLightboxPhoto(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={lightboxPhoto.title}
-        >
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              ref={lightboxClose}
-              className="lightbox-close-btn"
-              onClick={() => setLightboxPhoto(null)}
-              aria-label="Close Lightbox"
-            >
-              ✕
-            </button>
-            <div className="lightbox-art-display">
-              <img src={lightboxPhoto.src} alt={lightboxPhoto.alt} decoding="async" />
-            </div>
-            <div className="lightbox-details-panel">
-              <h3>{lightboxPhoto.title}</h3>
-              <div className="lightbox-meta-grid">
-                <div><span>📍 Location</span><strong>{lightboxPhoto.location}</strong></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+  return <FilmBench rolls={cityRolls} title="City photographs, one roll per city" />
 }
 
-/** 4. PERSONAL PHOTOS (Camera on Desk in 3D): Work & Life Moments */
+/** 4. PERSONAL PHOTOS (Camera on Desk in 3D): work and life, one roll per kind */
 function PersonalPhotosPanel() {
-  const [activeId, setActiveId] = useState(personalPhotos[0]?.id ?? '')
-  const active = personalPhotos.find((p) => p.id === activeId) ?? personalPhotos[0]
-
-  return (
-    <div className="personal-photos-container">
-      <div className="personal-photos-intro">
-        <div className="intro-badge">📷 个人生活与实习工作记录</div>
-        <p>
-          桌上相机记录的个人工作汇报、团队纪念与生活剪影。（目前作为精选占位，后续将持续更新更多生活胶片与旅途记录）
-        </p>
-      </div>
-
-      <div className="personal-photos-stage">
-        {active && (
-          <figure className="personal-figure">
-            <img src={active.src} alt={active.alt ?? active.title} className="personal-main-img" />
-            <figcaption className="personal-figcaption">
-              <div>
-                <strong>{active.title}</strong>
-                <span className="personal-cat-tag">{active.category}</span>
-              </div>
-              <p>{[active.location, active.date].filter(Boolean).join(' · ') || '个人影像档案'}</p>
-            </figcaption>
-          </figure>
-        )}
-
-        <div className="personal-thumbs-strip">
-          {personalPhotos.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`personal-thumb-btn ${item.id === active?.id ? 'is-active' : ''}`}
-              onClick={() => setActiveId(item.id)}
-            >
-              <img src={item.src} alt={item.title} loading="lazy" />
-              <span>{item.title}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
+  return <FilmBench rolls={personalRolls} title="Personal photographs, one roll per kind" />
 }
 
 /** 5. PROJECTS PANEL (Laptop on Desk in 3D) */

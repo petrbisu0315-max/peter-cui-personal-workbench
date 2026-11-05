@@ -1,0 +1,97 @@
+/* A darkroom bench: warm near-black, one coral voice, film-edge mono type. */
+.panel-gallery .panel-body,
+.panel-photos .panel-body { padding: 0; overflow: hidden; background: #140d0a; }
+
+.fb {
+  --coral: #e8613f;
+  --amber: #f0a36a;
+  position: relative; height: min(66svh, 640px); min-height: 380px; overflow: hidden;
+  background: #140d0a; color: #f1e4d8; font-family: "DM Mono", "PingFang SC", monospace;
+}
+.fb-canvas { position: absolute !important; inset: 0; cursor: grab; touch-action: none; }
+.fb-mark { position: absolute; z-index: 2; left: 22px; top: 18px; color: var(--coral); font: 500 13px "DM Mono", monospace; letter-spacing: .08em; pointer-events: none; }
+.fb-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: 14px; margin: 0; padding: 0 16px; text-align: center; color: rgba(232, 97, 63, .8); font: 500 11px "DM Mono", "PingFang SC", monospace; letter-spacing: .16em; pointer-events: none; }
+.fb-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--coral); font: 500 12px "DM Mono", monospace; letter-spacing: .2em; }
+
+/* Roll list. Beside the 3D bench it is only for keyboards and screen readers; without WebGL it is the bench. */
+.fb-rolls { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 22px 18px; margin: 0; padding: 58px 28px 52px; list-style: none; height: 100%; overflow: auto; }
+.fb-rolls.is-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.fb-can { display: grid; grid-template-rows: 12px 1fr 12px; width: 100%; min-height: 190px; padding: 0; border: 0; background: none; color: var(--ink); text-align: center; cursor: pointer; transition: transform .2s ease; }
+.fb-can:hover, .fb-can:focus-visible { transform: translateY(-5px); }
+.fb-can-top { display: block; border-radius: 7px; background: var(--cap); }
+.fb-can-label { display: grid; align-content: center; justify-items: center; gap: 4px; padding: 10px 8px; background: var(--paper); box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+.fb-can-label small { font: 500 9.5px "DM Mono", monospace; letter-spacing: .1em; opacity: .7; }
+.fb-can-label strong { font: 800 clamp(13px, 1.4vw, 17px)/1.05 Manrope, sans-serif; letter-spacing: .01em; overflow-wrap: anywhere; }
+.fb-can-label em { color: var(--accent); font: 600 12px Manrope, "PingFang SC", sans-serif; font-style: normal; }
+.fb-can-label b { font: 800 34px/1 Manrope, sans-serif; }
+
+/* A pulled roll: the canister, then the strip sliding out of it. */
+.fb-roll { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; padding: 16px 22px 14px; animation: fb-in .28s ease-out both; }
+.fb-hud { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--coral); font: 500 12px "DM Mono", "PingFang SC", monospace; letter-spacing: .1em; }
+.fb-hud span:nth-child(2) { flex: 1; text-align: center; color: rgba(241, 228, 216, .78); }
+.fb-back { padding: 8px 12px; border: 1px solid rgba(232, 97, 63, .55); border-radius: 4px; background: transparent; color: var(--coral); font: inherit; letter-spacing: inherit; cursor: pointer; transition: background .2s, color .2s; }
+.fb-back:hover, .fb-back:focus-visible { background: var(--coral); color: #140d0a; }
+.fb-stage { position: relative; display: flex; align-items: center; min-height: 0; }
+.fb-spool { position: relative; z-index: 2; display: grid; grid-template-rows: 14px 1fr 14px; flex: none; width: clamp(96px, 13vw, 150px); height: clamp(190px, 38svh, 290px); color: var(--ink); text-align: center; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .55)); }
+.fb-spool i { display: block; border-radius: 8px; background: var(--cap); }
+.fb-spool span { display: grid; align-content: center; justify-items: center; gap: 5px; padding: 10px 6px; background: var(--paper); }
+.fb-spool small { font: 500 9.5px "DM Mono", monospace; letter-spacing: .1em; opacity: .7; }
+.fb-spool strong { font: 800 clamp(14px, 1.6vw, 20px)/1.05 Manrope, sans-serif; overflow-wrap: anywhere; }
+.fb-spool em { color: var(--accent); font: 600 13px Manrope, "PingFang SC", sans-serif; font-style: normal; }
+.fb-spool b { font: 800 clamp(34px, 5vw, 56px)/1 Manrope, sans-serif; }
+.fb-strip { flex: 1; min-width: 0; margin-left: -10px; padding: 26px 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: rgba(232, 97, 63, .6) transparent; animation: fb-pull .42s cubic-bezier(.2, .8, .2, 1) both; }
+.fb-strip:focus-visible { outline: 1px dashed rgba(232, 97, 63, .6); outline-offset: -2px; }
+.fb-film {
+  position: relative; display: flex; width: max-content; min-width: 100%; margin: 0; padding: 34px 90px 34px 28px; list-style: none;
+  background: linear-gradient(#4b1d0e, #411a0d); box-shadow: 0 10px 28px rgba(0, 0, 0, .5);
+}
+.fb-film::before, .fb-film::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 12px; opacity: .95;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='12'%3E%3Crect x='6' y='1' width='14' height='10' rx='2.4' fill='%23140d0a'/%3E%3C/svg%3E") repeat-x;
+}
+.fb-film::before { top: 11px; }
+.fb-film::after { bottom: 11px; }
+.fb-frame { position: relative; display: grid; gap: 5px; width: 252px; padding: 0 10px; border: 0; background: none; color: rgba(255, 168, 120, .55); font: 500 9.5px "DM Mono", monospace; letter-spacing: .1em; text-align: left; cursor: pointer; }
+.fb-frame:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+.fb-image { display: block; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; background: #000; transition: transform .22s ease, box-shadow .22s ease; }
+.fb-image img { display: block; width: 100%; height: 100%; object-fit: cover; filter: invert(1) sepia(.85) saturate(2.4) hue-rotate(-24deg) brightness(.72) contrast(.9); }
+.fb-roll.is-developed .fb-image img { filter: none; transition: filter .5s ease; transition-delay: calc(var(--i, 0) * 55ms); }
+.fb-frame:hover .fb-image, .fb-frame:focus-visible .fb-image { transform: translateY(-4px); box-shadow: 0 12px 22px rgba(0, 0, 0, .55); }
+.fb-number { justify-self: end; color: var(--amber); }
+.fb-roll.is-developed .fb-edge { color: rgba(240, 163, 106, .8); transition: color .5s ease; }
+.fb-roll .fb-hint { position: static; padding-top: 6px; }
+
+@keyframes fb-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fb-pull { from { opacity: 0; transform: translateX(-70px); } to { opacity: 1; transform: none; } }
+
+/* One frame printed large. */
+.fb-print { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(9, 5, 3, .93); backdrop-filter: blur(10px); animation: fb-in .2s ease-out both; }
+.fb-print figure { position: relative; display: grid; gap: 12px; max-width: min(1000px, 94vw); margin: 0; }
+.fb-print-photo { padding: 12px; background: #2a140b; box-shadow: 0 30px 80px rgba(0, 0, 0, .75); }
+.fb-print-photo img { display: block; max-width: 100%; max-height: 68svh; margin: 0 auto; object-fit: contain; }
+.fb-print figcaption { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 18px; color: var(--amber); font: 500 11px "DM Mono", "PingFang SC", monospace; letter-spacing: .1em; }
+.fb-print figcaption strong { color: #f1e4d8; font: 400 18px "Libre Caslon Display", "Songti SC", serif; letter-spacing: 0; }
+.fb-print-close, .fb-print-step { position: absolute; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid rgba(232, 97, 63, .5); border-radius: 50%; background: rgba(20, 13, 10, .8); color: #f1e4d8; font-size: 18px; cursor: pointer; }
+.fb-print-close { top: -12px; right: -12px; z-index: 2; }
+.fb-print-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 1.8; }
+.fb-print-step { top: 40%; font-size: 26px; line-height: 1; }
+.fb-print-step.is-prev { left: -20px; }
+.fb-print-step.is-next { right: -20px; }
+.fb-print-close:hover, .fb-print-step:hover, .fb-print-close:focus-visible, .fb-print-step:focus-visible { background: var(--coral); border-color: var(--coral); color: #140d0a; }
+
+@media (max-width: 720px) {
+  .fb { height: calc(100svh - 150px); }
+  .fb-roll { padding: 12px 14px; }
+  .fb-stage { flex-direction: column; align-items: stretch; justify-content: center; }
+  .fb-spool { width: 100%; height: 96px; grid-template-rows: none; grid-template-columns: 14px 1fr 14px; margin-bottom: -6px; }
+  .fb-strip { margin-left: 0; }
+  .fb-hud span:nth-child(2) { display: none; }
+  .fb-print figcaption { grid-template-columns: 1fr auto; }
+  .fb-print-step.is-prev { left: -8px; }
+  .fb-print-step.is-next { right: -8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-roll, .fb-strip, .fb-print { animation: none; }
+  .fb-image img, .fb-can { transition: none !important; }
+}

@@ -152,3 +152,13 @@
 - The desk camera had the same defect as the laptop: a 500,000-triangle scan cut down for load time, so its straight plates and edges came out ragged. It is now modelled in code (`cameraModel.ts`): rounded-box body, top deck and grip, a viewfinder prism, lathe-turned dials and a ribbed lens, with a front glass element. It keeps the node name `PROP_Camera_GLB` (photos hotspot) and the scan's footprint; a short lens now sits in front, where the scan showed an empty mount.
 - The scanned node and its textures were removed from `peter-hero-current-safe.glb` (2.41 MB → 2.02 MB).
 - `cameraModel.test.ts` pins the footprint, centred lens, flat seating, square body plates, the hotspot name and a triangle budget.
+
+## Film bench gallery — 2026-11-05
+
+- The City Gallery (nav "Gallery") and the Camera's Personal Photos panel now share one interface, modelled on the reference photo-portfolio video (`/film_` bench, canisters, a pulled strip, frames printed large): a dark workbench with a roll of film per group, a strip that slides out of the chosen canister, and a full print on click.
+- Bench (`FilmBench3D.tsx`): 13 city canisters (one per city) lying on a table, drawn in three.js with a label per roll — city name in English and Chinese, a film speed and the frame count — in six label looks. Drag or scroll pans the bench, hover lifts a canister and names the roll in the HUD. It renders on demand (`frameloop="demand"`), so it costs nothing while idle. The canvas is lazy-loaded with the panel.
+- Roll (`FilmBench.tsx`): the strip shows the real thumbnails in 3:2 frames with sprocket holes and edge printing (`HANGZHOU 800 · 03`). The reference's slow negative-then-develop sequence is shortened as requested: frames arrive as negatives and develop in about half a second, staggered over the first eight. Clicking a frame opens a print with prev/next, arrow keys and a counter.
+- Escape backs out one level at a time (print → roll → bench), and only then closes the panel. Without WebGL (and for keyboards and screen readers) the bench is also a plain list of CSS canisters.
+- Adding photographs: a new city folder becomes a new roll through `cityGallery.json`; personal photographs are grouped by `category` in `photos.json`. `filmRolls.ts` holds the grouping, bench layout and edge-code helpers, with tests.
+- The old city grid, filter strip and personal-photo viewer styles were removed with their markup.
+- Verified in the browser at 1400×820 and 430×860: bench renders with readable labels, hover names the roll, a roll opens, frames develop, a frame prints; the mobile roll view uses a horizontal spool above the strip.
