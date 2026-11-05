@@ -18,6 +18,8 @@ import { createGlowTexture } from './surfaces'
 import { planDeskPapers } from './deskLayout'
 import { LaptopScreen } from './LaptopScreen'
 import { createCameraModel } from './cameraModel'
+import { mountOnSwivel, spinChair } from './chairSpin'
+import { overviewFor } from './overviewCamera'
 import { createLaptopModel, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './laptopModel'
 import resumeDocument from '../data/resume.json'
 
@@ -39,11 +41,13 @@ type ScreenFrame = { center: THREE.Vector3; normal: THREE.Vector3; width: number
 type SceneTarget =
   | { kind: 'hotspot'; id: HotspotId; root: THREE.Object3D }
   | { kind: 'lamp'; root: THREE.Object3D }
+  | { kind: 'chair'; root: THREE.Object3D }
 
 type LampRig = { head: THREE.Vector3; target: THREE.Vector3; height: number }
 
 const DESK_LAMP_PATTERN = /PROP_DeskLamp/i
 const LAMP_PATTERN = /PROP_DeskLamp|ACCENT_FloorLamp/i
+const CHAIR_PATTERN = /PROP_OfficeChair_GLB/i
 
 const MODEL_URL = '/models/peter-hero-current-safe.glb'
 const PROPS_URL = '/models/peter-interaction-props.glb'
@@ -130,6 +134,7 @@ function findTarget(object: THREE.Object3D): SceneTarget | null {
     const id = hotspotFromObjectName(current.name)
     if (id) return { kind: 'hotspot', id, root: current }
     if (LAMP_PATTERN.test(current.name)) return { kind: 'lamp', root: current }
+    if (CHAIR_PATTERN.test(current.name)) return { kind: 'chair', root: current }
     current = current.parent
   }
   return null
@@ -198,7 +203,7 @@ function findTargetInEvent(event: Pick<ThreeEvent<PointerEvent>, 'intersections'
 }
 
 function targetKey(target: SceneTarget) {
-  return target.kind === 'lamp' ? 'lamp' : target.id
+  return target.kind === 'hotspot' ? target.id : target.kind
 }
 
 // The lamp is a single mesh, so the shade is located from the top slice of its decoded vertices.
@@ -310,6 +315,9 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
     const camera = createCameraModel()
     camera.position.set(...CAMERA_POSITION)
     room.add(camera)
+    // The chair turns about its swivel, so it is mounted on a pivot at the centre of its base.
+    const chairMesh = room.getObjectByName('PROP_OfficeChair_GLB')
+    const chairSwivel = chairMesh instanceof THREE.Mesh ? mountOnSwivel(chairMesh) : null
     // Measuring happens before the scene is in a rendered graph, so world matrices have to
     // be brought up to date by hand or every bound would read as identity.
     room.updateMatrixWorld(true)
@@ -404,6 +412,7 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
       scale,
       position,
       laptop,
+      chairSwivel,
       screen,
       lamp: measureLamp(room, scale, position),
     }
@@ -466,6 +475,10 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
       onToggleLamp()
       return
     }
+    if (target.kind === 'chair') {
+      if (prepared.chairSwivel) spinChair(prepared.chairSwivel, window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      return
+    }
     const point = new THREE.Box3().setFromObject(target.root).getCenter(new THREE.Vector3())
     onSelect(target.id, point)
   }
@@ -475,7 +488,7 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
     const target = findTargetInEvent(event)
     if (!target) return
     event.stopPropagation()
-    if (target.kind === 'lamp') return
+    if (target.kind !== 'hotspot') return
     const point = new THREE.Box3().setFromObject(target.root).getCenter(new THREE.Vector3())
     onSelect(target.id, point)
   }
@@ -510,6 +523,11 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
                 <span>{lighting === 'night' ? 'ON' : 'OFF'}</span>
                 {lighting === 'night' ? 'Turn the lamp off' : 'Turn the lamp on'}
               </>
+            ) : hovered.kind === 'chair' ? (
+              <>
+                <span>SPIN</span>
+                Give it a spin
+              </>
             ) : (
               <>
                 <span>{hotspotMeta[hovered.id].index}</span>
@@ -530,10 +548,9 @@ function CameraRig({ active, entered, screen, onFocusComplete }: Pick<SceneProps
 }) {
   const { camera, size } = useThree()
   const controls = useRef<any>(null)
-  const overview = useMemo(() => ({
-    position: new THREE.Vector3(0.72, 0.52, 8.45),
-    target: new THREE.Vector3(0.3, -0.42, 0),
-  }), [])
+  // Bucketed so a window resize only moves the camera when the framing really changes.
+  const aspectBucket = Math.round((size.width / Math.max(1, size.height)) * 20) / 20
+  const overview = useMemo(() => overviewFor(aspectBucket), [aspectBucket])
   useEffect(() => {
     if (!entered || !controls.current) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -755,7 +772,7 @@ export function RoomScene({
         className="room-canvas"
         // A near plane of 0.01 left the depth buffer too coarse at the default distance for the
         // thin overlays (display on glass, whiteboard face on its backing), which then shimmered.
-        camera={{ fov: 38, near: 0.1, far: 100, position: [0.72, 0.52, 8.45] }}
+        camera={{ fov: 38, near: 0.1, far: 100, position: [0.65, 0.52, 8.45] }}
         // Capping the pixel ratio trades a little sharpness for a large fill-rate saving
         // on retina displays, which is where the scene was struggling most.
         dpr={[1, window.innerWidth < 720 ? 1.25 : 1.5]}
