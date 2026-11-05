@@ -160,7 +160,7 @@ export function LaptopScreen({ on, onClose, mix }: { on: boolean; onClose: () =>
     <group position={SCREEN_CENTER} rotation={[LID_TILT, 0, 0]}>
       <mesh name="LAPTOP_Display">
         <planeGeometry args={[SCREEN_WIDTH, SCREEN_HEIGHT]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
+        <meshBasicMaterial map={texture} toneMapped={false} polygonOffset polygonOffsetFactor={-4} polygonOffsetUnits={-4} />
       </mesh>
       <ScreenGlow mix={mix} />
       {on && (

@@ -15,7 +15,7 @@ function PortraitWhiteboard() {
   const frame = useMemo(() => new THREE.MeshStandardMaterial({ color: '#c8cbcf', metalness: 0.78, roughness: 0.32 }), [])
   const caps = useMemo(() => new THREE.MeshStandardMaterial({ color: '#3a3d42', metalness: 0.2, roughness: 0.6 }), [])
   const backing = useMemo(() => new THREE.MeshStandardMaterial({ color: '#e9e8e4', roughness: 0.7 }), [])
-  const surface = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.32, metalness: 0 }), [])
+  const surface = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.32, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), [])
   const marker = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1d1d1f', roughness: 0.45 }), [])
   const markerCap = useMemo(() => new THREE.MeshStandardMaterial({ color: '#a8482c', roughness: 0.45 }), [])
 

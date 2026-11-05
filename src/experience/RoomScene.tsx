@@ -747,7 +747,9 @@ export function RoomScene({
     <>
       <Canvas
         className="room-canvas"
-        camera={{ fov: 38, near: 0.01, far: 100, position: [0.72, 0.52, 8.45] }}
+        // A near plane of 0.01 left the depth buffer too coarse at the default distance for the
+        // thin overlays (display on glass, whiteboard face on its backing), which then shimmered.
+        camera={{ fov: 38, near: 0.1, far: 100, position: [0.72, 0.52, 8.45] }}
         // Capping the pixel ratio trades a little sharpness for a large fill-rate saving
         // on retina displays, which is where the scene was struggling most.
         dpr={[1, window.innerWidth < 720 ? 1.25 : 1.5]}

@@ -131,7 +131,7 @@ export function createLaptopModel() {
   const trackpadMaterial = track(material({ color: 0x2c2d33, metalness: 0.55, roughness: 0.3 }, 'Laptop trackpad'))
   const hingeMaterial = track(material({ color: 0x1c1d21, metalness: 0.7, roughness: 0.4 }, 'Laptop hinge'))
   const glass = track(
-    new THREE.MeshPhysicalMaterial({ color: 0x040405, metalness: 0, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08 }),
+    new THREE.MeshPhysicalMaterial({ color: 0x040405, metalness: 0, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
   )
   glass.name = 'Laptop glass'
 
@@ -229,7 +229,7 @@ export function createLaptopModel() {
   const lensGeometry = track(new THREE.CircleGeometry(0.0052, 20))
   const lens = new THREE.Mesh(lensGeometry, track(material({ color: 0x1a1c22, metalness: 0.3, roughness: 0.25 }, 'Laptop camera')))
   lens.name = 'LAPTOP_Camera'
-  lens.position.set(0, LID_HEIGHT - 0.027, LID_THICKNESS / 2 + GLASS_LIFT + 0.0003)
+  lens.position.set(0, LID_HEIGHT - 0.027, LID_THICKNESS / 2 + GLASS_LIFT + 0.0008)
   lens.raycast = noRaycast
   lid.add(lens)
 

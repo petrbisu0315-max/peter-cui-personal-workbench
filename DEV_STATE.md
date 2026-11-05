@@ -140,3 +140,9 @@
 - The display is always on. It is a canvas texture (`screenArt.ts`) laid out to the pixel like the DOM desktop, so it is occluded by objects, costs one draw call and needs no HTML layer. Clicking the laptop still focuses the camera and layers the interactive DOM (project cards and detail) over it. The boot and shutdown animation was removed since the screen no longer powers on.
 - A cool point light (`ScreenGlow`) washes the keyboard, scaled by the day/night mix, so the screen reads as lit at night.
 - Verified in the browser: smooth edges, lit screen in day and night, hover tooltip "Vibecoding projects" resolves. `pnpm check` passes with 108 tests. Not measured: real-device frame rate and 3D click focusing, which the software-rendered sandbox cannot exercise reliably.
+
+## Flicker on the whiteboard and laptop display — 2026-11-05
+
+- Cause: depth-buffer precision. The camera's near plane was 0.01 with far 100, which at the default viewing distance leaves a depth step of about 0.0004–0.0006 scene units. The whiteboard face sits 0.0005 in front of its backing box, and the laptop's glass and display sit 0.0004 and 0.0014 in front of the lid, so each pair intermittently fought for the same pixels and shimmered when the view moved.
+- Reproduced by degrading the near plane to 0.0003: both surfaces broke into blocky stripes in the same view; with the fix the same view is clean.
+- Fix: near plane 0.01 → 0.1 (about 10× finer depth steps; the closest camera distance anywhere is 1.2, so nothing is clipped), plus polygon offset on the whiteboard face, the laptop glass and the display, and the camera lens lifted further off the glass.
