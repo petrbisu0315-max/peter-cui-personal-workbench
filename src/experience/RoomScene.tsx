@@ -18,6 +18,9 @@ import { createGlowTexture } from './surfaces'
 import { planDeskPapers } from './deskLayout'
 import { LaptopScreen } from './LaptopScreen'
 import { createCameraModel } from './cameraModel'
+import { createSportsRack } from './sportsRackModel'
+import { createBasketball } from './basketballModel'
+import { createBookcase } from './bookcaseModel'
 import { mountOnSwivel, spinChair } from './chairSpin'
 import { overviewFor } from './overviewCamera'
 import { createLaptopModel, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './laptopModel'
@@ -50,6 +53,12 @@ const LAMP_PATTERN = /PROP_DeskLamp|ACCENT_FloorLamp/i
 const CHAIR_PATTERN = /PROP_OfficeChair_GLB/i
 
 const MODEL_URL = '/models/peter-hero-current-safe.glb'
+/**
+ * The room's framing box as it was measured from the scanned export (wall and floor included;
+ * the rotated wardrobe's loose box set +x). The scale and offset that fit the room to the view
+ * derive from it, so it is fixed rather than re-measured from props that have since changed.
+ */
+const ROOM_EXTENT = new THREE.Box3(new THREE.Vector3(-6.838117, -0.16, -4.9), new THREE.Vector3(7.006467, 5.550305, 3.299658))
 const PROPS_URL = '/models/peter-interaction-props.glb'
 
 // The résumé prop in the props GLB is a flat mockup: a paper base plus printed header,
@@ -295,7 +304,10 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
           return
         }
         if (/^(PROP_PosterOrbit|PROP_PosterTitle|SLOT_InterstellarPoster|SLOT_BlankCanvas)$/i.test(object.name)) object.visible = false
-        if (/^(PROP_Bookshelf|PROP_Book_0[1-5]|PROP_Speaker_GLB)$/i.test(object.name)) object.visible = false
+        if (/^(PROP_Bookshelf|PROP_Book_0[1-5]|PROP_Speaker_GLB|PROP_Bookcase_GLB|SPORT_Wardrobe_GLB|SPORT_Basketball_GLB)$/i.test(object.name)) {
+          object.visible = false
+          object.raycast = () => undefined
+        }
         // Keep the blank paper base, drop the printed mockup that the real page replaces.
         if (RESUME_MOCKUP_PATTERN.test(object.name)) {
           object.visible = false
@@ -315,6 +327,8 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
     const camera = createCameraModel()
     camera.position.set(...CAMERA_POSITION)
     room.add(camera)
+    // The bookcase and the sports corner are modelled in code too, for sharp spines and jerseys.
+    room.add(createBookcase(), createSportsRack(), createBasketball())
     // The chair turns about its swivel, so it is mounted on a pivot at the centre of its base.
     const chairMesh = room.getObjectByName('PROP_OfficeChair_GLB')
     const chairSwivel = chairMesh instanceof THREE.Mesh ? mountOnSwivel(chairMesh) : null
@@ -392,7 +406,9 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
       paper.receiveShadow = false
       resumeSlot.add(paper)
     }
-    const roomBounds = new THREE.Box3().setFromObject(room)
+    // Framed on the original export's extent, so replacing scanned props with modelled ones
+    // (whose bounds differ by a few millimetres) never rescales or shifts the room.
+    const roomBounds = ROOM_EXTENT
     const size = roomBounds.getSize(new THREE.Vector3())
     const center = roomBounds.getCenter(new THREE.Vector3())
     const scale = 7.5 / Math.max(size.x, size.y, size.z)

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-function random(seed: number) {
+export function random(seed: number) {
   let state = seed
   return () => {
     state = (state + 0x6d2b79f5) | 0
@@ -10,14 +10,14 @@ function random(seed: number) {
   }
 }
 
-function createCanvas(width: number, height: number) {
+export function createCanvas(width: number, height: number) {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   return [canvas, canvas.getContext('2d')!] as const
 }
 
-function toTexture(canvas: HTMLCanvasElement, color: boolean) {
+export function toTexture(canvas: HTMLCanvasElement, color: boolean) {
   const texture = new THREE.CanvasTexture(canvas)
   if (color) texture.colorSpace = THREE.SRGBColorSpace
   texture.anisotropy = 8
@@ -211,4 +211,67 @@ export function createRugTextures(width: number, depth: number) {
   g.fillStyle = wear
   g.fillRect(0, 0, w, h)
   return { map: toTexture(canvas, true), bumpMap: toTexture(bumpCanvas, false) }
+}
+
+/**
+ * Flat-sawn wood: long streaks of early and late wood along the texture's X axis, with a few
+ * cathedral arches and pores. `tones` runs from the darkest late wood to the palest early wood.
+ */
+export function createWoodTexture(seed: number, tones: [string, string, string], width = 1024, height = 256) {
+  const [canvas, g] = createCanvas(width, height)
+  const rand = random(seed)
+  g.fillStyle = tones[1]
+  g.fillRect(0, 0, width, height)
+  // Broad bands of lighter and darker wood.
+  for (let index = 0; index < 18; index += 1) {
+    const y = rand() * height
+    const band = g.createLinearGradient(0, y - 30, 0, y + 30)
+    const tone = rand() > 0.5 ? tones[2] : tones[0]
+    band.addColorStop(0, 'rgba(0,0,0,0)')
+    band.addColorStop(0.5, tone)
+    band.addColorStop(1, 'rgba(0,0,0,0)')
+    g.globalAlpha = 0.18 + rand() * 0.22
+    g.fillStyle = band
+    g.fillRect(0, y - 30, width, 60)
+  }
+  // Fine grain lines that wander slightly along the board.
+  g.globalAlpha = 1
+  for (let index = 0; index < 150; index += 1) {
+    const y = rand() * height
+    const drift = (rand() - 0.5) * 18
+    const phase = rand() * Math.PI * 2
+    g.strokeStyle = rand() > 0.35 ? tones[0] : tones[2]
+    g.globalAlpha = 0.08 + rand() * 0.22
+    g.lineWidth = 0.6 + rand() * 1.8
+    g.beginPath()
+    for (let x = 0; x <= width; x += 16) {
+      const yy = y + Math.sin(x / width * Math.PI * 2 + phase) * drift * 0.4 + (x / width) * drift
+      if (x === 0) g.moveTo(x, yy)
+      else g.lineTo(x, yy)
+    }
+    g.stroke()
+  }
+  // A couple of cathedral arches, the figure of flat-sawn boards.
+  for (let arch = 0; arch < 3; arch += 1) {
+    const cx = rand() * width
+    const cy = height * (0.2 + rand() * 0.6)
+    for (let ring = 0; ring < 9; ring += 1) {
+      g.strokeStyle = tones[0]
+      g.globalAlpha = 0.1 + rand() * 0.12
+      g.lineWidth = 1 + rand()
+      g.beginPath()
+      g.ellipse(cx, cy, 60 + ring * 26, 10 + ring * 6, 0, Math.PI * 0.08, Math.PI * 0.92)
+      g.stroke()
+    }
+  }
+  // Pores.
+  g.fillStyle = tones[0]
+  for (let index = 0; index < 1800; index += 1) {
+    g.globalAlpha = 0.15 + rand() * 0.25
+    g.fillRect(rand() * width, rand() * height, 1 + rand() * 3, 0.8)
+  }
+  g.globalAlpha = 1
+  const texture = toTexture(canvas, true)
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+  return texture
 }
