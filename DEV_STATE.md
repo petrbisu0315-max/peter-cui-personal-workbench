@@ -146,3 +146,9 @@
 - Cause: depth-buffer precision. The camera's near plane was 0.01 with far 100, which at the default viewing distance leaves a depth step of about 0.0004–0.0006 scene units. The whiteboard face sits 0.0005 in front of its backing box, and the laptop's glass and display sit 0.0004 and 0.0014 in front of the lid, so each pair intermittently fought for the same pixels and shimmered when the view moved.
 - Reproduced by degrading the near plane to 0.0003: both surfaces broke into blocky stripes in the same view; with the fix the same view is clean.
 - Fix: near plane 0.01 → 0.1 (about 10× finer depth steps; the closest camera distance anywhere is 1.2, so nothing is clipped), plus polygon offset on the whiteboard face, the laptop glass and the display, and the camera lens lifted further off the glass.
+
+## Camera rebuilt — 2026-11-05
+
+- The desk camera had the same defect as the laptop: a 500,000-triangle scan cut down for load time, so its straight plates and edges came out ragged. It is now modelled in code (`cameraModel.ts`): rounded-box body, top deck and grip, a viewfinder prism, lathe-turned dials and a ribbed lens, with a front glass element. It keeps the node name `PROP_Camera_GLB` (photos hotspot) and the scan's footprint; a short lens now sits in front, where the scan showed an empty mount.
+- The scanned node and its textures were removed from `peter-hero-current-safe.glb` (2.41 MB → 2.02 MB).
+- `cameraModel.test.ts` pins the footprint, centred lens, flat seating, square body plates, the hotspot name and a triangle budget.

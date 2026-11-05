@@ -17,6 +17,7 @@ import { RoomDecor } from './RoomDecor'
 import { createGlowTexture } from './surfaces'
 import { planDeskPapers } from './deskLayout'
 import { LaptopScreen } from './LaptopScreen'
+import { createCameraModel } from './cameraModel'
 import { createLaptopModel, SCREEN_CENTER, SCREEN_HEIGHT, SCREEN_NORMAL, SCREEN_WIDTH } from './laptopModel'
 import resumeDocument from '../data/resume.json'
 
@@ -71,6 +72,7 @@ const RESUME_PAGE_UPRIGHT = new THREE.Quaternion().setFromRotationMatrix(
 // seated against the desk's own measured footprint rather than trusted coordinates.
 const DESK_NODE_NAME = 'PROP_Desk_GLB'
 const LAPTOP_POSITION: [number, number, number] = [-0.1507, 1.7602, -0.6813]
+const CAMERA_POSITION: [number, number, number] = [-1.8754, 1.7611, -0.3885]
 const DESK_PROPS_PATTERN = /^(PROP_Document|SLOT_(Resume|IDBadge))/i
 // Used only if the desk mesh is missing, which would mean a different room model.
 const DESK_SURFACE_FALLBACK_Y = 1.76
@@ -304,6 +306,10 @@ function RoomModel({ lighting, theme, mix, interactive, screenOn, onSelect, onTo
     const laptop = createLaptopModel()
     laptop.position.set(...LAPTOP_POSITION)
     room.add(laptop)
+    // Likewise the camera, which keeps its node name for the photos hotspot.
+    const camera = createCameraModel()
+    camera.position.set(...CAMERA_POSITION)
+    room.add(camera)
     // Measuring happens before the scene is in a rendered graph, so world matrices have to
     // be brought up to date by hand or every bound would read as identity.
     room.updateMatrixWorld(true)
